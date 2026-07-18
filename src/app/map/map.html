@@ -282,31 +282,176 @@
         </div>
 
         <div *ngIf="countryData && !loading" class="country-details">
+            <div class="flag-row">
+                <img [src]="countryData.flagUrl" class="flag-image" alt="Flag of {{ countryData.name }}">
+                <span class="flag-emoji" title="Flag emoji">{{ countryData.flag }}</span>
+            </div>
             <h2>{{ countryData.name }}</h2>
-            <span class="country-code">{{ selectedCountry | uppercase }}</span>
+            <div class="codes-container">
+                <span class="code-pill iso3">{{ countryData.id }}</span>
+                <span class="code-pill iso2">{{ countryData.iso2Code }}</span>
+            </div>
 
             <div class="detail-grid">
                 <div class="detail-item">
-                    <span class="detail-label">Capital</span>
+                    <span class="detail-label">🏛️ Capital</span>
                     <span class="detail-value">{{ countryData.capitalCity || '—' }}</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">Region</span>
-                    <span class="detail-value">{{ countryData.region.value || '—' }}</span>
+                    <span class="detail-label">🗺️ Region</span>
+                    <span class="detail-value">
+                        {{ countryData.region.value || '—' }}
+                        <span *ngIf="countryData.region.id" class="text-muted">({{ countryData.region.id }})</span>
+                    </span>
+                </div>
+                <div class="detail-item" *ngIf="countryData.subregion">
+                    <span class="detail-label">🌍 Subregion</span>
+                    <span class="detail-value">{{ countryData.subregion }}</span>
+                </div>
+                <div class="detail-item" *ngIf="countryData.adminregion && countryData.adminregion.value">
+                    <span class="detail-label">💼 Admin Region</span>
+                    <span class="detail-value">
+                        {{ countryData.adminregion.value }}
+                        <span *ngIf="countryData.adminregion.id" class="text-muted">({{ countryData.adminregion.id }})</span>
+                    </span>
+                </div>
+                <div class="detail-item" *ngIf="countryData.languages">
+                    <span class="detail-label">🗣️ Languages</span>
+                    <span class="detail-value">{{ countryData.languages }}</span>
+                </div>
+                <div class="detail-item" *ngIf="countryData.currencies">
+                    <span class="detail-label">💵 Currency</span>
+                    <span class="detail-value">{{ countryData.currencies }}</span>
+                </div>
+                <div class="detail-item" *ngIf="countryData.area">
+                    <span class="detail-label">📐 Area</span>
+                    <span class="detail-value">{{ countryData.area | number }} km²</span>
                 </div>
                 <div class="detail-item">
-                    <span class="detail-label">Income Level</span>
-                    <span class="detail-value">{{ countryData.incomeLevel.value || '—' }}</span>
+                    <span class="detail-label">💰 Income Level</span>
+                    <div>
+                        <span class="badge income-badge {{ (countryData.incomeLevel.id || 'na') | lowercase }}">
+                            {{ countryData.incomeLevel.value || '—' }}
+                        </span>
+                    </div>
                 </div>
-                <div class="detail-item">
-                    <span class="detail-label">Latitude</span>
-                    <span class="detail-value">{{ countryData.latitude || '—' }}</span>
+                <div class="detail-item" *ngIf="countryData.lendingType && countryData.lendingType.value">
+                    <span class="detail-label">💳 Lending Type</span>
+                    <span class="detail-value">
+                        {{ countryData.lendingType.value }}
+                        <span *ngIf="countryData.lendingType.id" class="text-muted">({{ countryData.lendingType.id }})</span>
+                    </span>
                 </div>
-                <div class="detail-item">
-                    <span class="detail-label">Longitude</span>
-                    <span class="detail-value">{{ countryData.longitude || '—' }}</span>
+                <div class="detail-item" *ngIf="countryData.borders && countryData.borders.length > 0">
+                    <span class="detail-label">🤝 Neighbors</span>
+                    <div class="borders-list">
+                        <span *ngFor="let border of countryData.borders" 
+                              (click)="selectNeighbour(border)"
+                              class="border-link" 
+                              [title]="getCountryNameFromIso3(border)">
+                            {{ border }}
+                        </span>
+                    </div>
+                </div>
+                <div class="coords-container">
+                    <div class="detail-item">
+                        <span class="detail-label">📍 Latitude</span>
+                        <span class="detail-value">{{ countryData.latitude || '—' }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">📍 Longitude</span>
+                        <span class="detail-value">{{ countryData.longitude || '—' }}</span>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Live Real-Time Data -->
+        <div *ngIf="loadingRealtime" class="live-loading">
+            <div class="live-spinner"></div>
+            <span>Fetching live data…</span>
+        </div>
+
+        <div *ngIf="realtimeData && !loadingRealtime && countryData" class="live-section">
+            <div class="live-header">
+                <span class="live-dot"></span>
+                <span class="live-title">LIVE DATA</span>
+            </div>
+
+            <!-- Weather -->
+            <div *ngIf="realtimeData.weather" class="weather-card">
+                <div class="weather-main">
+                    <span class="weather-icon">{{ realtimeData.weather.weatherIcon }}</span>
+                    <div class="weather-temp-group">
+                        <span class="weather-temp">{{ realtimeData.weather.temperature }}°C</span>
+                        <span class="weather-desc">{{ realtimeData.weather.weatherDescription }}</span>
+                    </div>
+                </div>
+                <div class="weather-grid">
+                    <div class="weather-stat">
+                        <span class="stat-icon">🌡️</span>
+                        <span class="stat-label">Feels like</span>
+                        <span class="stat-value">{{ realtimeData.weather.feelsLike }}°C</span>
+                    </div>
+                    <div class="weather-stat">
+                        <span class="stat-icon">💧</span>
+                        <span class="stat-label">Humidity</span>
+                        <span class="stat-value">{{ realtimeData.weather.humidity }}%</span>
+                    </div>
+                    <div class="weather-stat">
+                        <span class="stat-icon">💨</span>
+                        <span class="stat-label">Wind</span>
+                        <span class="stat-value">{{ realtimeData.weather.windSpeed }} km/h {{ getWindDirectionLabel(realtimeData.weather.windDirection) }}</span>
+                    </div>
+                    <div class="weather-stat">
+                        <span class="stat-icon">🔵</span>
+                        <span class="stat-label">Pressure</span>
+                        <span class="stat-value">{{ realtimeData.weather.pressure }} hPa</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Air Quality -->
+            <div *ngIf="realtimeData.airQuality" class="aqi-card">
+                <div class="aqi-main">
+                    <span class="detail-label">🌫️ Air Quality Index</span>
+                    <div class="aqi-badge-row">
+                        <span class="aqi-number badge {{ realtimeData.airQuality.aqiColor }}">
+                            {{ realtimeData.airQuality.usAqi }}
+                        </span>
+                        <span class="aqi-level {{ realtimeData.airQuality.aqiColor }}">
+                            {{ realtimeData.airQuality.aqiLevel }}
+                        </span>
+                    </div>
+                </div>
+                <div class="pollutant-grid">
+                    <div class="pollutant-item">
+                        <span class="pollutant-name">PM2.5</span>
+                        <span class="pollutant-value">{{ realtimeData.airQuality.pm25 | number:'1.1-1' }} μg/m³</span>
+                    </div>
+                    <div class="pollutant-item">
+                        <span class="pollutant-name">PM10</span>
+                        <span class="pollutant-value">{{ realtimeData.airQuality.pm10 | number:'1.1-1' }} μg/m³</span>
+                    </div>
+                    <div class="pollutant-item">
+                        <span class="pollutant-name">O₃</span>
+                        <span class="pollutant-value">{{ realtimeData.airQuality.ozone | number:'1.1-1' }} μg/m³</span>
+                    </div>
+                    <div class="pollutant-item">
+                        <span class="pollutant-name">CO</span>
+                        <span class="pollutant-value">{{ realtimeData.airQuality.carbonMonoxide | number:'1.1-1' }} μg/m³</span>
+                    </div>
+                    <div class="pollutant-item">
+                        <span class="pollutant-name">NO₂</span>
+                        <span class="pollutant-value">{{ realtimeData.airQuality.nitrogenDioxide | number:'1.1-1' }} μg/m³</span>
+                    </div>
+                    <div class="pollutant-item">
+                        <span class="pollutant-name">SO₂</span>
+                        <span class="pollutant-value">{{ realtimeData.airQuality.sulphurDioxide | number:'1.1-1' }} μg/m³</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>

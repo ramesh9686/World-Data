@@ -1,6 +1,20 @@
 {
   "name": "d280-angular-world-map",
   "version": "0.0.0",
+  "private": true,
+  "description": "An interactive Angular application that lets users explore countries around the world by clicking on an SVG map. Selecting a country fetches live data from the **World Bank API** and displays key details such as capital city, region, income level, and geographic coordinates.",
+  "homepage": "https://github.com/ramesh9686/World-Explorer#readme",
+  "bugs": {
+    "url": "https://github.com/ramesh9686/World-Explorer/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ramesh9686/World-Explorer.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -8,8 +22,6 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
-  "private": true,
-  "packageManager": "npm@11.9.0",
   "dependencies": {
     "@angular/common": "^21.2.0",
     "@angular/compiler": "^21.2.0",
@@ -28,5 +40,6 @@
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",
     "vitest": "^4.0.8"
-  }
+  },
+  "packageManager": "npm@11.9.0"
 }

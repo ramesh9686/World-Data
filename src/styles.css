@@ -8,8 +8,8 @@ html, body {
   height: 100%;
   width: 100%;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-  color: #e2e8f0;
+  background: radial-gradient(circle at 50% 50%, #1e1e38 0%, #0a0a14 100%);
+  color: #f8fafc;
   overflow-x: hidden;
 }
 

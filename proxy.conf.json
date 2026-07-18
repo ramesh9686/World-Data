@@ -1,0 +1,23 @@
+{
+  "/v2": {
+    "target": "https://api.worldbank.org",
+    "secure": true,
+    "changeOrigin": true
+  },
+  "/weather-api": {
+    "target": "https://api.open-meteo.com",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/weather-api": ""
+    }
+  },
+  "/aqi-api": {
+    "target": "https://air-quality-api.open-meteo.com",
+    "secure": true,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/aqi-api": ""
+    }
+  }
+}

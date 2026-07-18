@@ -1,13 +1,19 @@
 import { TestBed } from '@angular/core/testing';
+import { provideHttpClient } from '@angular/common/http';
 
-import { Country } from './country';
+import { CountryService } from './country';
 
-describe('Country', () => {
-  let service: Country;
+describe('CountryService', () => {
+  let service: CountryService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(Country);
+    TestBed.configureTestingModule({
+      providers: [
+        provideHttpClient(),
+        CountryService
+      ]
+    });
+    service = TestBed.inject(CountryService);
   });
 
   it('should be created', () => {
