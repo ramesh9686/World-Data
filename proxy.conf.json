@@ -1,12 +1,12 @@
 {
   "/v2": {
     "target": "https://api.worldbank.org",
-    "secure": true,
+    "secure": false,
     "changeOrigin": true
   },
   "/weather-api": {
     "target": "https://api.open-meteo.com",
-    "secure": true,
+    "secure": false,
     "changeOrigin": true,
     "pathRewrite": {
       "^/weather-api": ""
@@ -14,10 +14,18 @@
   },
   "/aqi-api": {
     "target": "https://air-quality-api.open-meteo.com",
-    "secure": true,
+    "secure": false,
     "changeOrigin": true,
     "pathRewrite": {
       "^/aqi-api": ""
+    }
+  },
+  "/gho-api": {
+    "target": "https://ghoapi.azureedge.net",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/gho-api": ""
     }
   }
 }

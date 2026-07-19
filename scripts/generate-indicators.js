@@ -1,0 +1,170 @@
+/**
+ * Script to pre-fetch ALL World Bank indicators across ALL topics and generate
+ * static data files for instant (0ms) loading in the app.
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const TOPIC_META = {
+  1:  { name: 'Agriculture & Rural Development', icon: '🌾' },
+  2:  { name: 'Aid Effectiveness', icon: '🤝' },
+  3:  { name: 'Economy & Growth', icon: '📈' },
+  4:  { name: 'Education', icon: '🎓' },
+  5:  { name: 'Energy & Mining', icon: '⚡' },
+  6:  { name: 'Environment', icon: '🌳' },
+  7:  { name: 'Financial Sector', icon: '🏦' },
+  8:  { name: 'Health', icon: '🏥' },
+  9:  { name: 'Infrastructure', icon: '🏗️' },
+  10: { name: 'Social Protection & Labor', icon: '👷' },
+  11: { name: 'Poverty', icon: '📉' },
+  12: { name: 'Private Sector', icon: '🏢' },
+  13: { name: 'Public Sector', icon: '🏛️' },
+  14: { name: 'Science & Technology', icon: '🔬' },
+  15: { name: 'Social Development', icon: '🤲' },
+  16: { name: 'Urban Development', icon: '🏙️' },
+  17: { name: 'Gender', icon: '⚖️' },
+  18: { name: 'Millennium Development Goals', icon: '🎯' },
+  19: { name: 'Climate Change', icon: '🌡️' },
+  20: { name: 'External Debt', icon: '💳' },
+  21: { name: 'Trade', icon: '🚢' },
+};
+
+async function fetchJSON(url) {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
+  return res.json();
+}
+
+async function fetchAllGlobalIndicators() {
+  let allIndicators = [];
+  let page = 1;
+  let totalPages = 1;
+  
+  while (page <= totalPages) {
+    console.log(`  Fetching global indicators page ${page}/${totalPages}...`);
+    const url = `https://api.worldbank.org/v2/indicator?format=json&per_page=10000&page=${page}`;
+    const data = await fetchJSON(url);
+    
+    if (Array.isArray(data) && data.length >= 2) {
+      totalPages = data[0].pages;
+      const indicators = data[1]
+        .map(ind => ({
+          id: ind.id,
+          name: ind.name,
+          sourceNote: (ind.sourceNote || '').substring(0, 300),
+          topicIds: ind.topics ? ind.topics.map(t => parseInt(t.id)).filter(Boolean) : [],
+        }))
+        .filter(ind => ind.id && ind.name);
+      allIndicators = allIndicators.concat(indicators);
+    }
+    page++;
+  }
+  
+  return allIndicators;
+}
+
+const PREFERRED_INDICATORS = {
+  3: ['NY.GDP.MKTP.CD', 'NY.GDP.MKTP.KD.ZG', 'FP.CPI.TOTL.ZG', 'SL.UEM.TOTL.ZS', 'NY.GNP.PCAP.CD', 'NE.EXP.GNFS.ZS', 'NE.IMP.GNFS.ZS'],
+  4: ['SE.ADT.LITR.ZS', 'SE.XPD.TOTL.GD.ZS', 'SE.PRM.ENRR', 'SE.SEC.ENRR', 'SE.TER.ENRR'],
+  5: ['EG.ELC.ACCS.ZS', 'EG.FEC.RNEW.ZS'],
+  6: ['EN.ATM.CO2E.PC', 'AG.LND.FRST.ZS', 'EG.ELC.ACCS.ZS', 'EG.FEC.RNEW.ZS', 'AG.LND.AGRI.ZS'],
+  8: ['SP.DYN.LE00.IN', 'SH.XPD.CHEX.GD.ZS', 'SP.DYN.IMRT.IN', 'SN.ITK.DEFC.ZS', 'SH.IMM.MEAS'],
+  9: ['IT.CEL.SETS.P2', 'IT.NET.USER.ZS', 'EG.USE.ELEC.KH.PC', 'IT.NET.BBND.P2'],
+  11: ['SI.POV.DDAY', 'SI.POV.NAHC', 'SI.DST.FRST.20', 'SI.POV.GINI'],
+  14: ['GB.XPD.RSDV.GD.ZS', 'TX.VAL.TECH.MF.ZS', 'IP.JRN.ARTC.SC'],
+  21: ['NE.TRD.GNFS.ZS', 'TM.TAX.MANF.SM.AR.ZS', 'TX.VAL.SERV.CD.WT']
+};
+
+async function main() {
+  console.log('=== World Bank Indicators Static Data Generator ===\n');
+
+  // 1. Fetch all global indicators
+  console.log('Fetching ALL global indicators...');
+  const globalIndicators = await fetchAllGlobalIndicators();
+  console.log(`  Total global indicators: ${globalIndicators.length}\n`);
+  
+  // 2. Build per-topic indicator lists from global data
+  const topicIndicators = {};
+  for (let t = 1; t <= 21; t++) {
+    const list = globalIndicators
+      .filter(ind => ind.topicIds.includes(t))
+      .map(({ id, name, sourceNote }) => ({ id, name, sourceNote }));
+    
+    // Sort so preferred indicators are first
+    const preferred = PREFERRED_INDICATORS[t] || [];
+    list.sort((a, b) => {
+      const aPref = preferred.indexOf(a.id);
+      const bPref = preferred.indexOf(b.id);
+      if (aPref !== -1 && bPref !== -1) return aPref - bPref;
+      if (aPref !== -1) return -1;
+      if (bPref !== -1) return 1;
+      return a.name.localeCompare(b.name);
+    });
+
+    topicIndicators[t] = list;
+    console.log(`  Topic ${t} (${TOPIC_META[t].name}): ${topicIndicators[t].length} indicators`);
+  }
+
+  // 3. Build the global "all" list (stripped of topicIds for size)
+  const allStripped = globalIndicators.map(({ id, name, sourceNote }) => ({ id, name, sourceNote }));
+
+  // 4. Build topics array
+  const topicsArray = Object.entries(TOPIC_META).map(([id, meta]) => ({
+    id: parseInt(id),
+    name: meta.name,
+    icon: meta.icon,
+  }));
+
+  // 5. Write JSON data file
+  const jsonData = {
+    topics: topicsArray,
+    byTopic: topicIndicators,
+    all: allStripped,
+  };
+
+  const jsonPath = path.join(__dirname, '..', 'src', 'app', 'indicators-data.json');
+  fs.writeFileSync(jsonPath, JSON.stringify(jsonData), 'utf-8');
+
+  // 6. Write TypeScript wrapper
+  const tsContent = `// AUTO-GENERATED FILE - DO NOT EDIT
+// Generated by scripts/generate-indicators.js
+// Contains ALL World Bank indicators for instant (0ms) loading
+// Total indicators: ${globalIndicators.length}
+// Generated at: ${new Date().toISOString()}
+
+import indicatorsJson from './indicators-data.json';
+
+export interface WBTopic {
+  id: number;
+  name: string;
+  icon: string;
+}
+
+export interface WBIndicator {
+  id: string;
+  name: string;
+  sourceNote: string;
+}
+
+export const WB_TOPICS: WBTopic[] = indicatorsJson.topics as WBTopic[];
+
+export const WB_INDICATORS_BY_TOPIC: Record<number, WBIndicator[]> = indicatorsJson.byTopic as any;
+
+export const WB_ALL_INDICATORS: WBIndicator[] = indicatorsJson.all as WBIndicator[];
+`;
+
+  const tsPath = path.join(__dirname, '..', 'src', 'app', 'indicators-data.ts');
+  fs.writeFileSync(tsPath, tsContent, 'utf-8');
+
+  const jsonSizeKB = (fs.statSync(jsonPath).size / 1024).toFixed(0);
+  console.log(`\nWritten JSON to ${jsonPath} (${jsonSizeKB} KB)`);
+  console.log(`Written TS wrapper to ${tsPath}`);
+  console.log(`Topics: ${topicsArray.length}`);
+  console.log(`Total global indicators: ${allStripped.length}`);
+}
+
+main().catch(err => {
+  console.error('Error:', err);
+  process.exit(1);
+});

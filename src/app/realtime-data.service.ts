@@ -37,9 +37,8 @@ export interface RealtimeData {
   providedIn: 'root',
 })
 export class RealtimeDataService {
-  // Open-Meteo supports CORS natively — call directly, no proxy needed
-  private readonly weatherBase = 'https://api.open-meteo.com/v1/forecast';
-  private readonly aqiBase = 'https://air-quality-api.open-meteo.com/v1/air-quality';
+  private readonly weatherBase = '/weather-api/v1/forecast';
+  private readonly aqiBase = '/aqi-api/v1/air-quality';
   private readonly REQUEST_TIMEOUT_MS = 8000;
 
   private cache = new Map<string, RealtimeData>();
@@ -60,43 +59,27 @@ export class RealtimeDataService {
     const weatherUrl = `${this.weatherBase}?latitude=${lat}&longitude=${lng}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,wind_direction_10m,surface_pressure`;
     const aqiUrl = `${this.aqiBase}?latitude=${lat}&longitude=${lng}&current=us_aqi,pm10,pm2_5,carbon_monoxide,nitrogen_dioxide,sulphur_dioxide,ozone`;
 
-    return new Observable<RealtimeData>((subscriber) => {
-      let active = true;
-      const controller = new AbortController();
-      const signal = controller.signal;
-      
-      const timeoutId = setTimeout(() => {
-        controller.abort();
-      }, this.REQUEST_TIMEOUT_MS);
-
-      Promise.all([
-        fetch(weatherUrl, { signal }).then((r) => r.json()).catch(() => null),
-        fetch(aqiUrl, { signal }).then((r) => r.json()).catch(() => null)
-      ]).then(([weatherRes, aqiRes]) => {
-        clearTimeout(timeoutId);
-        if (!active) return;
-
+    return forkJoin([
+      this.http.get(weatherUrl).pipe(catchError(() => of(null))),
+      this.http.get(aqiUrl).pipe(catchError(() => of(null)))
+    ]).pipe(
+      map(([weatherRes, aqiRes]) => {
         const result: RealtimeData = {
           weather: this.parseWeather(weatherRes),
           airQuality: this.parseAqi(aqiRes),
           timestamp: new Date().toISOString(),
         };
         this.cache.set(cacheKey, result);
-        subscriber.next(result);
-        subscriber.complete();
-      }).catch(() => {
-        clearTimeout(timeoutId);
-        if (!active) return;
-
-        subscriber.next({ weather: null, airQuality: null, timestamp: '' });
-        subscriber.complete();
-      });
-
-      return () => {
-        active = false;
-        controller.abort();
-      };
-    });
+        return result;
+      }),
+      timeout({
+        each: this.REQUEST_TIMEOUT_MS,
+        with: () => of({ weather: null, airQuality: null, timestamp: '' })
+      }),
+      catchError(() => {
+        return of({ weather: null, airQuality: null, timestamp: '' });
+      })
+    );
   }
 
   private parseWeather(raw: any): WeatherData | null {
