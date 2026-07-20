@@ -13,6 +13,10 @@ import { WorldBankService } from '../world-bank.service';
   styleUrl: './map.css',
 })
 export class MapComponent {
+  // 3D View properties
+  viewMode: '2d' | '3d' = '2d';
+  tiltStyle = '';
+
   selectedCountry = '';
   countryData: CountryData | null = null;
   realtimeData: RealtimeData | null = null;
@@ -35,6 +39,33 @@ export class MapComponent {
   loadingIndicatorData = false;
   indicatorError = false;
 
+  // Ambient Telemetry Nodes & Arcs for Holographic HUD Surface
+  ambientNodes = [
+    { id: 'ny', label: 'NYC', cx: 250, cy: 230, delay: '0s' },
+    { id: 'la', label: 'LAX', cx: 160, cy: 230, delay: '1.4s' },
+    { id: 'ldn', label: 'LHR', cx: 475, cy: 185, delay: '0.7s' },
+    { id: 'dxb', label: 'DXB', cx: 632, cy: 280, delay: '2.1s' },
+    { id: 'tyo', label: 'HND', cx: 860, cy: 240, delay: '1.1s' },
+    { id: 'sin', label: 'SIN', cx: 770, cy: 370, delay: '2.8s' },
+    { id: 'syd', label: 'SYD', cx: 890, cy: 510, delay: '0.4s' },
+    { id: 'sao', label: 'GRU', cx: 330, cy: 460, delay: '1.9s' },
+    { id: 'cai', label: 'CAI', cx: 550, cy: 260, delay: '2.5s' },
+    { id: 'jnb', label: 'JNB', cx: 540, cy: 490, delay: '3.2s' },
+    { id: 'bom', label: 'BOM', cx: 690, cy: 300, delay: '1.6s' }
+  ];
+
+  ambientArcs = [
+    { d: 'M 250 230 Q 360 140 475 185', duration: '6s', delay: '0s' },
+    { d: 'M 475 185 Q 550 210 632 280', duration: '5s', delay: '1s' },
+    { d: 'M 632 280 Q 750 190 860 240', duration: '7s', delay: '2s' },
+    { d: 'M 860 240 Q 820 300 770 370', duration: '5.5s', delay: '0.5s' },
+    { d: 'M 770 370 Q 850 430 890 510', duration: '6.5s', delay: '1.5s' },
+    { d: 'M 475 185 Q 380 320 330 460', duration: '8s', delay: '2.5s' },
+    { d: 'M 632 280 Q 660 285 690 300', duration: '4s', delay: '0.8s' },
+    { d: 'M 550 260 Q 570 370 540 490', duration: '7.5s', delay: '1.2s' },
+    { d: 'M 160 230 Q 205 220 250 230', duration: '4.5s', delay: '3s' }
+  ];
+
   constructor(
     private countryService: CountryService,
     private realtimeService: RealtimeDataService,
@@ -42,6 +73,41 @@ export class MapComponent {
     private cdr: ChangeDetectorRef
   ) {
     this.wbTopics = this.wbService.getTopics();
+  }
+
+  setViewMode(mode: '2d' | '3d'): void {
+    this.viewMode = mode;
+    if (mode === '2d') {
+      this.tiltStyle = '';
+    }
+    this.cdr.detectChanges();
+  }
+
+  onMouseMove(event: MouseEvent): void {
+    if (this.viewMode !== '3d') {
+      this.tiltStyle = '';
+      return;
+    }
+    const card = event.currentTarget as HTMLElement;
+    const rect = card.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    // Normalize coordinates from -0.5 to 0.5
+    const px = (x / rect.width) - 0.5;
+    const py = (y / rect.height) - 0.5;
+    
+    // Calculate tilt angles based on cursor offset
+    const tiltX = py * 12;  // Up to +/- 12 degrees X rotation
+    const tiltY = -px * 12; // Up to +/- 12 degrees Y rotation
+    
+    this.tiltStyle = `perspective(1200px) rotateX(${32 + tiltX}deg) rotateY(${-6 + tiltY}deg) rotateZ(-12deg)`;
+    this.cdr.detectChanges();
+  }
+
+  onMouseLeave(): void {
+    this.tiltStyle = '';
+    this.cdr.detectChanges();
   }
 
   onCountrySelected(event: MouseEvent): void {
