@@ -1,3 +1,18 @@
+:root {
+  --bg-space: #030712;
+  --bg-card: rgba(15, 23, 42, 0.75);
+  --border-cyan: rgba(56, 189, 248, 0.3);
+  --accent-cyan: #38bdf8;
+  --accent-neon: #00f2fe;
+  --accent-purple: #818cf8;
+  --accent-magenta: #f43f5e;
+  --accent-emerald: #10b981;
+  --accent-amber: #f59e0b;
+  --font-heading: 'Outfit', 'Space Grotesk', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --font-body: 'Inter', system-ui, sans-serif;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -7,13 +22,40 @@
 html, body {
   height: 100%;
   width: 100%;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  background: radial-gradient(circle at 50% 50%, #1e1e38 0%, #0a0a14 100%);
+  font-family: var(--font-body);
+  background-color: var(--bg-space);
+  background-image: 
+    radial-gradient(circle at 50% 20%, rgba(14, 165, 233, 0.08) 0%, transparent 60%),
+    radial-gradient(circle at 80% 80%, rgba(129, 140, 248, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
+  background-attachment: fixed;
   color: #f8fafc;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: #3b82f6;
-  color: #fff;
+  background: var(--accent-cyan);
+  color: #030712;
+}
+
+/* Futuristic Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(3, 7, 18, 0.8);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(56, 189, 248, 0.25);
+  border-radius: 9999px;
+  border: 1px solid rgba(56, 189, 248, 0.4);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
 }

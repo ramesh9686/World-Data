@@ -1,6 +1,36 @@
+<!-- Live Global Telemetry Marquee & UTC Clocks Ticker -->
+<div class="telemetry-marquee-bar">
+    <div class="marquee-item live-pop">
+        <span class="live-dot"></span>
+        <span class="lbl">ESTIMATED WORLD POPULATION:</span>
+        <span class="val">{{ livePopulation | number }}</span>
+    </div>
+    <div class="marquee-divider"></div>
+    <div class="marquee-clocks">
+        <span class="clock"><span class="c-code">UTC</span> {{ utcTime }}</span>
+        <span class="clock"><span class="c-code">NYC</span> {{ nycTime }}</span>
+        <span class="clock"><span class="c-code">LON</span> {{ lndTime }}</span>
+        <span class="clock"><span class="c-code">TYO</span> {{ tyoTime }}</span>
+        <span class="clock"><span class="c-code">SYD</span> {{ sydTime }}</span>
+        <span class="clock"><span class="c-code">DXB</span> {{ dxbTime }}</span>
+    </div>
+    <div class="marquee-divider"></div>
+    <div class="top-quick-actions">
+        <button (click)="toggleAudio()" class="top-action-btn" [class.active]="!audioMuted" [title]="audioMuted ? 'Unmute HUD Audio' : 'Mute HUD Audio'">
+            {{ audioMuted ? '🔇 Muted' : '🔊 Audio FX' }}
+        </button>
+        <button (click)="toggleChoroplethMode()" class="top-action-btn" [class.active]="choroplethMode">
+            🔥 Heatmap Mode
+        </button>
+        <button (click)="toggleVsMode()" class="top-action-btn" [class.active]="vsMode">
+            ⚔️ Dual VS Mode
+        </button>
+    </div>
+</div>
+
 <div class="app-header">
     <h1>World Explorer</h1>
-    <p class="subtitle">Click any country on the map to learn more about it</p>
+    <p class="subtitle">Interactive Spatial Cartography & Global Data Telemetry Platform</p>
 </div>
 
 <div class="layout-container">
@@ -15,8 +45,26 @@
             <div class="map-control-header">
                 <div class="map-status-indicator">
                     <span class="pulse-ring"></span>
-                    <span class="status-text">GRID OVERLAY ACTIVE</span>
+                    <span class="status-text">GRID TELEMETRY ACTIVE</span>
                 </div>
+
+                <!-- Camera Controls -->
+                <div class="camera-control-group">
+                    <button (click)="zoomIn()" class="cam-btn" title="Zoom In (+)">➕</button>
+                    <button (click)="zoomOut()" class="cam-btn" title="Zoom Out (-)">➖</button>
+                    <button (click)="resetCamera()" class="cam-btn reset" title="Reset Viewport">🎯 Reset</button>
+                </div>
+
+                <!-- Choropleth Metric Selector Chips -->
+                <div *ngIf="choroplethMode" class="choropleth-chips-group">
+                    <button *ngFor="let metric of choroplethMetrics"
+                            (click)="setChoroplethMetric(metric.id)"
+                            [class.active]="activeMetricId === metric.id"
+                            class="metric-chip">
+                        <span>{{ metric.icon }}</span> {{ metric.label }}
+                    </button>
+                </div>
+
                 <div class="view-toggle-group">
                     <button (click)="setViewMode('2d')" [class.active]="viewMode === '2d'" class="toggle-btn flat-2d">
                         <span class="toggle-icon">🗺️</span> 2D View
@@ -27,15 +75,27 @@
                 </div>
             </div>
 
-            <div class="map-viewport-wrapper">
+            <div class="map-viewport-wrapper" 
+                 (mousedown)="startPan($event)" 
+                 (mousemove)="doPan($event)" 
+                 (mouseup)="endPan()" 
+                 (mouseleave)="endPan()"
+                 (wheel)="onWheelZoom($event)">
                 <!-- Deep Space / Cyber Background Layers -->
                 <div class="starfield-layer"></div>
                 <div class="aurora-glow-layer"></div>
                 <div class="glow-aura"></div>
                 <div class="cyber-grid-base"></div>
                 <div class="scan-line-overlay"></div>
+                <div class="radar-sweep-layer"></div>
 
-                <svg (click)="onCountrySelected($event)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1010 666" aria-label="World Map">
+                <svg (click)="onCountrySelected($event)" 
+                     (mousemove)="onSvgMouseMove($event)" 
+                     (mouseleave)="onSvgMouseLeave()" 
+                     xmlns="http://www.w3.org/2000/svg" 
+                     viewBox="0 0 1010 666" 
+                     aria-label="World Map">
+                    <g [style.transform]="viewportTransform" class="viewport-zoom-group">
                     <defs>
                         <!-- Holographic landmass rim glow filter -->
                         <filter id="hud-glow" x="-20%" y="-20%" width="140%" height="140%">
@@ -367,8 +427,94 @@
                             <text [attr.x]="node.cx + 7" [attr.y]="node.cy + 3" class="node-label">{{ node.label }}</text>
                         </g>
                     </g>
-            </svg>
+                    </g>
+                </svg>
+
+                <!-- Floating Glassmorphism Cursor Tooltip -->
+                <div *ngIf="showTooltip" 
+                     class="floating-tooltip" 
+                     [style.left.px]="tooltipX" 
+                     [style.top.px]="tooltipY">
+                    <div class="tt-header">
+                        <span class="tt-code">{{ hoveredCountryCode }}</span>
+                        <span class="tt-name">{{ hoveredCountryName }}</span>
+                    </div>
+                    <div class="tt-val">{{ hoveredMetricVal }}</div>
+                </div>
+
+                <!-- Choropleth Visual Legend Overlay -->
+                <div *ngIf="choroplethMode" class="choropleth-legend">
+                    <div class="legend-title">HEATMAP SCALE ({{ selectedYear }})</div>
+                    <div class="legend-bar">
+                        <span class="lbl-low">MIN</span>
+                        <div class="gradient-bar"></div>
+                        <span class="lbl-high">MAX</span>
+                    </div>
+                </div>
+
+                <!-- 34-Year Temporal Time-Lapse Slider Bar -->
+                <div class="timeline-bar">
+                    <button (click)="toggleTimelinePlay()" class="timeline-play-btn" [class.playing]="isPlayingTimeline">
+                        {{ isPlayingTimeline ? '⏸ PAUSE' : '▶ PLAY TIMELINE' }}
+                    </button>
+                    <div class="slider-container">
+                        <span class="year-bound">{{ minYear }}</span>
+                        <input type="range" 
+                               [min]="minYear" 
+                               [max]="maxYear" 
+                               [value]="selectedYear" 
+                               (input)="onYearInput($event)"
+                               class="timeline-slider" />
+                        <span class="year-bound">{{ maxYear }}</span>
+                    </div>
+                    <button (click)="changeTimelineSpeed()" class="timeline-speed-btn">
+                        {{ timelineSpeed }}x SPEED
+                    </button>
+                    <div class="current-year-badge">{{ selectedYear }}</div>
+                </div>
             </div> <!-- closes map-viewport-wrapper -->
+
+            <!-- Dual Country VS Comparison Drawer -->
+            <div *ngIf="vsMode" class="vs-comparison-panel">
+                <div class="vs-panel-header">
+                    <h3>⚔️ DUAL-COUNTRY TELEMETRY COMPARISON</h3>
+                    <button (click)="toggleVsMode()" class="close-vs-btn">❌ Close VS Mode</button>
+                </div>
+                <div class="vs-cards-grid">
+                    <!-- Country A Card -->
+                    <div class="vs-card card-a">
+                        <div class="vs-country-name">
+                            <span class="flag-icon">📌</span>
+                            <h4>{{ countryData?.name || 'Select First Country' }}</h4>
+                        </div>
+                        <div *ngIf="countryData" class="vs-metrics">
+                            <div class="vs-metric"><span class="m-lbl">Capital:</span> <span class="m-val">{{ countryData.capitalCity }}</span></div>
+                            <div class="vs-metric"><span class="m-lbl">Region:</span> <span class="m-val">{{ countryData.region }}</span></div>
+                            <div class="vs-metric"><span class="m-lbl">Income Level:</span> <span class="m-val">{{ countryData.incomeLevel }}</span></div>
+                            <div class="vs-metric"><span class="m-lbl">Lat / Lng:</span> <span class="m-val">{{ countryData.latitude }}, {{ countryData.longitude }}</span></div>
+                        </div>
+                    </div>
+
+                    <div class="vs-divider">VS</div>
+
+                    <!-- Country B Card -->
+                    <div class="vs-card card-b">
+                        <div class="vs-country-name">
+                            <span class="flag-icon">🎯</span>
+                            <h4>{{ compareCountryData?.name || 'Click Map Country to Compare' }}</h4>
+                        </div>
+                        <div *ngIf="compareCountryData" class="vs-metrics">
+                            <div class="vs-metric"><span class="m-lbl">Capital:</span> <span class="m-val">{{ compareCountryData.capitalCity }}</span></div>
+                            <div class="vs-metric"><span class="m-lbl">Region:</span> <span class="m-val">{{ compareCountryData.region }}</span></div>
+                            <div class="vs-metric"><span class="m-lbl">Income Level:</span> <span class="m-val">{{ compareCountryData.incomeLevel }}</span></div>
+                            <div class="vs-metric"><span class="m-lbl">Lat / Lng:</span> <span class="m-val">{{ compareCountryData.latitude }}, {{ compareCountryData.longitude }}</span></div>
+                        </div>
+                        <div *ngIf="!compareCountryData" class="vs-placeholder">
+                            👈 Click any country on the map to compare telemetry side-by-side!
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div> <!-- closes map-column -->
         <div class="info-column">
         <div *ngIf="!selectedCountry && !loading" class="empty-state">
