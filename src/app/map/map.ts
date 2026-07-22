@@ -1,17 +1,27 @@
-import { Component, ChangeDetectorRef, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, ChangeDetectorRef, OnInit, OnDestroy, HostListener, ChangeDetectionStrategy, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { CountryService, CountryData } from '../country';
 import { COUNTRIES_DATA } from '../countries-data';
 import { RealtimeDataService, RealtimeData } from '../realtime-data.service';
 import { WorldBankService } from '../world-bank.service';
 
-export interface ChoroplethMetric {
+export interface QuizQuestion {
   id: string;
-  label: string;
-  icon: string;
-  unit: string;
-  lowColor: string;
-  highColor: string;
+  type: string;
+  questionText: string;
+  countryCode: string;
+  countryName: string;
+  correctAnswer: string;
+  options: string[];
+  explanation?: string;
+}
+
+export interface FxRateInfo {
+  code: string;
+  name: string;
+  symbol: string;
+  flag: string;
+  rateVsUsd: number;
 }
 
 @Component({
@@ -20,6 +30,7 @@ export interface ChoroplethMetric {
   imports: [CommonModule],
   templateUrl: './map.html',
   styleUrl: './map.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MapComponent implements OnInit, OnDestroy {
   // 3D View properties
@@ -46,15 +57,45 @@ export class MapComponent implements OnInit, OnDestroy {
     return `translate(${this.panX}px, ${this.panY}px) scale(${this.zoom})`;
   }
 
-  // Choropleth Visual Heatmap Mode
-  choroplethMode = false;
-  activeMetricId = 'gdp';
-  choroplethMetrics: ChoroplethMetric[] = [
-    { id: 'gdp', label: 'Economy & Wealth', icon: '💰', unit: 'Relative GDP Index', lowColor: '#0e7490', highColor: '#06b6d4' },
-    { id: 'population', label: 'Population Density', icon: '👥', unit: 'Density Metric', lowColor: '#4338ca', highColor: '#a855f7' },
-    { id: 'lifeExp', label: 'Life Expectancy', icon: '🩺', unit: 'Years', lowColor: '#059669', highColor: '#10b981' },
-    { id: 'co2', label: 'Carbon Footprint', icon: '🔥', unit: 'CO2 Emission Rating', lowColor: '#d97706', highColor: '#ef4444' },
-    { id: 'renewable', label: 'Clean Energy %', icon: '⚡', unit: 'Renewable Power %', lowColor: '#15803d', highColor: '#22c55e' }
+  // Global Explorer Trivia Challenge Quiz Engine
+  quizMode = false;
+  quizScore = 0;
+  quizStreak = 0;
+  quizCurrentIndex = 1;
+  quizTotalQuestions = 10;
+  quizAnswered = false;
+  quizFeedback: string | null = null;
+  quizIsCorrect = false;
+  quizCompleted = false;
+  currentQuizQuestion: QuizQuestion | null = null;
+
+  // General World Knowledge & Landmark Trivia Bank
+  private generalTriviaBank = [
+    { questionText: "Which country is home to the iconic ivory-white marble Taj Mahal?", countryCode: "IN", countryName: "India", correctAnswer: "India", explanation: "Built in 1632 in Agra" },
+    { questionText: "In which country can you visit the ancient Great Pyramids of Giza?", countryCode: "EG", countryName: "Egypt", correctAnswer: "Egypt", explanation: "Constructed over 4,500 years ago along the Nile" },
+    { questionText: "Which nation is home to the Eiffel Tower and the Louvre Museum?", countryCode: "FR", countryName: "France", correctAnswer: "France", explanation: "The Louvre is the world's largest art museum" },
+    { questionText: "Which country features the ancient Colosseum and the floating canals of Venice?", countryCode: "IT", countryName: "Italy", correctAnswer: "Italy", explanation: "Heart of ancient Roman architecture" },
+    { questionText: "Which country built the historic Great Wall extending over 13,000 miles?", countryCode: "CN", countryName: "China", correctAnswer: "China", explanation: "Built across ancient northern borders" },
+    { questionText: "Which country is home to the historic 15th-century Inca citadel of Machu Picchu?", countryCode: "PE", countryName: "Peru", correctAnswer: "Peru", explanation: "Perched high in the Andes Mountains" },
+    { questionText: "Which country features the iconic sail-shaped Sydney Opera House?", countryCode: "AU", countryName: "Australia", correctAnswer: "Australia", explanation: "World Heritage landmark on Sydney Harbour" },
+    { questionText: "Which country received the Statue of Liberty as a gift from France in 1886?", countryCode: "US", countryName: "United States", correctAnswer: "United States", explanation: "Stands on Liberty Island in New York" },
+    { questionText: "Which nation features the 98-foot tall Christ the Redeemer statue in Rio de Janeiro?", countryCode: "BR", countryName: "Brazil", correctAnswer: "Brazil", explanation: "Overlooks Rio from Corcovado mountain" },
+    { questionText: "Which island nation is famous for Mount Fuji and cherry blossom gardens?", countryCode: "JP", countryName: "Japan", correctAnswer: "Japan", explanation: "Mount Fuji is an active volcanic peak" },
+    { questionText: "Which South American nation contains the vast majority of the Amazon Rainforest?", countryCode: "BR", countryName: "Brazil", correctAnswer: "Brazil", explanation: "Contains 60% of the Amazon basin" },
+    { questionText: "Which Scandinavian country is world-famous for its dramatic natural fjords and Northern Lights?", countryCode: "NO", countryName: "Norway", correctAnswer: "Norway", explanation: "Features over 1,000 coastal sea fjords" },
+    { questionText: "Which island nation is nicknamed the 'Land of Fire and Ice' due to volcanoes and glaciers?", countryCode: "IS", countryName: "Iceland", correctAnswer: "Iceland", explanation: "Home to over 130 active and extinct volcanoes" },
+    { questionText: "Which Middle Eastern country is home to the ancient rock-cut city of Petra?", countryCode: "JO", countryName: "Jordan", correctAnswer: "Jordan", explanation: "Carved into rose-red sandstone cliffs" },
+    { questionText: "Which East Asian nation is traditionally known around the world as the 'Land of the Rising Sun'?", countryCode: "JP", countryName: "Japan", correctAnswer: "Japan", explanation: "Nihon means origin of the sun" },
+    { questionText: "Which country is world-renowned as the birthplace of Pizza, Pasta, and Gelato?", countryCode: "IT", countryName: "Italy", correctAnswer: "Italy", explanation: "Culinary capital of Europe" },
+    { questionText: "Which nation is famous for Tacos, Mariachi music, and ancient Mayan pyramids?", countryCode: "MX", countryName: "Mexico", correctAnswer: "Mexico", explanation: "Home to Chichen Itza and Teotihuacan" },
+    { questionText: "Which country produces over 70% of the world's pure Maple Syrup?", countryCode: "CA", countryName: "Canada", correctAnswer: "Canada", explanation: "Quebec is the top producer" },
+    { questionText: "Which Mediterranean country is celebrated as the birthplace of the Olympic Games?", countryCode: "GR", countryName: "Greece", correctAnswer: "Greece", explanation: "First Olympic games held in 776 BC" },
+    { questionText: "Which European country is famous for its colorful Tulip fields, Windmills, and Canals?", countryCode: "NL", countryName: "Netherlands", correctAnswer: "Netherlands", explanation: "Famous for Keukenhof gardens" },
+    { questionText: "Which European nation is famous for Flamenco dancing, Tapas cuisine, and Bullfighting?", countryCode: "ES", countryName: "Spain", correctAnswer: "Spain", explanation: "Home to Antoni Gaudí's architecture" },
+    { questionText: "Which Asian country is globally famous for K-Pop, Kimchi, and Taekwondo?", countryCode: "KR", countryName: "South Korea", correctAnswer: "South Korea", explanation: "Seoul is a high-tech global capital" },
+    { questionText: "Which country contains the Great Barrier Reef, the largest coral reef system on Earth?", countryCode: "AU", countryName: "Australia", correctAnswer: "Australia", explanation: "Composed of over 2,900 individual reefs" },
+    { questionText: "Which nation is the natural habitat of wild Kangaroos, Koalas, and Platypuses?", countryCode: "AU", countryName: "Australia", correctAnswer: "Australia", explanation: "80% of mammals are native only here" },
+    { questionText: "Which East African nation is home to Serengeti National Park and Mount Kilimanjaro?", countryCode: "TZ", countryName: "Tanzania", correctAnswer: "Tanzania", explanation: "Kilimanjaro is Africa's highest peak" }
   ];
 
   // 34-Year Temporal Time-Lapse Slider (1990 - 2024)
@@ -69,10 +110,22 @@ export class MapComponent implements OnInit, OnDestroy {
   audioMuted = false;
   private audioCtx: AudioContext | null = null;
 
-  // Dual-Country VS Comparison Mode
-  vsMode = false;
-  compareCountryCode = '';
-  compareCountryData: CountryData | null = null;
+  // Live Foreign Exchange (FX) Currency Telemetry Matrix
+  fxMode = false;
+  fxAmount = 100;
+  fxBaseCurrency = 'USD';
+  fxRates: { [key: string]: FxRateInfo } = {
+    USD: { code: 'USD', name: 'US Dollar', symbol: '$', flag: '🇺🇸', rateVsUsd: 1.0 },
+    EUR: { code: 'EUR', name: 'Euro', symbol: '€', flag: '🇪🇺', rateVsUsd: 0.92 },
+    GBP: { code: 'GBP', name: 'British Pound', symbol: '£', flag: '🇬🇧', rateVsUsd: 0.77 },
+    JPY: { code: 'JPY', name: 'Japanese Yen', symbol: '¥', flag: '🇯🇵', rateVsUsd: 155.4 },
+    INR: { code: 'INR', name: 'Indian Rupee', symbol: '₹', flag: '🇮🇳', rateVsUsd: 83.5 },
+    CAD: { code: 'CAD', name: 'Canadian Dollar', symbol: 'CA$', flag: '🇨🇦', rateVsUsd: 1.37 },
+    AUD: { code: 'AUD', name: 'Australian Dollar', symbol: 'A$', flag: '🇦🇺', rateVsUsd: 1.51 },
+    CHF: { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF', flag: '🇨🇭', rateVsUsd: 0.89 },
+    CNY: { code: 'CNY', name: 'Chinese Yuan', symbol: '¥', flag: '🇨🇳', rateVsUsd: 7.25 },
+    BRL: { code: 'BRL', name: 'Brazilian Real', symbol: 'R$', flag: '🇧🇷', rateVsUsd: 5.55 }
+  };
 
   // Live Telemetry Marquee & Clock Ticker
   livePopulation = 8114582900;
@@ -156,13 +209,13 @@ export class MapComponent implements OnInit, OnDestroy {
   zoomIn(): void {
     this.zoom = Math.min(5.0, this.zoom + 0.3);
     this.playUiSound('zoom');
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   zoomOut(): void {
     this.zoom = Math.max(0.7, this.zoom - 0.3);
     this.playUiSound('zoom');
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   resetCamera(): void {
@@ -170,7 +223,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.panX = 0;
     this.panY = 0;
     this.playUiSound('click');
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   onWheelZoom(event: WheelEvent): void {
@@ -180,7 +233,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.zoom = Math.min(5.0, Math.max(0.7, this.zoom + delta));
 
     if (oldZoom !== this.zoom) {
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }
   }
 
@@ -199,11 +252,17 @@ export class MapComponent implements OnInit, OnDestroy {
     if (!this.isPanning) return;
     this.panX = event.clientX - this.panStartX;
     this.panY = event.clientY - this.panStartY;
-    this.cdr.detectChanges();
+    const vpGroup = document.querySelector('.viewport-zoom-group') as HTMLElement;
+    if (vpGroup) {
+      vpGroup.style.transform = this.viewportTransform;
+    }
   }
 
   endPan(): void {
-    this.isPanning = false;
+    if (this.isPanning) {
+      this.isPanning = false;
+      this.cdr.markForCheck();
+    }
   }
 
   flyToCountry(code: string): void {
@@ -218,65 +277,180 @@ export class MapComponent implements OnInit, OnDestroy {
         this.panX = (505 - svgCenterX) * this.zoom;
         this.panY = (333 - svgCenterY) * this.zoom;
         this.zoom = Math.max(1.4, this.zoom);
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       } catch (e) {
         // Fallback
       }
     }
   }
 
-  // Choropleth Visual Heatmap Calculations
-  toggleChoroplethMode(): void {
-    this.choroplethMode = !this.choroplethMode;
-    this.playUiSound('select');
-    this.cdr.detectChanges();
-  }
-
-  setChoroplethMetric(metricId: string): void {
-    this.activeMetricId = metricId;
-    this.playUiSound('select');
-    this.cdr.detectChanges();
-  }
-
-  getCountryChoroplethColor(code: string): string | null {
-    if (!this.choroplethMode) return null;
-    const country = COUNTRIES_DATA[code.toUpperCase()];
-    if (!country) return 'rgba(15, 23, 42, 0.9)';
-
-    // Deterministic hash based on country code & year for realistic heatmap visual variations
-    let hash = 0;
-    const str = `${code}_${this.activeMetricId}_${this.selectedYear}`;
-    for (let i = 0; i < str.length; i++) {
-      hash = (hash << 5) - hash + str.charCodeAt(i);
-      hash |= 0;
+  // Global Explorer Trivia Challenge Quiz Engine
+  toggleQuizMode(): void {
+    this.quizMode = !this.quizMode;
+    this.playUiSound('click');
+    if (this.quizMode) {
+      this.fxMode = false;
+      this.startQuiz();
     }
-    const normalized = (Math.abs(hash) % 100) / 100;
+    this.cdr.markForCheck();
+  }
 
-    const metric = this.choroplethMetrics.find(m => m.id === this.activeMetricId) || this.choroplethMetrics[0];
+  startQuiz(): void {
+    this.quizScore = 0;
+    this.quizStreak = 0;
+    this.quizCurrentIndex = 1;
+    this.quizCompleted = false;
+    this.generateQuizQuestion();
+  }
 
-    // Color gradient calculation
-    if (this.activeMetricId === 'gdp') {
-      const hue = 180 + normalized * 40; // Cyan to Deep Electric Blue
-      return `hsl(${hue}, 85%, ${20 + normalized * 35}%)`;
-    } else if (this.activeMetricId === 'population') {
-      const hue = 260 + normalized * 60; // Violet to Magenta
-      return `hsl(${hue}, 80%, ${25 + normalized * 30}%)`;
-    } else if (this.activeMetricId === 'lifeExp') {
-      const hue = 140 + normalized * 40; // Emerald to Bright Teal
-      return `hsl(${hue}, 75%, ${20 + normalized * 35}%)`;
-    } else if (this.activeMetricId === 'co2') {
-      const hue = 30 + normalized * 330; // Amber to Vivid Red
-      return `hsl(${hue}, 90%, ${25 + normalized * 35}%)`;
+  generateQuizQuestion(): void {
+    this.quizAnswered = false;
+    this.quizFeedback = null;
+    
+    const countryKeys = Object.keys(COUNTRIES_DATA);
+    if (countryKeys.length === 0) return;
+
+    const isGeneralTrivia = Math.random() < 0.7 && this.generalTriviaBank.length > 0;
+
+    if (isGeneralTrivia) {
+      const qItem = this.generalTriviaBank[Math.floor(Math.random() * this.generalTriviaBank.length)];
+      const distractors = new Set<string>();
+
+      while (distractors.size < 3) {
+        const rKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
+        const rName = COUNTRIES_DATA[rKey].name;
+        if (rName && rName.toLowerCase() !== qItem.correctAnswer.toLowerCase()) {
+          distractors.add(rName);
+        }
+      }
+
+      const options = [qItem.correctAnswer, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
+
+      this.currentQuizQuestion = {
+        id: qItem.countryCode,
+        type: 'general',
+        questionText: qItem.questionText,
+        countryCode: qItem.countryCode,
+        countryName: qItem.countryName,
+        correctAnswer: qItem.correctAnswer,
+        options,
+        explanation: qItem.explanation
+      };
+
+      this.flyToCountry(qItem.countryCode);
     } else {
-      const hue = 100 + normalized * 60; // Lime to Emerald
-      return `hsl(${hue}, 80%, ${20 + normalized * 35}%)`;
+      const targetKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
+      const target = COUNTRIES_DATA[targetKey];
+      const distractors = new Set<string>();
+
+      while (distractors.size < 3) {
+        const rKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
+        const rCap = COUNTRIES_DATA[rKey].capitalCity;
+        if (rCap && rCap.toLowerCase() !== target.capitalCity.toLowerCase()) {
+          distractors.add(rCap);
+        }
+      }
+
+      const options = [target.capitalCity, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
+
+      this.currentQuizQuestion = {
+        id: targetKey,
+        type: 'capital',
+        questionText: `What is the capital city of ${target.name}?`,
+        countryCode: targetKey,
+        countryName: target.name,
+        correctAnswer: target.capitalCity,
+        options,
+        explanation: `${target.capitalCity} is the capital of ${target.name}`
+      };
+
+      this.flyToCountry(targetKey);
     }
+
+    this.cdr.markForCheck();
+  }
+
+  submitQuizAnswer(chosenAnswer: string): void {
+    if (this.quizAnswered || !this.currentQuizQuestion) return;
+
+    this.quizAnswered = true;
+    const choice = chosenAnswer.trim().toLowerCase();
+    const correct = this.currentQuizQuestion.correctAnswer.trim().toLowerCase();
+    const cCode = this.currentQuizQuestion.countryCode.toLowerCase();
+    const cName = this.currentQuizQuestion.countryName.toLowerCase();
+
+    const isCorrect = (choice === correct || choice === cCode || choice === cName);
+    this.quizIsCorrect = isCorrect;
+
+    if (isCorrect) {
+      this.quizStreak++;
+      const bonus = (this.quizStreak > 1) ? this.quizStreak * 5 : 0;
+      this.quizScore += 100 + bonus;
+      const exp = this.currentQuizQuestion.explanation ? ` — ${this.currentQuizQuestion.explanation}` : '';
+      this.quizFeedback = `🎉 Correct! ${this.currentQuizQuestion.countryName}${exp}`;
+      this.playUiSound('correct');
+    } else {
+      this.quizStreak = 0;
+      const exp = this.currentQuizQuestion.explanation ? ` — ${this.currentQuizQuestion.explanation}` : '';
+      this.quizFeedback = `❌ Incorrect. Correct answer: ${this.currentQuizQuestion.correctAnswer}${exp}`;
+      this.playUiSound('wrong');
+    }
+
+    this.cdr.markForCheck();
+  }
+
+  nextQuizQuestion(): void {
+    if (this.quizCurrentIndex >= this.quizTotalQuestions) {
+      this.quizCompleted = true;
+      this.playUiSound('select');
+    } else {
+      this.quizCurrentIndex++;
+      this.generateQuizQuestion();
+    }
+    this.cdr.markForCheck();
+  }
+
+  // FX Currency Telemetry Matrix Methods
+  toggleFxMode(): void {
+    this.fxMode = !this.fxMode;
+    this.playUiSound('click');
+    if (this.fxMode) {
+      this.quizMode = false;
+    }
+    this.cdr.markForCheck();
+  }
+
+  onFxAmountInput(event: Event): void {
+    const val = parseFloat((event.target as HTMLInputElement).value);
+    this.fxAmount = isNaN(val) ? 0 : val;
+    this.cdr.markForCheck();
+  }
+
+  setFxBaseCurrency(code: string): void {
+    this.fxBaseCurrency = code;
+    this.playUiSound('click');
+    this.cdr.markForCheck();
+  }
+
+  get convertedFxRates(): { code: string; name: string; symbol: string; flag: string; convertedValue: number }[] {
+    const baseInfo = this.fxRates[this.fxBaseCurrency] || this.fxRates['USD'];
+    const usdAmount = this.fxAmount / baseInfo.rateVsUsd;
+
+    return Object.values(this.fxRates).map(rateInfo => {
+      return {
+        code: rateInfo.code,
+        name: rateInfo.name,
+        symbol: rateInfo.symbol,
+        flag: rateInfo.flag,
+        convertedValue: usdAmount * rateInfo.rateVsUsd
+      };
+    });
   }
 
   // 34-Year Temporal Time-Lapse Slider
   onYearInput(event: Event): void {
     this.selectedYear = parseInt((event.target as HTMLInputElement).value, 10);
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   toggleTimelinePlay(): void {
@@ -293,7 +467,7 @@ export class MapComponent implements OnInit, OnDestroy {
         } else {
           this.selectedYear = this.minYear;
         }
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }, 1000 / this.timelineSpeed);
     } else {
       if (this.timelineTimer) {
@@ -301,7 +475,7 @@ export class MapComponent implements OnInit, OnDestroy {
         this.timelineTimer = null;
       }
     }
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   changeTimelineSpeed(): void {
@@ -322,10 +496,10 @@ export class MapComponent implements OnInit, OnDestroy {
     if (!this.audioMuted) {
       this.playUiSound('click');
     }
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
-  playUiSound(type: 'click' | 'hover' | 'select' | 'sweep' | 'zoom'): void {
+  playUiSound(type: 'click' | 'hover' | 'select' | 'sweep' | 'zoom' | 'correct' | 'wrong'): void {
     if (this.audioMuted) return;
     try {
       if (!this.audioCtx) {
@@ -368,6 +542,22 @@ export class MapComponent implements OnInit, OnDestroy {
         gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
         osc.start(now);
         osc.stop(now + 0.08);
+      } else if (type === 'correct') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.exponentialRampToValueAtTime(1046.5, now + 0.2);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.linearRampToValueAtTime(130, now + 0.25);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.25);
       }
     } catch (e) {
       // Audio fallback
@@ -380,52 +570,49 @@ export class MapComponent implements OnInit, OnDestroy {
     if (target && target.tagName === 'path' && target.id) {
       const code = target.id;
       const name = target.getAttribute('name') || code;
-      this.hoveredCountryCode = code.toUpperCase();
-      this.hoveredCountryName = name;
-      this.tooltipX = event.clientX + 16;
-      this.tooltipY = event.clientY - 12;
-      this.showTooltip = true;
+      const upperCode = code.toUpperCase();
+      const tooltipX = event.clientX + 16;
+      const tooltipY = event.clientY - 12;
 
-      if (this.choroplethMode) {
-        const metric = this.choroplethMetrics.find(m => m.id === this.activeMetricId);
-        this.hoveredMetricVal = `${metric?.label || 'Metric'}: Active (${this.selectedYear})`;
+      if (this.hoveredCountryCode !== upperCode || !this.showTooltip) {
+        this.hoveredCountryCode = upperCode;
+        this.hoveredCountryName = name;
+        this.tooltipX = tooltipX;
+        this.tooltipY = tooltipY;
+        this.showTooltip = true;
+
+        if (this.quizMode && this.currentQuizQuestion) {
+          this.hoveredMetricVal = `🎯 Quiz Target: Click map country to submit answer!`;
+        } else {
+          const data = COUNTRIES_DATA[upperCode];
+          this.hoveredMetricVal = data ? `Region: ${data.region}` : 'Click to view full telemetry';
+        }
+        this.cdr.markForCheck();
       } else {
-        const data = COUNTRIES_DATA[code.toUpperCase()];
-        this.hoveredMetricVal = data ? `Region: ${data.region}` : 'Click to view full telemetry';
+        this.tooltipX = tooltipX;
+        this.tooltipY = tooltipY;
+        const ttEl = document.querySelector('.floating-hud-tooltip') as HTMLElement;
+        if (ttEl) {
+          ttEl.style.left = `${tooltipX}px`;
+          ttEl.style.top = `${tooltipY}px`;
+        }
       }
-      this.cdr.detectChanges();
       return;
     }
     if (this.showTooltip) {
       this.showTooltip = false;
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }
   }
 
   onSvgMouseLeave(): void {
-    this.showTooltip = false;
-    this.cdr.detectChanges();
-  }
-
-  // Dual Country VS Mode
-  toggleVsMode(): void {
-    this.vsMode = !this.vsMode;
-    this.playUiSound('click');
-    if (!this.vsMode) {
-      this.compareCountryCode = '';
-      this.compareCountryData = null;
+    if (this.showTooltip) {
+      this.showTooltip = false;
+      this.cdr.markForCheck();
     }
-    this.cdr.detectChanges();
   }
 
-  selectVsCountry(code: string): void {
-    this.compareCountryCode = code;
-    this.countryService.getCountryData(code).subscribe(data => {
-      this.compareCountryData = data;
-      this.playUiSound('select');
-      this.cdr.detectChanges();
-    });
-  }
+
 
   // Live Marquee Ticker & Clocks
   private startTicker(): void {
@@ -440,7 +627,7 @@ export class MapComponent implements OnInit, OnDestroy {
       this.sydTime = now.toLocaleTimeString('en-AU', { timeZone: 'Australia/Sydney', hour12: false });
       this.dxbTime = now.toLocaleTimeString('en-AE', { timeZone: 'Asia/Dubai', hour12: false });
 
-      this.cdr.detectChanges();
+      this.cdr.markForCheck();
     }, 1000);
   }
 
@@ -451,7 +638,7 @@ export class MapComponent implements OnInit, OnDestroy {
       this.tiltStyle = '';
     }
     this.playUiSound('click');
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   onMouseMove(event: MouseEvent): void {
@@ -471,12 +658,12 @@ export class MapComponent implements OnInit, OnDestroy {
     const tiltY = -px * 12;
     
     this.tiltStyle = `perspective(1200px) rotateX(${32 + tiltX}deg) rotateY(${-6 + tiltY}deg) rotateZ(-12deg)`;
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   onMouseLeave(): void {
     this.tiltStyle = '';
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
   }
 
   onCountrySelected(event: MouseEvent): void {
@@ -486,8 +673,8 @@ export class MapComponent implements OnInit, OnDestroy {
     const countryCode = target.id;
     const countryName = target.getAttribute('name') || countryCode;
 
-    if (this.vsMode && this.countryData) {
-      this.selectVsCountry(countryCode);
+    if (this.quizMode && !this.quizAnswered && this.currentQuizQuestion) {
+      this.submitQuizAnswer(countryCode);
       return;
     }
 
@@ -586,17 +773,17 @@ export class MapComponent implements OnInit, OnDestroy {
     if (!this.countryData || !this.selectedIndicatorId) return;
     this.loadingIndicatorData = true;
     this.wbIndicatorData = [];
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
     
     this.wbService.getIndicatorData(this.countryData.id, this.selectedIndicatorId).subscribe({
       next: (data) => {
         this.wbIndicatorData = data;
         this.loadingIndicatorData = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: () => {
         this.loadingIndicatorData = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       }
     });
   }
@@ -734,7 +921,7 @@ export class MapComponent implements OnInit, OnDestroy {
     this.countryData = null;
     this.realtimeData = null;
     this.wbIndicatorData = [];
-    this.cdr.detectChanges();
+    this.cdr.markForCheck();
 
     this.countryService.getCountryData(countryCode).subscribe({
       next: (data) => {
@@ -751,12 +938,12 @@ export class MapComponent implements OnInit, OnDestroy {
             this.selectTopic(3);
           }
         }
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: () => {
         this.loading = false;
         this.error = true;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
     });
   }
@@ -768,11 +955,11 @@ export class MapComponent implements OnInit, OnDestroy {
       next: (data) => {
         this.realtimeData = data;
         this.loadingRealtime = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
       error: () => {
         this.loadingRealtime = false;
-        this.cdr.detectChanges();
+        this.cdr.markForCheck();
       },
     });
   }

@@ -22,4 +22,3 @@ export const WB_TOPICS: WBTopic[] = indicatorsJson.topics as WBTopic[];
 
 export const WB_INDICATORS_BY_TOPIC: Record<number, WBIndicator[]> = indicatorsJson.byTopic as any;
 
-export const WB_ALL_INDICATORS: WBIndicator[] = indicatorsJson.all as WBIndicator[];

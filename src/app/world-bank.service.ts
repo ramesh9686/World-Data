@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
 import { map, catchError, timeout } from 'rxjs/operators';
-import { WB_TOPICS, WB_INDICATORS_BY_TOPIC, WB_ALL_INDICATORS, WBTopic, WBIndicator } from './indicators-data';
+import { WB_TOPICS, WB_INDICATORS_BY_TOPIC, WBTopic, WBIndicator } from './indicators-data';
 
 export type WorldBankTopic = WBTopic;
 export type WorldBankIndicator = WBIndicator;
@@ -104,12 +104,7 @@ export class WorldBankService {
     return list;
   }
 
-  /**
-   * Returns all 29,556 indicators instantly (0ms) from static data.
-   */
-  getAllIndicators(): WorldBankIndicator[] {
-    return WB_ALL_INDICATORS;
-  }
+
 
   /**
    * Fetches time-series data for a specific indicator and country.

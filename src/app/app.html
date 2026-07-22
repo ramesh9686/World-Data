@@ -1,1 +1,21 @@
-<router-outlet />
+<header class="global-navbar">
+  <div class="nav-brand">
+    <span class="brand-logo">🌐</span>
+    <span class="brand-title">WORLD EXPLORER</span>
+  </div>
+  <nav class="nav-links">
+    <a routerLink="/map" routerLinkActive="active" class="nav-btn">
+      <span class="nav-icon">🗺️</span> Map Explorer
+    </a>
+    <a routerLink="/quiz" routerLinkActive="active" class="nav-btn">
+      <span class="nav-icon">🎯</span> Global Quiz
+    </a>
+    <a routerLink="/locate" routerLinkActive="active" class="nav-btn">
+      <span class="nav-icon">📍</span> Country Locator
+    </a>
+  </nav>
+</header>
+
+<main class="main-content">
+  <router-outlet />
+</main>
