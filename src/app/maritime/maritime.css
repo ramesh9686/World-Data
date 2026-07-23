@@ -1,0 +1,604 @@
+/* ==========================================================================
+   GLOBAL MARITIME TRADE ROUTES & SHIPPING CHOKEPOINTS COMPONENT STYLES
+   ========================================================================== */
+
+.maritime-page-container {
+  min-height: 100vh;
+  padding: 1.5rem 2rem 4rem;
+  background: radial-gradient(circle at 50% 0%, #0b192e 0%, #030712 85%);
+  color: #f8fafc;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  box-sizing: border-box;
+}
+
+/* ── Live Maritime Telemetry Ticker Marquee ────────────────────────────── */
+.maritime-ticker-bar {
+  background: rgba(11, 25, 46, 0.85);
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: 12px;
+  padding: 0.6rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+}
+
+.ticker-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 900;
+  color: #06b6d4;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.radar-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #06b6d4;
+  box-shadow: 0 0 10px #06b6d4;
+  animation: radar-pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes radar-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.3; transform: scale(0.6); }
+}
+
+.ticker-scroll {
+  display: flex;
+  align-items: center;
+  gap: 1.75rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+  flex: 1;
+}
+
+.ticker-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: monospace;
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.ticker-item .lbl {
+  color: #64748b;
+  font-weight: 700;
+}
+
+.ticker-item .val {
+  color: #f1f5f9;
+  font-weight: 800;
+}
+
+.ticker-item .trend {
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+.trend.pos { color: #34d399; background: rgba(16, 185, 129, 0.15); }
+.trend.neg { color: #f87171; background: rgba(239, 68, 68, 0.15); }
+.trend.warn { color: #fbbf24; background: rgba(245, 158, 11, 0.15); }
+.trend.alert { color: #ef4444; background: rgba(239, 68, 68, 0.2); }
+
+.audio-toggle-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #06b6d4;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.35rem 0.75rem;
+  border-radius: 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.audio-toggle-btn:hover {
+  background: rgba(6, 182, 212, 0.2);
+  border-color: #06b6d4;
+}
+
+.audio-toggle-btn.muted {
+  color: #94a3b8;
+}
+
+
+/* ── Page Header Hero ────────────────────────────────────────────────── */
+.maritime-header-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.hero-title {
+  font-size: 2.1rem;
+  font-weight: 900;
+  margin: 0 0 0.5rem;
+  background: linear-gradient(135deg, #f8fafc 0%, #06b6d4 50%, #38bdf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.02em;
+}
+
+.hero-subtitle {
+  font-size: 0.9rem;
+  color: #94a3b8;
+  margin: 0;
+  max-width: 680px;
+  line-height: 1.5;
+}
+
+.hero-stats-box {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: rgba(11, 25, 46, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.85rem 1.25rem;
+  border-radius: 14px;
+  backdrop-filter: blur(12px);
+}
+
+.stat-badge {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.b-lbl {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #64748b;
+  letter-spacing: 0.06em;
+}
+
+.b-val {
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #f1f5f9;
+  font-family: monospace;
+}
+
+.b-val.highlight {
+  color: #06b6d4;
+}
+
+
+/* ── Filter Bar Controls ─────────────────────────────────────────────── */
+.maritime-filter-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  background: rgba(11, 25, 46, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.85rem 1.25rem;
+  border-radius: 16px;
+  backdrop-filter: blur(16px);
+}
+
+.cargo-filter-group, .flyto-pills-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.filter-lbl {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #64748b;
+  margin-right: 0.3rem;
+}
+
+.filter-pill, .fly-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fly-pill.gold {
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.fly-pill.gold:hover {
+  background: rgba(251, 191, 36, 0.2);
+  color: #ffffff;
+  border-color: #fbbf24;
+  box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+}
+
+.filter-pill:hover, .fly-pill:hover {
+  background: rgba(6, 182, 212, 0.15);
+  color: #06b6d4;
+  border-color: rgba(6, 182, 212, 0.3);
+}
+
+.filter-pill.active {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(56, 189, 248, 0.3));
+  color: #ffffff;
+  border-color: #06b6d4;
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
+}
+
+
+/* ── Oceanic SVG Viewport & Canvas Area ──────────────────────────────── */
+.maritime-viewport-wrapper {
+  position: relative;
+  width: 100%;
+  height: 620px;
+  background: #030712;
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
+  cursor: grab;
+}
+
+.maritime-viewport-wrapper:active {
+  cursor: grabbing;
+}
+
+.hovered-country-hud {
+  position: absolute;
+  top: 1.25rem;
+  left: 1.25rem;
+  background: rgba(11, 25, 46, 0.9);
+  border: 1px solid #06b6d4;
+  color: #06b6d4;
+  font-family: monospace;
+  font-size: 0.85rem;
+  font-weight: 900;
+  padding: 0.4rem 0.85rem;
+  border-radius: 8px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 0 16px rgba(6, 182, 212, 0.3);
+  z-index: 50;
+  pointer-events: none;
+}
+
+.maritime-svg-map {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Camera Controls */
+.camera-control-group {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  z-index: 50;
+}
+
+.cam-btn {
+  background: rgba(11, 25, 46, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
+  font-size: 0.85rem;
+  font-weight: 800;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(12px);
+  transition: all 0.15s ease;
+
+  &.reset {
+    width: auto;
+    padding: 0 0.75rem;
+    font-size: 0.75rem;
+  }
+}
+
+.cam-btn:hover {
+  background: #06b6d4;
+  color: #030712;
+  border-color: #06b6d4;
+  box-shadow: 0 0 12px rgba(6, 182, 212, 0.5);
+}
+
+
+/* ── SVG Map Layers & Animations ─────────────────────────────────────── */
+
+.maritime-country-path {
+  fill: #0f233d;
+  stroke: rgba(56, 189, 248, 0.25);
+  stroke-width: 0.8;
+  transition: fill 0.2s ease, stroke 0.2s ease;
+  cursor: pointer;
+}
+
+.maritime-country-path:hover {
+  fill: rgba(6, 182, 212, 0.35);
+  stroke: #06b6d4;
+  stroke-width: 1.5;
+  filter: drop-shadow(0 0 8px #06b6d4);
+}
+
+/* Flowing Shipping Corridor Dashes */
+.flowing-lane-dash {
+  animation: lane-flow 25s linear infinite;
+}
+
+@keyframes lane-flow {
+  from { stroke-dashoffset: 200; }
+  to { stroke-dashoffset: 0; }
+}
+
+/* Strategic Chokepoint Pulse */
+.chokepoint-group {
+  cursor: pointer;
+}
+
+.radar-pulse-ring {
+  fill: none;
+  stroke-width: 1.5;
+  animation: cp-ring-pulse 2.2s ease-out infinite;
+}
+
+@keyframes cp-ring-pulse {
+  0% { r: 6; opacity: 1; stroke-width: 2; }
+  100% { r: 24; opacity: 0; stroke-width: 0.5; }
+}
+
+/* Canal Nodes */
+.canal-node-group {
+  cursor: pointer;
+}
+
+.canal-pulse-ring {
+  fill: none;
+  stroke: #fbbf24;
+  stroke-width: 1.5;
+  animation: canal-ring-pulse 2.5s ease-out infinite;
+}
+
+@keyframes canal-ring-pulse {
+  0% { r: 5; opacity: 1; stroke-width: 2; }
+  100% { r: 20; opacity: 0; stroke-width: 0.5; }
+}
+
+.canal-node-group:hover text {
+  fill: #ffffff;
+}
+
+/* Megaport Nodes */
+.port-marker-node {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.port-marker-node:hover text {
+  fill: #38bdf8;
+}
+
+/* Vessel Ship Nodes */
+.vessel-node {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.vessel-node:hover rect {
+  fill: #fbbf24;
+  stroke: #ffffff;
+  filter: drop-shadow(0 0 8px #fbbf24);
+}
+
+.ship-label {
+  pointer-events: none;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
+}
+
+
+/* ── Floating Glassmorphism Telemetry Inspector HUD Dock ─────────────── */
+.maritime-telemetry-dock {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 2rem;
+  width: 440px;
+  background: rgba(11, 25, 46, 0.92);
+  border: 1px solid rgba(6, 182, 212, 0.4);
+  border-radius: 18px;
+  padding: 1.25rem 1.5rem;
+  backdrop-filter: blur(24px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(6, 182, 212, 0.15);
+  z-index: 100;
+  animation: dock-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dock-slide-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dock-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.dock-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.dock-tag {
+  font-size: 0.65rem;
+  font-weight: 900;
+  color: #06b6d4;
+  letter-spacing: 0.08em;
+}
+
+.dock-tag.gold-tag {
+  color: #fbbf24;
+}
+
+.dock-title {
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #f8fafc;
+  margin: 0.15rem 0;
+}
+
+.country-sub {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.status-badge {
+  font-family: monospace;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid;
+}
+
+.gold-badge {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.4);
+}
+
+.type-badge {
+  background: rgba(6, 182, 212, 0.15);
+  color: #06b6d4;
+  border-color: rgba(6, 182, 212, 0.3);
+}
+
+.dock-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 0.65rem;
+}
+
+.metric-card {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+
+  .lbl {
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: #64748b;
+  }
+
+  .val {
+    font-family: monospace;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #f1f5f9;
+  }
+
+  .val.highlight {
+    color: #06b6d4;
+  }
+
+  .val.gold-txt {
+    color: #fbbf24;
+  }
+}
+
+.dock-summary {
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+  margin: 0;
+}
+
+.commodity-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+
+  .lbl {
+    font-size: 0.7rem;
+    color: #64748b;
+    font-weight: 700;
+  }
+}
+
+.comm-pill {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+}
+
+/* Voyage Progress Bar */
+.voyage-progress-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.voyage-lbl-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #94a3b8;
+}
+
+.voyage-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.voyage-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #06b6d4, #38bdf8);
+  box-shadow: 0 0 10px #06b6d4;
+  transition: width 0.4s ease;
+}

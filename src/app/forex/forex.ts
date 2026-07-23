@@ -450,6 +450,35 @@ export class ForexComponent implements OnInit, OnDestroy {
     return this.currencySymbolMap[code] || this.defaultRatesVsUsd[code]?.symbol || '$';
   }
 
+  // Get Flag Emoji by Currency Code
+  getFlagFor(code: string): string {
+    const found = this.allForexItems.find(item => item.currencyCode === code);
+    if (found && found.flag) return found.flag;
+    const flagMap: Record<string, string> = {
+      USD: '🇺🇸', EUR: '🇪🇺', GBP: '🇬🇧', JPY: '🇯🇵', INR: '🇮🇳', CAD: '🇨🇦', AUD: '🇦🇺',
+      CHF: '🇨🇭', CNY: '🇨🇳', BRL: '🇧🇷', AED: '🇦🇪', SAR: '🇸🇦', ZAR: '🇿🇦', MXN: '🇲🇽',
+      SGD: '🇸🇬', NZD: '🇳🇿', SEK: '🇸🇪', NOK: '🇳🇴', KRW: '🇰🇷', HKD: '🇭🇰', TRY: '🇹🇷',
+      RUB: '🇷🇺', EGP: '🇪🇬', IDR: '🇮🇩', THB: '🇹🇭', MYR: '🇲🇾', VND: '🇻🇳', PHP: '🇵🇭'
+    };
+    return flagMap[code] || '🌐';
+  }
+
+  // Get High-Res CDN Flag URL by Currency Code
+  getFlagUrlFor(code: string): string {
+    const found = this.allForexItems.find(item => item.countryCode);
+    if (found && found.countryCode) {
+      return `https://flagcdn.com/w40/${found.countryCode.toLowerCase()}.png`;
+    }
+    const isoMap: Record<string, string> = {
+      USD: 'us', EUR: 'eu', GBP: 'gb', JPY: 'jp', INR: 'in', CAD: 'ca', AUD: 'au',
+      CHF: 'ch', CNY: 'cn', BRL: 'br', AED: 'ae', SAR: 'sa', ZAR: 'za', MXN: 'mx',
+      SGD: 'sg', NZD: 'nz', SEK: 'se', NOK: 'no', KRW: 'kr', HKD: 'hk', TRY: 'tr',
+      RUB: 'ru', EGP: 'eg', IDR: 'id', THB: 'th', MYR: 'my', VND: 'vn', PHP: 'ph'
+    };
+    const c = isoMap[code] || 'un';
+    return `https://flagcdn.com/w40/${c}.png`;
+  }
+
   // Get Rate vs Base Currency
   getRateVsBase(targetCode: string): number {
     const baseInfo = this.defaultRatesVsUsd[this.baseCurrencyCode] || this.defaultRatesVsUsd['USD'];

@@ -107,7 +107,7 @@
                 <div class="exchange-deck from-deck">
                     <div class="deck-top">
                         <span class="deck-tag">FROM CURRENCY</span>
-                        <span class="deck-symbol-badge">{{ baseInfo.symbol }}</span>
+                        <span class="deck-symbol-badge">{{ getFlagFor(baseCurrencyCode) }} {{ baseInfo.symbol }}</span>
                     </div>
                     <div class="deck-inputs">
                         <div class="amount-field-box">
@@ -131,7 +131,7 @@
                 <div class="exchange-deck to-deck">
                     <div class="deck-top">
                         <span class="deck-tag">TO TARGET CURRENCY</span>
-                        <span class="deck-symbol-badge target-col">{{ targetInfo.symbol }}</span>
+                        <span class="deck-symbol-badge target-col">{{ getFlagFor(targetCurrencyCode) }} {{ targetInfo.symbol }}</span>
                     </div>
                     <div class="deck-inputs">
                         <div class="amount-field-box result">
@@ -151,7 +151,7 @@
 
             <!-- Rate Formula Badge -->
             <div class="rate-formula-bar">
-                <span>Rate: 1 {{ baseCurrencyCode }} = {{ getRateVsBase(targetCurrencyCode) | number:'1.2-4' }} {{ targetCurrencyCode }} ({{ targetInfo.symbol }})</span>
+                <span>Rate: {{ getFlagFor(baseCurrencyCode) }} 1 {{ baseCurrencyCode }} = {{ getFlagFor(targetCurrencyCode) }} {{ getRateVsBase(targetCurrencyCode) | number:'1.2-4' }} {{ targetCurrencyCode }} ({{ targetInfo.symbol }})</span>
             </div>
 
             <!-- Amount Preset Quick Pills -->
@@ -168,7 +168,7 @@
         <!-- Major Cross-Rates Matrix Card -->
         <div class="cross-matrix-card">
             <div class="card-header">
-                <h3>🌐 Major Currencies Symbol Cross-Matrix</h3>
+                <h3>🌐 Major Currencies Flags & Symbol Cross-Matrix</h3>
                 <span class="sub-info">Exchange rates between top global reserve currencies</span>
             </div>
 
@@ -178,14 +178,14 @@
                         <tr>
                             <th>Base \ Target</th>
                             <th *ngFor="let c of majorMatrixCurrencies">
-                                {{ getSymbolFor(c) }} {{ c }}
+                                <span class="hdr-flag">{{ getFlagFor(c) }}</span> {{ getSymbolFor(c) }} {{ c }}
                             </th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr *ngFor="let baseC of majorMatrixCurrencies">
                             <td class="row-header">
-                                <strong>{{ getSymbolFor(baseC) }} {{ baseC }}</strong>
+                                <strong><span class="hdr-flag">{{ getFlagFor(baseC) }}</span> {{ getSymbolFor(baseC) }} {{ baseC }}</strong>
                             </td>
                             <td *ngFor="let targetC of majorMatrixCurrencies" [class.same-pair]="baseC === targetC">
                                 <span *ngIf="baseC === targetC" class="diag-val">1.0000</span>

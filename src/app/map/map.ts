@@ -237,13 +237,27 @@ export class MapComponent implements OnInit, OnDestroy {
     this.cdr.markForCheck();
   }
 
-  onWheelZoom(event: WheelEvent): void {
-    event.preventDefault();
-    const delta = event.deltaY < 0 ? 0.15 : -0.15;
-    const oldZoom = this.zoom;
-    this.zoom = Math.min(5.0, Math.max(0.7, this.zoom + delta));
+  showZoomCtrlHint = false;
+  private hintTimeout: any = null;
 
-    if (oldZoom !== this.zoom) {
+  onWheelZoom(event: WheelEvent): void {
+    if (event.ctrlKey || event.metaKey) {
+      event.preventDefault();
+      const delta = event.deltaY < 0 ? 0.15 : -0.15;
+      const oldZoom = this.zoom;
+      this.zoom = Math.min(5.0, Math.max(0.7, this.zoom + delta));
+
+      if (oldZoom !== this.zoom) {
+        this.cdr.markForCheck();
+      }
+    } else {
+      // Allow natural page scrolling and show helpful visual hint
+      this.showZoomCtrlHint = true;
+      if (this.hintTimeout) clearTimeout(this.hintTimeout);
+      this.hintTimeout = setTimeout(() => {
+        this.showZoomCtrlHint = false;
+        this.cdr.markForCheck();
+      }, 1800);
       this.cdr.markForCheck();
     }
   }

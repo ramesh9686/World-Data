@@ -165,9 +165,14 @@
                 <div class="scan-line-overlay"></div>
                 <div class="radar-sweep-layer"></div>
 
+                <div *ngIf="showZoomCtrlHint" class="zoom-ctrl-toast">
+                    💡 Hold Ctrl + Scroll to zoom map view
+                </div>
+
                 <svg (click)="onCountrySelected($event)" 
                      (mousemove)="onSvgMouseMove($event)" 
                      (mouseleave)="onSvgMouseLeave()" 
+                     (wheel)="onWheelZoom($event)"
                      xmlns="http://www.w3.org/2000/svg" 
                      viewBox="0 0 1010 666" 
                      aria-label="World Map">
