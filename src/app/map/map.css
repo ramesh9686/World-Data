@@ -2160,3 +2160,705 @@ path.selected {
   font-weight: 800;
   color: #34d399;
 }
+
+/* ── SVG Map Empire Territory Glowing Highlights ────────────── */
+path.empire-territory {
+  fill: var(--empire-glow-color, rgba(245, 158, 11, 0.45)) !important;
+  stroke: var(--empire-glow-color, #f59e0b) !important;
+  stroke-width: 1.3 !important;
+  filter: drop-shadow(0 0 12px var(--empire-glow-color, rgba(245, 158, 11, 0.75))) !important;
+  animation: empire-territory-pulse 3s ease-in-out infinite alternate !important;
+}
+
+@keyframes empire-territory-pulse {
+  0% {
+    fill-opacity: 0.4;
+    stroke-width: 1.1;
+  }
+  100% {
+    fill-opacity: 0.7;
+    stroke-width: 1.6;
+  }
+}
+
+/* ── Top Header Empires Action Button ─────────────────────── */
+.top-action-btn.empires-btn.active {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border-color: rgba(251, 191, 36, 0.4);
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.25);
+}
+
+/* ── Empires Explorer Drawer HUD Container ──────────────────── */
+.empires-hud-drawer {
+  background: rgba(15, 23, 42, 0.92);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 18px;
+  padding: 1.25rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 
+    0 12px 36px rgba(0, 0, 0, 0.6),
+    0 0 25px rgba(245, 158, 11, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: empire-drawer-slide 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes empire-drawer-slide {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.empires-hud-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.hud-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.hud-icon {
+  font-size: 1.75rem;
+}
+
+.hud-title h3 {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.hud-sub {
+  font-size: 0.78rem;
+  color: #94a3b8;
+  margin: 0.2rem 0 0;
+}
+
+.close-empires-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.close-empires-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border-color: rgba(248, 113, 113, 0.4);
+}
+
+/* Era Filters */
+.empires-era-filter {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  padding-bottom: 0.6rem;
+  margin-bottom: 0.85rem;
+  scrollbar-width: thin;
+}
+
+.era-pill-btn {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  padding: 0.3rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.era-pill-btn:hover {
+  color: #f1f5f9;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.era-pill-btn.active {
+  background: rgba(245, 158, 11, 0.18);
+  border-color: rgba(251, 191, 36, 0.4);
+  color: #fbbf24;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.15);
+}
+
+/* Empire Selection Cards Scroller */
+.empires-cards-scroller {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1rem;
+  scrollbar-width: thin;
+}
+
+.empire-selector-card {
+  flex: 0 0 210px;
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.75rem;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  position: relative;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.empire-selector-card:hover {
+  transform: translateY(-2px);
+  background: rgba(30, 41, 59, 0.9);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+.empire-selector-card.selected {
+  background: rgba(15, 23, 42, 0.95);
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.25);
+}
+
+.emp-flag {
+  font-size: 1.5rem;
+}
+
+.emp-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.emp-name {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: #f8fafc;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.emp-span {
+  font-size: 0.72rem;
+  color: #fbbf24;
+  font-weight: 600;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.emp-region-badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  align-self: flex-start;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Empire Telemetry Detail Card */
+.empire-detail-telemetry {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-left-width: 4px;
+  border-radius: 14px;
+  padding: 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.emp-main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.emp-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.emp-big-flag {
+  font-size: 2.2rem;
+}
+
+.emp-title-group h2 {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.emp-era-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #38bdf8;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+.fly-heartland-btn {
+  border: 1px solid;
+  color: #ffffff;
+  padding: 0.45rem 0.9rem;
+  border-radius: 10px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.fly-heartland-btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.emp-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.stat-box {
+  background: rgba(30, 41, 59, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 10px;
+  padding: 0.65rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.stat-lbl {
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-val {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.emp-summary-box {
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 3px solid #38bdf8;
+  padding: 0.75rem 1rem;
+  border-radius: 0 8px 8px 0;
+}
+
+.emp-summary-text {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: #cbd5e1;
+  margin: 0;
+}
+
+.emp-achievements-box h4 {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0 0 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.emp-achievements-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.45rem;
+}
+
+.emp-achievements-box li {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bullet-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
+}
+
+/* ==========================================================================
+   GLOBAL HISTORICAL EMPIRES: HOLOGRAPHIC ERA DIAL & SVG CAPITAL ORBS
+   ========================================================================== */
+
+/* ── Holographic Era Scrub Dial ───────────────────────────────────────── */
+.holographic-era-bar {
+  background: rgba(8, 14, 28, 0.85);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: 16px;
+  padding: 0.85rem 1.25rem;
+  margin-bottom: 0.85rem;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.era-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.era-icon {
+  font-size: 1.6rem;
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+}
+
+.era-main-txt {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 0.82rem;
+  font-weight: 900;
+  color: #fbbf24;
+  letter-spacing: 0.12em;
+  display: block;
+}
+
+.era-sub-txt {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.era-slider-container {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.era-slider-bound {
+  font-family: monospace;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #64748b;
+  min-width: 65px;
+}
+
+.era-slider-bound.max {
+  text-align: right;
+}
+
+.era-slider-range {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #3b82f6, #ec4899, #f59e0b, #10b981);
+  outline: none;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+.era-slider-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #f8fafc;
+  border: 3px solid #38bdf8;
+  box-shadow: 0 0 14px #38bdf8;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.era-slider-range::-webkit-slider-thumb:hover {
+  transform: scale(1.25);
+}
+
+.era-slider-badge {
+  font-family: monospace;
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  padding: 0.3rem 0.8rem;
+  border-radius: 8px;
+  min-width: 95px;
+  text-align: center;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+}
+
+.empires-era-filter {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.era-pill-btn {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.7rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.era-pill-btn:hover {
+  background: rgba(56, 189, 248, 0.15);
+  color: #38bdf8;
+  border-color: rgba(56, 189, 248, 0.3);
+}
+
+.era-pill-btn.active {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(129, 140, 248, 0.3));
+  color: #f8fafc;
+  border-color: #38bdf8;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+}
+
+
+/* ── SVG Capital Orbs Layer ────────────────────────────────────────────── */
+.empires-orbs-layer {
+  pointer-events: auto;
+}
+
+.capital-orb-group {
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.capital-orb-group:hover {
+  transform: scale(1.3);
+}
+
+.orb-pulse-ring {
+  animation: orb-ring-pulse 2.2s ease-out infinite;
+  transform-origin: center;
+}
+
+@keyframes orb-ring-pulse {
+  0% {
+    r: 6px;
+    opacity: 0.9;
+    stroke-width: 2px;
+  }
+  100% {
+    r: 22px;
+    opacity: 0;
+    stroke-width: 0.5px;
+  }
+}
+
+.orb-core {
+  transition: r 0.2s ease, filter 0.2s ease;
+}
+
+.capital-orb-group:hover .orb-core {
+  r: 9px;
+  filter: drop-shadow(0 0 10px currentColor);
+}
+
+.capital-orb-group.active .orb-core {
+  r: 10px;
+  stroke: #ffffff;
+  stroke-width: 2px;
+}
+
+.orb-flag-label {
+  font-size: 11px;
+  user-select: none;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.8));
+}
+
+
+/* ── Glassmorphism Floating Telemetry HUD Dock ───────────────────────── */
+.glass-telemetry-dock {
+  position: absolute;
+  bottom: 1.25rem;
+  left: 1.25rem;
+  z-index: 100;
+  max-width: 440px;
+  width: calc(100% - 2.5rem);
+  background: rgba(6, 11, 25, 0.88);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left: 5px solid #38bdf8;
+  border-radius: 14px;
+  padding: 1.1rem 1.25rem;
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  animation: dock-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dock-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.dock-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.dock-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dock-flag {
+  font-size: 2rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.3));
+}
+
+.dock-name {
+  font-family: var(--font-heading, sans-serif);
+  font-size: 1.15rem;
+  font-weight: 900;
+  color: #f8fafc;
+  margin: 0 0 0.2rem;
+  letter-spacing: -0.01em;
+}
+
+.dock-era-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-block;
+}
+
+.dock-heartland-btn {
+  border: none;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.4);
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.dock-heartland-btn:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+}
+
+.dock-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.65rem 0.85rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.dock-stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.dock-lbl {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.dock-val {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #cbd5e1;
+}
+
+.dock-summary {
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: #94a3b8;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.dock-achievements {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.dock-achievement-pill {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+  padding: 0.2rem 0.65rem;
+  font-size: 0.72rem;
+  color: #e2e8f0;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dock-achievement-pill .pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  box-shadow: 0 0 6px currentColor;
+}

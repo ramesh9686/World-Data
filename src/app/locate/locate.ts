@@ -39,7 +39,7 @@ export class LocateComponent implements OnInit {
   proximityMessage = 'Click any country on the world map to make your first guess!';
   revealedTargetCode: string | null = null;
 
-  // Camera viewport transform
+  // Camera viewport transform & smooth panning
   zoom = 1.0;
   panX = 0;
   panY = 0;
@@ -182,27 +182,52 @@ export class LocateComponent implements OnInit {
         if (parent) {
           parent.appendChild(targetEl); // Move path to front layer for glow effect
         }
-      }
 
-      const el = targetEl as unknown as SVGGraphicsElement;
-      if (el && typeof el.getBBox === 'function') {
-        try {
-          const bbox = el.getBBox();
-          const svgCenterX = bbox.x + bbox.width / 2;
-          const svgCenterY = bbox.y + bbox.height / 2;
-          this.panX = (505 - svgCenterX) * 1.5;
-          this.panY = (333 - svgCenterY) * 1.5;
-          this.zoom = 1.5;
-          this.cdr.markForCheck();
-        } catch (e) {}
+        const el = targetEl as unknown as SVGGraphicsElement;
+        if (el && typeof el.getBBox === 'function') {
+          try {
+            const bbox = el.getBBox();
+            const svgCenterX = bbox.x + bbox.width / 2;
+            const svgCenterY = bbox.y + bbox.height / 2;
+            this.zoom = 2.2;
+            this.panX = (505 - svgCenterX) * this.zoom;
+            this.panY = (333 - svgCenterY) * this.zoom;
+            this.cdr.markForCheck();
+          } catch (e) {}
+        }
       }
-    }, 150);
+    }, 100);
   }
 
   revealHint(): void {
     if (this.hintRevealed) return;
     this.hintRevealed = true;
     this.hintText = `💡 Hint: The secret country is located in ${this.targetRegion}!`;
+    this.cdr.markForCheck();
+  }
+
+  // Viewport Camera Controls
+  zoomIn(): void {
+    this.zoom = Math.min(5.0, this.zoom + 0.3);
+    this.cdr.markForCheck();
+  }
+
+  zoomOut(): void {
+    this.zoom = Math.max(0.8, this.zoom - 0.3);
+    this.cdr.markForCheck();
+  }
+
+  resetCamera(): void {
+    this.zoom = 1.0;
+    this.panX = 0;
+    this.panY = 0;
+    this.cdr.markForCheck();
+  }
+
+  onWheelZoom(event: WheelEvent): void {
+    event.preventDefault();
+    const delta = event.deltaY < 0 ? 0.15 : -0.15;
+    this.zoom = Math.min(5.0, Math.max(0.8, this.zoom + delta));
     this.cdr.markForCheck();
   }
 

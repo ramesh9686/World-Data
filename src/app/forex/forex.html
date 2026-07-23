@@ -1,0 +1,377 @@
+<div class="forex-page-container">
+    <!-- Live Global Forex Ticker Marquee -->
+    <div class="forex-ticker-marquee">
+        <div class="ticker-label">
+            <span class="pulse-dot" [class.syncing]="isSyncing"></span>
+            <span>LIVE FOREX TELEMETRY TICKER:</span>
+        </div>
+        <div class="ticker-scroll">
+            <div class="ticker-item">
+                <span class="pair">EUR/USD</span>
+                <span class="rate">$1.0870</span>
+                <span class="trend pos">+0.18%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="pair">GBP/USD</span>
+                <span class="rate">$1.2985</span>
+                <span class="trend pos">+0.32%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="pair">USD/JPY</span>
+                <span class="rate">¥155.40</span>
+                <span class="trend neg">-0.45%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="pair">USD/INR</span>
+                <span class="rate">₹83.50</span>
+                <span class="trend pos">+0.05%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="pair">USD/CNY</span>
+                <span class="rate">¥7.2540</span>
+                <span class="trend neg">-0.12%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="pair">USD/CAD</span>
+                <span class="rate">CA$1.3680</span>
+                <span class="trend pos">+0.22%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="pair">USD/AED</span>
+                <span class="rate">د.إ3.6730</span>
+                <span class="trend neu">0.00%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="pair">USD/BRL</span>
+                <span class="rate">R$5.5520</span>
+                <span class="trend neg">-0.85%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="pair">USD/ZAR</span>
+                <span class="rate">R18.240</span>
+                <span class="trend pos">+0.40%</span>
+            </div>
+        </div>
+        <button (click)="toggleAudio()" class="audio-toggle-btn" [class.muted]="audioMuted">
+            {{ audioMuted ? '🔇 Audio Off' : '🔊 SFX On' }}
+        </button>
+    </div>
+
+    <!-- Page Header Hero Section & Rate Sync Bar -->
+    <div class="forex-header-hero">
+        <div class="hero-title-group">
+            <h1 class="hero-title">💱 Global FX & Forex Matrix</h1>
+            <p class="hero-subtitle">Real-time foreign exchange telemetry, visual converter, and cross-rate directory covering 240+ world countries with authentic currency symbols.</p>
+        </div>
+
+        <!-- Live Refresh Rate Interval Controller -->
+        <div class="telemetry-sync-hud">
+            <div class="sync-top-row">
+                <span class="sync-label">⚡ RATE REFRESH INTERVAL:</span>
+                <div class="interval-options">
+                    <button (click)="setIntervalOption(15)" [class.active]="selectedIntervalSec === 15" class="int-btn">15s Live</button>
+                    <button (click)="setIntervalOption(900)" [class.active]="selectedIntervalSec === 900" class="int-btn">15 Min</button>
+                    <button (click)="setIntervalOption(1800)" [class.active]="selectedIntervalSec === 1800" class="int-btn">30 Min</button>
+                    <button (click)="setIntervalOption(3600)" [class.active]="selectedIntervalSec === 3600" class="int-btn">1 Hour</button>
+                    <button (click)="setIntervalOption(0)" [class.active]="selectedIntervalSec === 0" class="int-btn">Manual</button>
+                </div>
+            </div>
+
+            <div class="sync-bottom-row">
+                <div class="countdown-badge">
+                    <span class="timer-icon">⏳</span>
+                    <span>Next Sync: <strong>{{ countdownFormatted }}</strong></span>
+                </div>
+                <div class="last-sync-badge">
+                    <span>Last Sync: <strong>{{ lastSyncTimeFormatted || 'Just Now' }}</strong></span>
+                </div>
+                <button (click)="fetchLiveMarketRates()" [disabled]="isSyncing" class="manual-sync-btn" title="Sync Live FX Market Rates Now">
+                    <span class="sync-icon" [class.spin]="isSyncing">🔄</span>
+                    <span>{{ isSyncing ? 'Syncing...' : 'Sync Now' }}</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Converter & Cross Matrix Dashboard Grid -->
+    <div class="forex-dashboard-grid">
+        <!-- Dual-Deck Visual FX Exchanger Console -->
+        <div class="converter-card">
+            <div class="card-header">
+                <h3>⚡ Live Dual-Deck FX Exchanger</h3>
+                <span class="base-badge">Base: {{ baseInfo.symbol }} {{ baseCurrencyCode }}</span>
+            </div>
+
+            <div class="exchanger-decks-wrapper">
+                <!-- FROM DECK -->
+                <div class="exchange-deck from-deck">
+                    <div class="deck-top">
+                        <span class="deck-tag">FROM CURRENCY</span>
+                        <span class="deck-symbol-badge">{{ baseInfo.symbol }}</span>
+                    </div>
+                    <div class="deck-inputs">
+                        <div class="amount-field-box">
+                            <span class="symbol-prefix">{{ baseInfo.symbol }}</span>
+                            <input type="number" [(ngModel)]="fxAmount" (input)="playUiSound('click')" class="amount-input" placeholder="Amount..." min="0" />
+                        </div>
+                        <select [ngModel]="baseCurrencyCode" (ngModelChange)="setBaseCurrency($event)" class="deck-select">
+                            <option *ngFor="let c of uniqueCurrencies" [value]="c.code">
+                                {{ c.flag }} {{ c.code }} - {{ c.name }} ({{ c.symbol }})
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- SWAP BUTTON INTERSECTION -->
+                <button (click)="swapBaseAndTarget()" class="swap-deck-btn" title="Swap From and To Currencies">
+                    ⇄
+                </button>
+
+                <!-- TO DECK -->
+                <div class="exchange-deck to-deck">
+                    <div class="deck-top">
+                        <span class="deck-tag">TO TARGET CURRENCY</span>
+                        <span class="deck-symbol-badge target-col">{{ targetInfo.symbol }}</span>
+                    </div>
+                    <div class="deck-inputs">
+                        <div class="amount-field-box result">
+                            <span class="symbol-prefix target-col">{{ targetInfo.symbol }}</span>
+                            <span class="converted-result-display">
+                                {{ convertValue(targetCurrencyCode) | number:'1.2-2' }}
+                            </span>
+                        </div>
+                        <select [(ngModel)]="targetCurrencyCode" (change)="playUiSound('click')" class="deck-select">
+                            <option *ngFor="let c of uniqueCurrencies" [value]="c.code">
+                                {{ c.flag }} {{ c.code }} - {{ c.name }} ({{ c.symbol }})
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rate Formula Badge -->
+            <div class="rate-formula-bar">
+                <span>Rate: 1 {{ baseCurrencyCode }} = {{ getRateVsBase(targetCurrencyCode) | number:'1.2-4' }} {{ targetCurrencyCode }} ({{ targetInfo.symbol }})</span>
+            </div>
+
+            <!-- Amount Preset Quick Pills -->
+            <div class="preset-pills-row">
+                <span class="preset-label">Presets:</span>
+                <button (click)="setAmountPreset(10)" [class.active]="fxAmount === 10" class="preset-btn">{{ baseInfo.symbol }}10</button>
+                <button (click)="setAmountPreset(100)" [class.active]="fxAmount === 100" class="preset-btn">{{ baseInfo.symbol }}100</button>
+                <button (click)="setAmountPreset(1000)" [class.active]="fxAmount === 1000" class="preset-btn">{{ baseInfo.symbol }}1,000</button>
+                <button (click)="setAmountPreset(5000)" [class.active]="fxAmount === 5000" class="preset-btn">{{ baseInfo.symbol }}5,000</button>
+                <button (click)="setAmountPreset(10000)" [class.active]="fxAmount === 10000" class="preset-btn">{{ baseInfo.symbol }}10,000</button>
+            </div>
+        </div>
+
+        <!-- Major Cross-Rates Matrix Card -->
+        <div class="cross-matrix-card">
+            <div class="card-header">
+                <h3>🌐 Major Currencies Symbol Cross-Matrix</h3>
+                <span class="sub-info">Exchange rates between top global reserve currencies</span>
+            </div>
+
+            <div class="matrix-table-wrapper">
+                <table class="cross-matrix-table">
+                    <thead>
+                        <tr>
+                            <th>Base \ Target</th>
+                            <th *ngFor="let c of majorMatrixCurrencies">
+                                {{ getSymbolFor(c) }} {{ c }}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let baseC of majorMatrixCurrencies">
+                            <td class="row-header">
+                                <strong>{{ getSymbolFor(baseC) }} {{ baseC }}</strong>
+                            </td>
+                            <td *ngFor="let targetC of majorMatrixCurrencies" [class.same-pair]="baseC === targetC">
+                                <span *ngIf="baseC === targetC" class="diag-val">1.0000</span>
+                                <span *ngIf="baseC !== targetC" class="cell-val">
+                                    {{ getCrossRate(baseC, targetC) | number:'1.2-4' }}
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Country Forex Directory Section -->
+    <div class="forex-directory-section">
+        <!-- Directory Controls & Filters Bar -->
+        <div class="directory-filter-bar">
+            <!-- Search Input -->
+            <div class="search-box">
+                <span class="search-icon">🔍</span>
+                <input type="text" [(ngModel)]="searchQuery" placeholder="Search country, symbol or code (e.g. ₹, Euro, INR, $, ¥)..." class="search-input" />
+                <button *ngIf="searchQuery" (click)="searchQuery = ''" class="clear-search-btn">✕</button>
+            </div>
+
+            <!-- Region Filter Pills -->
+            <div class="region-filter-pills">
+                <button *ngFor="let r of ['All', 'Asia', 'Europe', 'Latin America', 'North America', 'Sub-Saharan Africa', 'Middle East']"
+                        (click)="setRegionFilter(r)"
+                        [class.active]="selectedRegion === r"
+                        class="region-pill">
+                    {{ r }}
+                </button>
+            </div>
+
+            <!-- Creative 3-Way View Switcher -->
+            <div class="view-sort-controls">
+                <select [(ngModel)]="sortBy" class="sort-select">
+                    <option value="convertedDesc">Sort: Highest Converted Value</option>
+                    <option value="name">Sort: Country Name (A-Z)</option>
+                    <option value="rateAsc">Sort: Exchange Rate (Low to High)</option>
+                    <option value="rateDesc">Sort: Exchange Rate (High to Low)</option>
+                    <option value="changeDesc">Sort: 24h Gainers</option>
+                </select>
+
+                <div class="view-toggle">
+                    <button (click)="setViewMode('grid')" [class.active]="viewMode === 'grid'" class="v-btn" title="Holo Cards View">
+                        🌌 Holo Cards
+                    </button>
+                    <button (click)="setViewMode('orbit')" [class.active]="viewMode === 'orbit'" class="v-btn" title="Forex Orbit View">
+                        🪐 Forex Orbit
+                    </button>
+                    <button (click)="setViewMode('table')" [class.active]="viewMode === 'table'" class="v-btn" title="Telemetry Table View">
+                        📊 Telemetry Table
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Counter & Active Base Banner -->
+        <div class="results-banner">
+            <span>Showing <strong>{{ filteredForexItems.length }}</strong> countries converting from <strong>{{ baseInfo.symbol }}{{ fxAmount | number }} {{ baseCurrencyCode }}</strong></span>
+        </div>
+
+        <!-- VIEW MODE 1: HOLO CARDS VIEW -->
+        <div *ngIf="viewMode === 'grid'" class="forex-grid">
+            <div *ngFor="let item of filteredForexItems" class="forex-card" [class.is-base]="item.currencyCode === baseCurrencyCode">
+                <div class="symbol-watermark">{{ item.symbol }}</div>
+
+                <div class="card-top-row">
+                    <div class="country-info">
+                        <span class="flag-emoji">{{ item.flag }}</span>
+                        <div>
+                            <h4 class="country-name">{{ item.countryName }}</h4>
+                            <span class="region-sub">{{ item.region }}</span>
+                        </div>
+                    </div>
+                    <span class="currency-code-badge" [class.base-badge-style]="item.currencyCode === baseCurrencyCode">
+                        {{ item.symbol }} {{ item.currencyCode }}
+                    </span>
+                </div>
+
+                <div class="card-mid-row">
+                    <div class="currency-full-name">
+                        {{ item.currencyName }} <span class="symbol-tag">({{ item.symbol }})</span>
+                    </div>
+                    <div class="converted-value-large">
+                        <span class="sym">{{ item.symbol }}</span> {{ convertValue(item.currencyCode) | number:'1.2-2' }}
+                    </div>
+                </div>
+
+                <div class="card-bottom-row">
+                    <div class="rate-comparison">
+                        <span class="lbl">1 {{ baseCurrencyCode }} ({{ baseInfo.symbol }}) =</span>
+                        <span class="val">{{ getRateVsBase(item.currencyCode) | number:'1.2-4' }} {{ item.symbol }}</span>
+                    </div>
+
+                    <div class="trend-and-action">
+                        <span class="trend-badge" [class.pos]="item.change24h > 0" [class.neg]="item.change24h < 0" [class.neu]="item.change24h === 0">
+                            {{ item.change24h > 0 ? '+' : '' }}{{ item.change24h }}%
+                        </span>
+                        <button (click)="setBaseCurrency(item.currencyCode)" class="set-base-btn" title="Set as base currency">
+                            🎯 Set Base
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VIEW MODE 2: FOREX ORBIT RING VIEW -->
+        <div *ngIf="viewMode === 'orbit'" class="forex-orbit-container">
+            <div class="orbit-visualizer-box">
+                <div class="central-sun-node">
+                    <span class="sun-symbol">{{ baseInfo.symbol }}</span>
+                    <span class="sun-code">{{ baseCurrencyCode }}</span>
+                    <span class="sun-amount">{{ baseInfo.symbol }}{{ fxAmount | number }}</span>
+                </div>
+
+                <div class="orbit-ring ring-1"></div>
+                <div class="orbit-ring ring-2"></div>
+                <div class="orbit-ring ring-3"></div>
+
+                <div *ngFor="let sat of orbitSatellites; let idx = index" 
+                     class="satellite-node"
+                     [style.transform]="'rotate(' + sat.angleDeg + 'deg) translate(' + sat.radiusPx + 'px) rotate(-' + sat.angleDeg + 'deg)'"
+                     (click)="setBaseCurrency(sat.code)">
+                    <div class="sat-core">
+                        <span class="sat-flag">{{ sat.flag }}</span>
+                        <span class="sat-symbol">{{ sat.symbol }}</span>
+                    </div>
+                    <div class="sat-tooltip">
+                        <span class="sat-name">{{ sat.name }} ({{ sat.code }})</span>
+                        <span class="sat-val">{{ sat.symbol }}{{ sat.convertedVal | number:'1.2-2' }}</span>
+                        <span class="sat-rate">1 {{ baseCurrencyCode }} = {{ sat.symbol }}{{ sat.rateVsBase | number:'1.2-4' }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <p class="orbit-hint">🪐 Click any revolving currency orb on the orbit ring to instantly set it as the active base currency!</p>
+        </div>
+
+        <!-- VIEW MODE 3: TELEMETRY TABLE VIEW -->
+        <div *ngIf="viewMode === 'table'" class="forex-table-container">
+            <table class="forex-data-table">
+                <thead>
+                    <tr>
+                        <th>Country</th>
+                        <th>Currency Name</th>
+                        <th>Symbol</th>
+                        <th>ISO Code</th>
+                        <th>1 {{ baseCurrencyCode }} ({{ baseInfo.symbol }}) Equals</th>
+                        <th>Converted Amount ({{ baseInfo.symbol }}{{ fxAmount | number }})</th>
+                        <th>24h Trend</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of filteredForexItems" [class.is-base-row]="item.currencyCode === baseCurrencyCode">
+                        <td class="country-cell">
+                            <span class="flag-emoji">{{ item.flag }}</span>
+                            <span class="c-name">{{ item.countryName }}</span>
+                        </td>
+                        <td>{{ item.currencyName }}</td>
+                        <td class="symbol-cell">
+                            <span class="sym-badge">{{ item.symbol }}</span>
+                        </td>
+                        <td><span class="code-pill">{{ item.currencyCode }}</span></td>
+                        <td class="rate-cell">
+                            1 {{ baseCurrencyCode }} = <strong>{{ item.symbol }} {{ getRateVsBase(item.currencyCode) | number:'1.2-4' }}</strong>
+                        </td>
+                        <td class="converted-cell">
+                            <strong>{{ item.symbol }} {{ convertValue(item.currencyCode) | number:'1.2-2' }}</strong>
+                        </td>
+                        <td>
+                            <span class="trend-badge" [class.pos]="item.change24h > 0" [class.neg]="item.change24h < 0" [class.neu]="item.change24h === 0">
+                                {{ item.change24h > 0 ? '+' : '' }}{{ item.change24h }}%
+                            </span>
+                        </td>
+                        <td>
+                            <button (click)="setBaseCurrency(item.currencyCode)" class="set-base-btn small">
+                                🎯 Set Base
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

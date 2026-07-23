@@ -38,7 +38,12 @@
       </div>
 
       <!-- Map Viewport -->
-      <div class="map-viewport">
+      <div class="map-viewport" (wheel)="onWheelZoom($event)">
+        <div class="locate-cam-controls">
+          <button (click)="zoomIn()" class="cam-btn" title="Zoom In">➕</button>
+          <button (click)="zoomOut()" class="cam-btn" title="Zoom Out">➖</button>
+          <button (click)="resetCamera()" class="cam-btn reset" title="Reset View">🎯 Reset View</button>
+        </div>
         <svg (click)="onCountrySelected($event)" 
                       
                       

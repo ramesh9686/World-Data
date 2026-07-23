@@ -1,9 +1,11 @@
 import { Component, ChangeDetectorRef, OnInit, OnDestroy, HostListener, ChangeDetectionStrategy, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import { CountryService, CountryData } from '../country';
 import { COUNTRIES_DATA } from '../countries-data';
 import { RealtimeDataService, RealtimeData } from '../realtime-data.service';
 import { WorldBankService } from '../world-bank.service';
+import { HISTORICAL_EMPIRES, HistoricalEmpire } from '../empires-data';
 
 export interface QuizQuestion {
   id: string;
@@ -127,6 +129,14 @@ export class MapComponent implements OnInit, OnDestroy {
     BRL: { code: 'BRL', name: 'Brazilian Real', symbol: 'R$', flag: '🇧🇷', rateVsUsd: 5.55 }
   };
 
+  // Global Historical Empires & Civilizations Explorer
+  empiresMode = false;
+  selectedEmpireId = 'gupta-empire';
+  selectedEmpire: HistoricalEmpire | null = HISTORICAL_EMPIRES[0];
+  empireFilterEra = 'All';
+  timelineEraYear = 400;
+  empiresList: HistoricalEmpire[] = HISTORICAL_EMPIRES;
+
   // Live Telemetry Marquee & Clock Ticker
   livePopulation = 8114582900;
   private tickerTimer: any = null;
@@ -191,7 +201,8 @@ export class MapComponent implements OnInit, OnDestroy {
     private countryService: CountryService,
     private realtimeService: RealtimeDataService,
     private wbService: WorldBankService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private router: Router
   ) {
     this.wbTopics = this.wbService.getTopics();
   }
@@ -412,12 +423,8 @@ export class MapComponent implements OnInit, OnDestroy {
 
   // FX Currency Telemetry Matrix Methods
   toggleFxMode(): void {
-    this.fxMode = !this.fxMode;
     this.playUiSound('click');
-    if (this.fxMode) {
-      this.quizMode = false;
-    }
-    this.cdr.markForCheck();
+    this.router.navigate(['/forex']);
   }
 
   onFxAmountInput(event: Event): void {
@@ -445,6 +452,105 @@ export class MapComponent implements OnInit, OnDestroy {
         convertedValue: usdAmount * rateInfo.rateVsUsd
       };
     });
+  }
+
+  // Global Historical Empires & Civilizations Explorer Methods
+  toggleEmpiresMode(): void {
+    this.empiresMode = !this.empiresMode;
+    this.playUiSound('click');
+    if (this.empiresMode) {
+      this.quizMode = false;
+      this.fxMode = false;
+      if (!this.selectedEmpire) {
+        this.selectEmpire('gupta-empire');
+      } else {
+        this.flyToEmpireHeartland(this.selectedEmpire);
+        setTimeout(() => this.applyEmpireMapHighlights(), 50);
+      }
+    } else {
+      setTimeout(() => this.applyEmpireMapHighlights(), 50);
+    }
+    this.cdr.markForCheck();
+  }
+
+  selectEmpire(empireId: string): void {
+    this.selectedEmpireId = empireId;
+    const found = HISTORICAL_EMPIRES.find(e => e.id === empireId);
+    if (found) {
+      this.selectedEmpire = found;
+      this.timelineEraYear = found.peakYear;
+      this.playUiSound('select');
+      this.flyToEmpireHeartland(found);
+      setTimeout(() => this.applyEmpireMapHighlights(), 50);
+    }
+    this.cdr.markForCheck();
+  }
+
+  onTimelineEraScrub(event: Event): void {
+    const val = parseInt((event.target as HTMLInputElement).value, 10);
+    this.timelineEraYear = val;
+    
+    // Find empire whose peakYear is closest to target timeline year
+    let closestEmp = this.empiresList[0];
+    let minDiff = Math.abs(closestEmp.peakYear - val);
+
+    for (const emp of this.empiresList) {
+      const diff = Math.abs(emp.peakYear - val);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestEmp = emp;
+      }
+    }
+
+    if (closestEmp && closestEmp.id !== this.selectedEmpireId) {
+      this.selectedEmpireId = closestEmp.id;
+      this.selectedEmpire = closestEmp;
+      this.flyToEmpireHeartland(closestEmp);
+      setTimeout(() => this.applyEmpireMapHighlights(), 50);
+    }
+    this.cdr.markForCheck();
+  }
+
+  onCapitalOrbHover(emp: HistoricalEmpire): void {
+    this.playUiSound('zoom');
+  }
+
+  applyEmpireMapHighlights(): void {
+    const allPaths = document.querySelectorAll<SVGPathElement>('.map-column svg path');
+    allPaths.forEach(path => {
+      const code = path.id ? path.id.toLowerCase() : '';
+      if (this.empiresMode && this.selectedEmpire && this.selectedEmpire.countryCodes.includes(code)) {
+        path.classList.add('empire-territory');
+        path.style.setProperty('--empire-glow-color', this.selectedEmpire.color);
+      } else {
+        path.classList.remove('empire-territory');
+        path.style.removeProperty('--empire-glow-color');
+      }
+    });
+  }
+
+  setEmpireEraFilter(era: string): void {
+    this.empireFilterEra = era;
+    this.playUiSound('click');
+    this.cdr.markForCheck();
+  }
+
+  get filteredEmpires(): HistoricalEmpire[] {
+    if (this.empireFilterEra === 'All') {
+      return this.empiresList;
+    }
+    return this.empiresList.filter(e => e.era === this.empireFilterEra);
+  }
+
+  isCountryInSelectedEmpire(code: string): boolean {
+    if (!this.empiresMode || !this.selectedEmpire) return false;
+    return this.selectedEmpire.countryCodes.includes(code.toLowerCase());
+  }
+
+  flyToEmpireHeartland(empire: HistoricalEmpire): void {
+    if (!empire || empire.countryCodes.length === 0) return;
+    const primaryCode = empire.countryCodes[0];
+    this.flyToCountry(primaryCode);
   }
 
   // 34-Year Temporal Time-Lapse Slider
@@ -583,6 +689,12 @@ export class MapComponent implements OnInit, OnDestroy {
 
         if (this.quizMode && this.currentQuizQuestion) {
           this.hoveredMetricVal = `🎯 Quiz Target: Click map country to submit answer!`;
+        } else if (this.empiresMode && this.selectedEmpire) {
+          if (this.isCountryInSelectedEmpire(code)) {
+            this.hoveredMetricVal = `🏛️ Part of ${this.selectedEmpire.name} (${this.selectedEmpire.yearSpan})`;
+          } else {
+            this.hoveredMetricVal = `Outside ${this.selectedEmpire.name} territory`;
+          }
         } else {
           const data = COUNTRIES_DATA[upperCode];
           this.hoveredMetricVal = data ? `Region: ${data.region}` : 'Click to view full telemetry';

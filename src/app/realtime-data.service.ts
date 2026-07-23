@@ -82,6 +82,15 @@ export class RealtimeDataService {
     );
   }
 
+  getLiveForexRates(baseCurrency: string = 'USD'): Observable<Record<string, number> | null> {
+    const url = `https://open.er-api.com/v6/latest/${baseCurrency}`;
+    return this.http.get<any>(url).pipe(
+      map(res => (res && res.result === 'success' && res.rates) ? res.rates : null),
+      timeout({ each: 6000, with: () => of(null) }),
+      catchError(() => of(null))
+    );
+  }
+
   private parseWeather(raw: any): WeatherData | null {
     if (!raw?.current) return null;
     const c = raw.current;
