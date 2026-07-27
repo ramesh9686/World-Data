@@ -674,6 +674,16 @@
                 <span class="code-pill iso2">{{ countryData.iso2Code }}</span>
             </div>
 
+            <!-- GeoLibre GIS Action Toolbar -->
+            <div class="geolibre-country-actions" style="margin: 0.85rem 0; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <button (click)="openInGeoLibre()" class="top-action-btn" style="background: linear-gradient(135deg, #0284c7, #2563eb); color: #fff; border: none; font-weight: 700; flex: 1; padding: 0.5rem 0.8rem; border-radius: 8px; cursor: pointer;">
+                    🌐 Explore in GeoLibre
+                </button>
+                <button (click)="exportSelectedCountryGeoJson()" class="top-action-btn" style="background: rgba(30, 41, 59, 0.8); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); font-weight: 600; padding: 0.5rem 0.8rem; border-radius: 8px; cursor: pointer;">
+                    📄 Export GeoJSON
+                </button>
+            </div>
+
             <div class="detail-grid">
                 <div class="detail-item">
                     <span class="detail-label">🏛️ Capital</span>

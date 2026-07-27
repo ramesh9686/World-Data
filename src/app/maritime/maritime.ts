@@ -15,6 +15,9 @@ import {
   CARGO_VESSEL_FLEET
 } from '../maritime-data';
 
+import { GeoJsonExportService } from '../services/geojson-export.service';
+import { Router } from '@angular/router';
+
 @Component({
   selector: 'app-maritime',
   standalone: true,
@@ -57,7 +60,22 @@ export class MaritimeComponent implements OnInit, OnDestroy {
   audioMuted = false;
   private audioCtx: AudioContext | null = null;
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private geoJsonService: GeoJsonExportService,
+    private router: Router
+  ) {}
+
+  openLocationInGeoLibre(lat: number, lng: number, zoom: number = 7): void {
+    this.router.navigate(['/geolibre'], {
+      queryParams: { lat, lng, zoom }
+    });
+  }
+
+  exportMaritimeGeoJson(): void {
+    const geojson = this.geoJsonService.exportMaritimeToGeoJSON();
+    this.geoJsonService.downloadGeoJSON(geojson, 'maritime-chokepoints-and-canals.geojson');
+  }
 
   ngOnInit(): void {
     // Clone fleet dataset for live mutation

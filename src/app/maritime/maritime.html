@@ -66,6 +66,11 @@
                 <span class="b-lbl">ACTIVE FLEET RADAR</span>
                 <span class="b-val highlight">{{ vessels.length }} Vessels</span>
             </div>
+            <div class="stat-badge" style="background: linear-gradient(135deg, rgba(2, 132, 199, 0.3), rgba(37, 99, 235, 0.3)); border-color: rgba(56, 189, 248, 0.5);">
+                <button (click)="exportMaritimeGeoJson()" style="background: transparent; border: none; color: #38bdf8; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem;">
+                    📥 Export Maritime GeoJSON
+                </button>
+            </div>
         </div>
     </div>
 

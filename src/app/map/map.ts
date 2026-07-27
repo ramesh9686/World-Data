@@ -6,6 +6,7 @@ import { COUNTRIES_DATA } from '../countries-data';
 import { RealtimeDataService, RealtimeData } from '../realtime-data.service';
 import { WorldBankService } from '../world-bank.service';
 import { HISTORICAL_EMPIRES, HistoricalEmpire } from '../empires-data';
+import { GeoJsonExportService } from '../services/geojson-export.service';
 
 export interface QuizQuestion {
   id: string;
@@ -201,10 +202,47 @@ export class MapComponent implements OnInit, OnDestroy {
     private countryService: CountryService,
     private realtimeService: RealtimeDataService,
     private wbService: WorldBankService,
+    private geoJsonService: GeoJsonExportService,
     private cdr: ChangeDetectorRef,
     private router: Router
   ) {
     this.wbTopics = this.wbService.getTopics();
+  }
+
+  openInGeoLibre(): void {
+    if (!this.countryData) return;
+    const lat = parseFloat(this.countryData.latitude);
+    const lng = parseFloat(this.countryData.longitude);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      this.router.navigate(['/geolibre'], {
+        queryParams: { lat, lng, zoom: 6 }
+      });
+    }
+  }
+
+  exportSelectedCountryGeoJson(): void {
+    if (!this.countryData) return;
+    const lat = parseFloat(this.countryData.latitude);
+    const lng = parseFloat(this.countryData.longitude);
+    if (isNaN(lat) || isNaN(lng)) return;
+
+    const geojson = {
+      type: 'FeatureCollection' as const,
+      features: [
+        {
+          type: 'Feature' as const,
+          geometry: {
+            type: 'Point' as const,
+            coordinates: [lng, lat]
+          },
+          properties: {
+            ...this.countryData
+          }
+        }
+      ]
+    };
+
+    this.geoJsonService.downloadGeoJSON(geojson, `${this.countryData.id.toLowerCase()}-country-data.geojson`);
   }
 
   ngOnInit(): void {

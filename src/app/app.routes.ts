@@ -7,7 +7,9 @@ import { MaritimeComponent } from './maritime/maritime';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'map', pathMatch: 'full' },
-  { path: 'map', component: MapComponent },
+  { path: 'map', loadComponent: () => import('./geolibre/geolibre').then(m => m.GeolibreComponent) },
+  { path: 'geolibre', loadComponent: () => import('./geolibre/geolibre').then(m => m.GeolibreComponent) },
+  { path: 'classic-map', component: MapComponent },
   { path: 'quiz', component: QuizComponent },
   { path: 'locate', component: LocateComponent },
   { path: 'forex', component: ForexComponent },
