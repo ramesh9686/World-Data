@@ -1,0 +1,72 @@
+<div class="pure-3d-model-container">
+  <!-- Right Side & Middle Ultra-Compact Icon Dock with AM/PM Time Badge -->
+  <aside class="right-icon-dock">
+    <div class="time-badge" [title]="'Auto-detected client time: ' + detectedTimeString">
+      <span class="time-badge-text">{{ detectedTimeString }}</span>
+    </div>
+
+    <button
+      class="icon-dock-btn"
+      [class.active]="activeModelId === 'model1'"
+      (click)="selectModel('model1')"
+      title="Day Mode 3D Model 1 (Active for AM/Day hours)"
+    >
+      ☀️
+    </button>
+    <button
+      class="icon-dock-btn"
+      [class.active]="activeModelId === 'model2'"
+      (click)="selectModel('model2')"
+      title="Night Mode 3D Model 2 (Active for PM/Night hours)"
+    >
+      🌙
+    </button>
+    <button
+      class="icon-dock-btn"
+      [class.active]="activeModelId === 'model3'"
+      (click)="selectModel('model3')"
+      title="Planet Globe 3D Model 3"
+    >
+      🪐
+    </button>
+  </aside>
+
+  <!-- 3D Earth Model 1 Iframe (Day Mode Photorealistic) -->
+  <iframe
+    *ngIf="activeModelId === 'model1'"
+    title="3D Earth Model 1 - Day Mode"
+    [src]="model1Url"
+    frameborder="0"
+    allowfullscreen
+    mozallowfullscreen="true"
+    webkitallowfullscreen="true"
+    allow="autoplay; fullscreen; xr-spatial-tracking"
+    class="pure-sketchfab-iframe"
+  ></iframe>
+
+  <!-- 3D Earth Model 2 Iframe (Night Mode 16k High-Res) -->
+  <iframe
+    *ngIf="activeModelId === 'model2'"
+    title="3D Earth Model 2 - Night Mode"
+    [src]="model2Url"
+    frameborder="0"
+    allowfullscreen
+    mozallowfullscreen="true"
+    webkitallowfullscreen="true"
+    allow="autoplay; fullscreen; xr-spatial-tracking"
+    class="pure-sketchfab-iframe"
+  ></iframe>
+
+  <!-- 3D Earth Model 3 Iframe (Planet Globe) -->
+  <iframe
+    *ngIf="activeModelId === 'model3'"
+    title="3D Earth Model 3 - Planet Globe"
+    [src]="model3Url"
+    frameborder="0"
+    allowfullscreen
+    mozallowfullscreen="true"
+    webkitallowfullscreen="true"
+    allow="autoplay; fullscreen; xr-spatial-tracking"
+    class="pure-sketchfab-iframe"
+  ></iframe>
+</div>

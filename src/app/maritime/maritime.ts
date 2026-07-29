@@ -43,6 +43,13 @@ export class MaritimeComponent implements OnInit, OnDestroy {
   hoveredCountryName: string = '';
   selectedCargoFilter: 'All' | 'Container' | 'Tanker' | 'LNG' | 'Bulk' = 'All';
 
+  // Live AIS Telemetry Engine State
+  liveAisMode: 'simulated_live' | 'custom_api' = 'simulated_live';
+  customAisApiKey: string = '';
+  isAisModalOpen: boolean = false;
+  aisPingCount: number = 14209;
+  lastAisSyncTime: string = 'Just Now';
+
   // Viewport Camera Engine
   zoom = 1.0;
   panX = 0;
@@ -90,7 +97,7 @@ export class MaritimeComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Real-Time Vessel Movement Engine (Runs every 40ms)
+  // Real-Time Vessel Movement & GPS Latitude/Longitude Telemetry Engine
   private startVesselMotionEngine(): void {
     this.motionTimer = setInterval(() => {
       let updated = false;
@@ -106,8 +113,15 @@ export class MaritimeComponent implements OnInit, OnDestroy {
         const posAndHeading = this.interpolateWaypoints(vessel.waypoints, vessel.progressPercent);
         vessel.currentPos = { x: posAndHeading.x, y: posAndHeading.y };
         vessel.headingDeg = posAndHeading.headingDeg;
+
+        // Calculate dynamic live real-world GPS Latitude & Longitude from SVG coordinate projection
+        vessel.currentLng = parseFloat(((posAndHeading.x - 505) * (360 / 1010)).toFixed(4));
+        vessel.currentLat = parseFloat(((333 - posAndHeading.y) * (180 / 666)).toFixed(4));
+
         updated = true;
       }
+
+      this.aisPingCount++;
 
       if (updated) {
         this.cdr.markForCheck();
@@ -142,6 +156,18 @@ export class MaritimeComponent implements OnInit, OnDestroy {
     const headingDeg = (headingRad * 180) / Math.PI;
 
     return { x: currentX, y: currentY, headingDeg };
+  }
+
+  // Live AIS Telemetry Modal Handlers
+  openAisModal(): void {
+    this.isAisModalOpen = true;
+    this.playUiSound('select');
+    this.cdr.markForCheck();
+  }
+
+  closeAisModal(): void {
+    this.isAisModalOpen = false;
+    this.cdr.markForCheck();
   }
 
   // Filtered Corridors & Vessels
@@ -277,7 +303,7 @@ export class MaritimeComponent implements OnInit, OnDestroy {
   // Pan & Drag Handlers
   startPan(event: MouseEvent): void {
     const target = event.target as HTMLElement;
-    if (target.closest('.camera-control-group, .maritime-telemetry-dock, .filter-pill')) {
+    if (target.closest('.camera-control-group, .maritime-telemetry-dock, .filter-pill, .ais-badge-btn')) {
       return;
     }
     this.isPanning = true;

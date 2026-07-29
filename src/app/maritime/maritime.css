@@ -7,7 +7,7 @@
   padding: 1.5rem 2rem 4rem;
   background: radial-gradient(circle at 50% 0%, #0b192e 0%, #030712 85%);
   color: #f8fafc;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: 'Outfit', 'Space Grotesk', system-ui, sans-serif;
   box-sizing: border-box;
 }
 
@@ -15,7 +15,7 @@
 .maritime-ticker-bar {
   background: rgba(11, 25, 46, 0.85);
   border: 1px solid rgba(6, 182, 212, 0.3);
-  border-radius: 12px;
+  border-radius: 14px;
   padding: 0.6rem 1.25rem;
   display: flex;
   align-items: center;
@@ -30,7 +30,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.75rem;
   font-weight: 900;
   color: #06b6d4;
@@ -70,7 +70,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.8rem;
   white-space: nowrap;
 }
@@ -96,6 +96,27 @@
 .trend.neg { color: #f87171; background: rgba(239, 68, 68, 0.15); }
 .trend.warn { color: #fbbf24; background: rgba(245, 158, 11, 0.15); }
 .trend.alert { color: #ef4444; background: rgba(239, 68, 68, 0.2); }
+
+.ais-badge-btn {
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(168, 85, 247, 0.2));
+  border: 1px solid rgba(0, 242, 254, 0.5);
+  color: #00f2fe;
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 0.4rem 0.85rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all 0.25s ease;
+  box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
+}
+
+.ais-badge-btn:hover {
+  background: linear-gradient(135deg, #00f2fe, #7c3aed);
+  color: #ffffff;
+  box-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
+}
 
 .audio-toggle-btn {
   background: rgba(255, 255, 255, 0.05);
@@ -177,7 +198,7 @@
   font-size: 1.2rem;
   font-weight: 900;
   color: #f1f5f9;
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .b-val.highlight {
@@ -276,7 +297,7 @@
   background: rgba(11, 25, 46, 0.9);
   border: 1px solid #06b6d4;
   color: #06b6d4;
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.85rem;
   font-weight: 900;
   padding: 0.4rem 0.85rem;
@@ -336,7 +357,6 @@
 
 
 /* ── SVG Map Layers & Animations ─────────────────────────────────────── */
-
 .maritime-country-path {
   fill: #0f233d;
   stroke: rgba(56, 189, 248, 0.25);
@@ -352,73 +372,8 @@
   filter: drop-shadow(0 0 8px #06b6d4);
 }
 
-/* Flowing Shipping Corridor Dashes */
-.flowing-lane-dash {
-  animation: lane-flow 25s linear infinite;
-}
-
-@keyframes lane-flow {
-  from { stroke-dashoffset: 200; }
-  to { stroke-dashoffset: 0; }
-}
-
-/* Strategic Chokepoint Pulse */
-.chokepoint-group {
-  cursor: pointer;
-}
-
-.radar-pulse-ring {
-  fill: none;
-  stroke-width: 1.5;
-  animation: cp-ring-pulse 2.2s ease-out infinite;
-}
-
-@keyframes cp-ring-pulse {
-  0% { r: 6; opacity: 1; stroke-width: 2; }
-  100% { r: 24; opacity: 0; stroke-width: 0.5; }
-}
-
-/* Canal Nodes */
-.canal-node-group {
-  cursor: pointer;
-}
-
-.canal-pulse-ring {
-  fill: none;
-  stroke: #fbbf24;
-  stroke-width: 1.5;
-  animation: canal-ring-pulse 2.5s ease-out infinite;
-}
-
-@keyframes canal-ring-pulse {
-  0% { r: 5; opacity: 1; stroke-width: 2; }
-  100% { r: 20; opacity: 0; stroke-width: 0.5; }
-}
-
-.canal-node-group:hover text {
-  fill: #ffffff;
-}
-
-/* Megaport Nodes */
-.port-marker-node {
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.port-marker-node:hover text {
-  fill: #38bdf8;
-}
-
-/* Vessel Ship Nodes */
 .vessel-node {
   cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.vessel-node:hover rect {
-  fill: #fbbf24;
-  stroke: #ffffff;
-  filter: drop-shadow(0 0 8px #fbbf24);
 }
 
 .ship-label {
@@ -432,11 +387,11 @@
   position: fixed;
   bottom: 1.5rem;
   right: 2rem;
-  width: 440px;
-  background: rgba(11, 25, 46, 0.92);
+  width: 480px;
+  background: rgba(11, 25, 46, 0.94);
   border: 1px solid rgba(6, 182, 212, 0.4);
-  border-radius: 18px;
-  padding: 1.25rem 1.5rem;
+  border-radius: 20px;
+  padding: 1.35rem 1.6rem;
   backdrop-filter: blur(24px);
   box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(6, 182, 212, 0.15);
   z-index: 100;
@@ -485,7 +440,7 @@
 }
 
 .status-badge {
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.72rem;
   font-weight: 800;
   padding: 0.25rem 0.65rem;
@@ -507,7 +462,7 @@
 
 .dock-metrics-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 0.65rem;
 }
 
@@ -519,27 +474,35 @@
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
+}
 
-  .lbl {
-    font-size: 0.6rem;
-    font-weight: 800;
-    color: #64748b;
-  }
+.metric-card .lbl {
+  font-size: 0.6rem;
+  font-weight: 800;
+  color: #64748b;
+}
 
-  .val {
-    font-family: monospace;
-    font-size: 0.82rem;
-    font-weight: 800;
-    color: #f1f5f9;
-  }
+.metric-card .val {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #f1f5f9;
+}
 
-  .val.highlight {
-    color: #06b6d4;
-  }
+.metric-card .val.highlight {
+  color: #06b6d4;
+}
 
-  .val.gold-txt {
-    color: #fbbf24;
-  }
+.metric-card .val.gold-txt {
+  color: #fbbf24;
+}
+
+.metric-card .val.gps-txt {
+  color: #a855f7;
+}
+
+.metric-card .val.alert-txt {
+  color: #ef4444;
 }
 
 .dock-summary {
@@ -554,12 +517,6 @@
   align-items: center;
   gap: 0.35rem;
   flex-wrap: wrap;
-
-  .lbl {
-    font-size: 0.7rem;
-    color: #64748b;
-    font-weight: 700;
-  }
 }
 
 .comm-pill {
@@ -598,7 +555,170 @@
 
 .voyage-fill {
   height: 100%;
-  background: linear-gradient(90deg, #06b6d4, #38bdf8);
+  background: linear-gradient(90deg, #06b6d4, #a855f7);
   box-shadow: 0 0 10px #06b6d4;
   transition: width 0.4s ease;
+}
+
+/* AIS Satellite Settings Modal */
+.ais-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(12px);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.ais-modal-card {
+  width: 100%;
+  max-width: 540px;
+  background: rgba(13, 17, 28, 0.95);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  border-radius: 24px;
+  padding: 1.75rem;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(24px);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  padding-bottom: 0.85rem;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #00f2fe;
+}
+
+.close-modal-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.modal-desc {
+  font-size: 0.85rem;
+  color: #94a3b8;
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+}
+
+.ais-mode-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-bottom: 1.25rem;
+}
+
+.mode-radio-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  background: rgba(22, 30, 48, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1rem;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.mode-radio-card.active {
+  border-color: #00f2fe;
+  background: rgba(0, 242, 254, 0.12);
+  box-shadow: 0 0 16px rgba(0, 242, 254, 0.25);
+}
+
+.radio-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.radio-text strong {
+  font-size: 0.9rem;
+  color: #ffffff;
+}
+
+.radio-text span {
+  font-size: 0.78rem;
+  color: #94a3b8;
+}
+
+.api-key-input-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.api-key-input-box label {
+  font-size: 0.82rem;
+  color: #94a3b8;
+  font-weight: 700;
+}
+
+.ais-api-input {
+  background: rgba(8, 12, 22, 0.9);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  color: #ffffff;
+  padding: 0.65rem 1rem;
+  border-radius: 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.85rem;
+  outline: none;
+}
+
+.modal-footer-stats {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.85rem;
+}
+
+/* ── View in 3D GeoLibre WebGL Jump Button ───────────────────────────── */
+.btn-geolibre-jump {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  width: 100%;
+  margin-top: 0.85rem;
+  background: linear-gradient(135deg, #00f2fe, #7c3aed);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #ffffff;
+  font-family: 'Outfit', 'Space Grotesk', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  padding: 0.7rem 1.2rem;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 
+    inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+    inset -2px -2px 6px rgba(0, 0, 0, 0.4),
+    0 6px 20px rgba(0, 242, 254, 0.4);
+}
+
+.btn-geolibre-jump:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 
+    inset 2px 2px 6px rgba(255, 255, 255, 0.6),
+    0 0 28px rgba(0, 242, 254, 0.7);
 }

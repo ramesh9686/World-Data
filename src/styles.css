@@ -2,14 +2,18 @@
 
 :root {
   --bg-space: #030712;
-  --bg-card: rgba(15, 23, 42, 0.75);
-  --border-cyan: rgba(56, 189, 248, 0.3);
+  --bg-card-glass: rgba(13, 17, 28, 0.75);
+  --border-glass: rgba(255, 255, 255, 0.12);
+  --border-cyan-glow: rgba(56, 189, 248, 0.4);
+  --border-purple-glow: rgba(168, 85, 247, 0.4);
+  
   --accent-cyan: #38bdf8;
   --accent-neon: #00f2fe;
-  --accent-purple: #818cf8;
-  --accent-magenta: #f43f5e;
+  --accent-purple: #a855f7;
+  --accent-pink: #ec4899;
   --accent-emerald: #10b981;
   --accent-amber: #f59e0b;
+  
   --font-heading: 'Outfit', 'Space Grotesk', sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --font-body: 'Inter', system-ui, sans-serif;
@@ -27,9 +31,10 @@ html, body {
   font-family: var(--font-body);
   background-color: var(--bg-space);
   background-image: 
-    radial-gradient(circle at 50% 20%, rgba(14, 165, 233, 0.08) 0%, transparent 60%),
-    radial-gradient(circle at 80% 80%, rgba(129, 140, 248, 0.06) 0%, transparent 50%),
-    radial-gradient(circle at 20% 80%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
+    radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 85% 20%, rgba(168, 85, 247, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 50% 85%, rgba(236, 72, 153, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 45%);
   background-attachment: fixed;
   color: #f8fafc;
   overflow-x: hidden;
@@ -37,27 +42,131 @@ html, body {
 }
 
 ::selection {
-  background: var(--accent-cyan);
+  background: var(--accent-neon);
   color: #030712;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   ✨ GEN Z MORPHISM DESIGN UTILITIES (GLASS, NEUMORPHISM, CLAYMORPHISM)
+   ────────────────────────────────────────────────────────────────────────── */
+
+/* 🧪 1. GLASSMORPHISM (Frosted Translucent Cards) */
+.glass-panel {
+  background: rgba(13, 17, 28, 0.72) !important;
+  backdrop-filter: blur(20px) saturate(190%) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(190%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.14) !important;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.15),
+    0 12px 32px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 20px !important;
+}
+
+.glass-card-interactive {
+  background: rgba(18, 24, 38, 0.75) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.glass-card-interactive:hover {
+  transform: translateY(-4px) scale(1.02) !important;
+  border-color: rgba(56, 189, 248, 0.5) !important;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    0 0 24px rgba(56, 189, 248, 0.35),
+    0 16px 40px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* 🧪 2. NEUMORPHISM (Soft Depth & Inset Control Depths) */
+.neumorphic-inset {
+  background: rgba(8, 12, 22, 0.85) !important;
+  box-shadow: 
+    inset 3px 3px 8px rgba(0, 0, 0, 0.7),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.04) !important;
+  border: 1px solid rgba(255, 255, 255, 0.06) !important;
+  border-radius: 14px !important;
+}
+
+.neumorphic-outset {
+  background: linear-gradient(145deg, rgba(25, 34, 54, 0.8), rgba(12, 18, 30, 0.9)) !important;
+  box-shadow: 
+    5px 5px 15px rgba(0, 0, 0, 0.6),
+    -3px -3px 10px rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  transition: all 0.2s ease !important;
+}
+
+.neumorphic-outset:hover {
+  box-shadow: 
+    7px 7px 20px rgba(0, 0, 0, 0.7),
+    -4px -4px 12px rgba(255, 255, 255, 0.08),
+    0 0 16px rgba(0, 242, 254, 0.3) !important;
+}
+
+/* 🧪 3. CLAYMORPHISM (3D Tactile Rounded Pills & Tags) */
+.clay-pill {
+  border-radius: 9999px !important;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(168, 85, 247, 0.25)) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 
+    inset 2px 2px 4px rgba(255, 255, 255, 0.4),
+    inset -2px -2px 6px rgba(0, 0, 0, 0.5),
+    0 8px 20px rgba(0, 0, 0, 0.4) !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.03em !important;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+}
+
+.clay-pill:hover {
+  transform: scale(1.06) translateY(-2px) !important;
+  box-shadow: 
+    inset 2px 2px 6px rgba(255, 255, 255, 0.6),
+    inset -2px -2px 6px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(0, 242, 254, 0.6) !important;
+}
+
+.clay-pill.active {
+  background: linear-gradient(135deg, #00f2fe, #7c3aed) !important;
+  color: #ffffff !important;
+  box-shadow: 
+    inset 2px 2px 6px rgba(255, 255, 255, 0.6),
+    inset -2px -2px 8px rgba(0, 0, 0, 0.4),
+    0 0 24px rgba(0, 242, 254, 0.7) !important;
+}
+
+/* 🧪 4. GEN-Z GRADIENTS & ANIMATED AURA TEXT */
+.gradient-text-genz {
+  background: linear-gradient(135deg, #00f2fe 0%, #a855f7 50%, #ec4899 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-size: 200% auto !important;
+  animation: shinyGradient 4s linear infinite !important;
+}
+
+@keyframes shinyGradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
 /* Futuristic Scrollbar styling */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(3, 7, 18, 0.8);
+  background: rgba(3, 7, 18, 0.9);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(56, 189, 248, 0.25);
+  background: linear-gradient(to bottom, #00f2fe, #a855f7);
   border-radius: 9999px;
-  border: 1px solid rgba(56, 189, 248, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(56, 189, 248, 0.6);
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.8);
+  background: linear-gradient(to bottom, #00f2fe, #ec4899);
+  box-shadow: 0 0 12px #00f2fe;
 }

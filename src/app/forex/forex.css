@@ -859,6 +859,16 @@
   font-weight: 900;
   color: #f1f5f9;
 
+  .lbl-small {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #38bdf8;
+    letter-spacing: 0.05em;
+    display: block;
+    margin-bottom: 0.15rem;
+    font-family: system-ui, sans-serif;
+  }
+
   .sym {
     color: #38bdf8;
     margin-right: 0.15rem;

@@ -4,75 +4,147 @@
     <div class="geolibre-title-group">
       <span class="geolibre-logo">🌐</span>
       <div>
-        <h1 class="geolibre-title">3D Vector Globe & World Telemetry Core</h1>
-        <p class="geolibre-subtitle">Native MapLibre WebGL Engine with 3D Country Extrusions, 34-Year Temporal Timeline & Multi-Layer GIS</p>
+        <h1 class="geolibre-title">1. WORLD DATA CORE • 3D VECTOR GLOBE</h1>
+        <p class="geolibre-subtitle">Native MapLibre GL WebGL Engine • World Bank / WHO / UN Live Indicators & Multi-Style Analytics</p>
       </div>
     </div>
+
+    <!-- Search & Quick-Fly Bar -->
+    <div class="search-bar-container">
+      <div class="search-input-wrapper">
+        <span class="search-icon">🔍</span>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Search country, capital city, or region..."
+          [(ngModel)]="searchQuery"
+          (input)="onSearchInput()"
+          (focus)="isSearchOpen = searchResults.length > 0"
+        />
+        <button *ngIf="searchQuery" class="clear-search-btn" (click)="searchQuery = ''; onSearchInput()">✖</button>
+      </div>
+
+      <!-- Live Search Suggest Dropdown -->
+      <div *ngIf="isSearchOpen && searchResults.length > 0" class="search-results-dropdown">
+        <div
+          *ngFor="let item of searchResults"
+          class="search-result-item"
+          (click)="selectSearchResult(item)"
+        >
+          <span class="result-flag">{{ item.flag }}</span>
+          <div class="result-info">
+            <span class="result-name">{{ item.name }}</span>
+            <span class="result-cat">{{ item.category }}</span>
+          </div>
+          <span class="result-fly-icon">➔</span>
+        </div>
+      </div>
+    </div>
+
     <div class="header-actions">
-      <button class="btn-primary-gis" (click)="exportCountriesGeoJSON()">
-        <span>📥</span> Export Countries GeoJSON
+      <button class="audio-toggle-btn" [class.muted]="audioMuted" (click)="toggleAudio()" [title]="audioMuted ? 'Unmute Audio SFX' : 'Mute Audio SFX'">
+        {{ audioMuted ? '🔇 Muted' : '🔊 Sound SFX' }}
       </button>
-      <button class="btn-secondary-gis" (click)="exportMaritimeGeoJSON()">
-        <span>🚢</span> Export Maritime Layer
+      <button class="btn-primary-gis" (click)="exportCountriesGeoJSON()">
+        <span>📥</span> Export GeoJSON
       </button>
     </div>
   </header>
 
-  <!-- 34-Year Temporal Timeline & 3D Extrusion Control Bar -->
-  <div class="control-bar temporal-bar">
-    <div class="temporal-controls">
-      <span class="switcher-title">⏳ Temporal Timeline:</span>
-      <button class="style-btn play-btn" (click)="togglePlayTimeline()">
-        {{ isPlayingTimeline ? '⏸️ Pause' : '▶️ Play 34-Year Time Lapse' }}
-      </button>
-      <input type="range" min="1990" max="2024" [value]="selectedYear" (input)="onYearChange($event)" class="range-input temporal-slider" />
-      <span class="coord-tag year-tag">{{ selectedYear }}</span>
+  <!-- 1. FIRST: 3D VECTOR GLOBE MAP WORKSPACE GRID -->
+  <div class="workspace-grid">
+    <!-- Main WebGL Map Viewport -->
+    <div class="map-viewport-card">
+      <div class="viewport-toolbar">
+        <div class="viewport-title">
+          <span class="live-indicator"></span>
+          <span>MapLibre GL JS WebGL 3D Vector Engine</span>
+          <span class="active-mode-badge">WORLD DATA CORE</span>
+        </div>
+        <div style="display: flex; gap: 0.8rem; font-size: 0.82rem; color: #94a3b8; font-family: monospace;">
+          <span>LAT: <strong style="color: #00f2fe;">{{ currentLat.toFixed(4) }}</strong></span>
+          <span>LNG: <strong style="color: #00f2fe;">{{ currentLng.toFixed(4) }}</strong></span>
+          <span>ZOOM: <strong style="color: #00f2fe;">{{ currentZoom }}x</strong></span>
+        </div>
+      </div>
+
+      <!-- WebGL Map Container -->
+      <div class="maplibre-canvas-container">
+        <div #mapCanvas id="maplibre-canvas"></div>
+
+        <!-- Selected Detail Telemetry Dock Card (Clean Summary) -->
+        <div *ngIf="selectedDetailCard" class="selected-detail-card">
+          <div class="detail-card-header">
+            <div class="detail-card-title">
+              <h3>{{ selectedDetailCard.title }}</h3>
+              <span class="detail-card-badge">{{ selectedDetailCard.category }}</span>
+            </div>
+            <button class="close-card-btn" (click)="closeDetailCard()">✖</button>
+          </div>
+
+          <div class="detail-card-body">
+            <div *ngFor="let d of selectedDetailCard.details" class="detail-card-row">
+              <span class="detail-card-lbl">{{ d.label }}:</span>
+              <span class="detail-card-val">{{ d.value }}</span>
+            </div>
+            <p *ngIf="selectedDetailCard.summary" class="detail-card-summary">
+              {{ selectedDetailCard.summary }}
+            </p>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div class="extrusion-selector">
-      <span class="switcher-title">📊 3D Vector Extrusion:</span>
-      <button class="style-btn" [class.active]="extrusionMetric === 'none'" (click)="setExtrusionMetric('none')">
-        Flat Markers
-      </button>
-      <button class="style-btn" [class.active]="extrusionMetric === 'gdp'" (click)="setExtrusionMetric('gdp')">
-        💰 GDP Columns
-      </button>
-      <button class="style-btn" [class.active]="extrusionMetric === 'population'" (click)="setExtrusionMetric('population')">
-        👥 Population Columns
-      </button>
-      <button class="style-btn" [class.active]="extrusionMetric === 'area'" (click)="setExtrusionMetric('area')">
-        📐 Area Columns
-      </button>
+    <!-- Sidebar Panel: 3D Targets & GIS Export Suite -->
+    <div class="sidebar-panel">
+      <div class="panel-card">
+        <h3 class="card-title">🎯 3D Fly-To Quick Targets</h3>
+        <div class="preset-list">
+          <button class="location-fly-btn" (click)="jumpToPreset('suez')">
+            <span>🇪🇬 Suez Canal Passage</span> ➔
+          </button>
+          <button class="location-fly-btn" (click)="jumpToPreset('panama')">
+            <span>🇵🇦 Panama Inter-Oceanic Link</span> ➔
+          </button>
+          <button class="location-fly-btn" (click)="jumpToPreset('malacca')">
+            <span>🇸🇬 Strait of Malacca</span> ➔
+          </button>
+          <button class="location-fly-btn" (click)="jumpToPreset('europe')">
+            <span>🇪🇺 European Financial Hubs</span> ➔
+          </button>
+          <button class="location-fly-btn" (click)="jumpToPreset('tokyo')">
+            <span>🇯🇵 Tokyo Bay Megacity</span> ➔
+          </button>
+          <button class="location-fly-btn" (click)="jumpToPreset('usa')">
+            <span>🇺🇸 North America Corridor</span> ➔
+          </button>
+        </div>
+      </div>
+
+      <!-- GIS Suite Export Card -->
+      <div class="panel-card">
+        <h3 class="card-title">📦 GIS Export Suite</h3>
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <button class="btn-secondary-gis" style="width: 100%; justify-content: center;" (click)="exportCountriesGeoJSON()">
+            📄 Download Countries GeoJSON
+          </button>
+          <button class="btn-secondary-gis" style="width: 100%; justify-content: center;" (click)="exportMaritimeGeoJSON()">
+            🚢 Download Maritime GeoJSON
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- Vector Layer Toggles & Basemap Switcher Bar -->
+  <!-- Basemap Switcher & 3D Camera Controls Bar -->
   <div class="control-bar">
-    <!-- Vector Layers Toggle Pills -->
-    <div class="basemap-switcher">
-      <span class="switcher-title">GIS Layers:</span>
-      <button class="style-btn" [class.active]="showCountriesLayer" (click)="toggleLayer('countries')">
-        🌍 Countries Data
-      </button>
-      <button class="style-btn" [class.active]="showMaritimeLayer" (click)="toggleLayer('maritime')">
-        🚢 Maritime & Canals
-      </button>
-      <button class="style-btn" [class.active]="showFxNodesLayer" (click)="toggleLayer('fx')">
-        💱 FX Currency Hubs
-      </button>
-      <button class="style-btn" [class.active]="showEmpiresLayer" (click)="toggleLayer('empires')">
-        🏛️ Historical Empires
-      </button>
-    </div>
-
-    <!-- 3D Basemap Selector -->
     <div class="basemap-switcher">
       <span class="switcher-title">Basemap:</span>
-      <button class="style-btn" [class.active]="activeStyleId === 'dark'" (click)="switchBasemapStyle('dark')">
-        🌙 Dark
-      </button>
       <button class="style-btn" [class.active]="activeStyleId === 'satellite'" (click)="switchBasemapStyle('satellite')">
         🛰️ Satellite
+      </button>
+      <button class="style-btn" [class.active]="activeStyleId === 'dark'" (click)="switchBasemapStyle('dark')">
+        🌙 Dark
       </button>
       <button class="style-btn" [class.active]="activeStyleId === 'topo'" (click)="switchBasemapStyle('topo')">
         ⛰️ Topo
@@ -80,12 +152,9 @@
       <button class="style-btn" [class.active]="activeStyleId === 'positron'" (click)="switchBasemapStyle('positron')">
         ☀️ Light
       </button>
-      <button class="style-btn" [class.active]="activeStyleId === 'vector'" (click)="switchBasemapStyle('vector')">
-        🗺️ Vector Demo
-      </button>
     </div>
 
-    <!-- 3D Camera Controls -->
+    <!-- 3D Camera Dials -->
     <div class="camera-dials">
       <div class="dial-group">
         <span>📐 3D Tilt:</span>
@@ -105,175 +174,177 @@
     </div>
   </div>
 
-  <!-- Workspace Grid: Native WebGL Canvas + Fly-To Sidebar -->
-  <div class="workspace-grid">
-    <!-- Main Native WebGL Map Viewport -->
-    <div class="map-viewport-card">
-      <div class="viewport-toolbar">
-        <div class="viewport-title">
-          <span class="live-indicator"></span>
-          <span>MapLibre WebGL 3D Vector Engine</span>
-        </div>
-        <div style="display: flex; gap: 1rem; font-size: 0.82rem; color: #94a3b8; font-family: monospace;">
-          <span>YEAR: <strong style="color: #f59e0b;">{{ selectedYear }}</strong></span>
-          <span>LAT: <strong style="color: #00f2fe;">{{ currentLat.toFixed(4) }}</strong></span>
-          <span>LNG: <strong style="color: #00f2fe;">{{ currentLng.toFixed(4) }}</strong></span>
-          <span>ZOOM: <strong style="color: #00f2fe;">{{ currentZoom }}x</strong></span>
-        </div>
-      </div>
-      
-      <!-- WebGL Map Container -->
-      <div class="maplibre-canvas-container">
-        <div #mapCanvas id="maplibre-canvas"></div>
-
-        <!-- Selected Detail Telemetry Dock Card -->
-        <div *ngIf="selectedDetailCard" class="selected-detail-card">
-          <div class="detail-card-header">
-            <div class="detail-card-title">
-              <h3>{{ selectedDetailCard.title }}</h3>
-              <span class="detail-card-badge">{{ selectedDetailCard.category }}</span>
-            </div>
-            <button class="close-card-btn" (click)="closeDetailCard()">✖</button>
-          </div>
-          <div class="detail-card-body">
-            <div *ngFor="let d of selectedDetailCard.details" class="detail-card-row">
-              <span class="detail-card-lbl">{{ d.label }}:</span>
-              <span class="detail-card-val">{{ d.value }}</span>
-            </div>
-            <p *ngIf="selectedDetailCard.summary" class="detail-card-summary">
-              {{ selectedDetailCard.summary }}
-            </p>
-            <!-- Action Toolbar for Selected Country -->
-            <div style="display: flex; gap: 0.4rem; margin-top: 0.85rem; flex-wrap: wrap;">
-              <button class="style-btn" style="flex: 1; text-align: center; font-size: 0.78rem;" (click)="navigateToModule('/quiz')">
-                🎯 Quiz
-              </button>
-              <button class="style-btn" style="flex: 1; text-align: center; font-size: 0.78rem;" (click)="navigateToModule('/locate')">
-                📍 Locator
-              </button>
-              <button class="style-btn" style="flex: 1; text-align: center; font-size: 0.78rem;" (click)="navigateToModule('/forex')">
-                💱 FX Rate
-              </button>
-              <button class="style-btn" style="flex: 1; text-align: center; font-size: 0.78rem;" (click)="navigateToModule('/maritime')">
-                🚢 Routes
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+  <!-- 34-Year Temporal Time-Lapse & 3D Extrusion Control Bar -->
+  <div class="control-bar temporal-bar">
+    <div class="temporal-controls">
+      <span class="switcher-title">⏳ 34-Year Time Lapse:</span>
+      <button class="style-btn play-btn" (click)="togglePlayTimeline()">
+        {{ isPlayingTimeline ? '⏸️ Pause' : '▶️ Play 34-Year Time Lapse' }}
+      </button>
+      <input type="range" min="1990" max="2024" [value]="selectedYear" (input)="onYearChange($event)" class="range-input temporal-slider" />
+      <span class="coord-tag year-tag">{{ selectedYear }}</span>
     </div>
 
-    <!-- Sidebar 3D Target Locations & Layer Info -->
-    <div class="sidebar-panel">
-      <div class="panel-card">
-        <h3 class="card-title">🎯 3D Fly-To Quick Targets</h3>
-        <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 0.85rem;">
-          Click to fly 3D camera to high-priority global chokepoints and economic hubs:
-        </p>
-        <div class="preset-list">
-          <button class="location-fly-btn" (click)="jumpToPreset('suez')">
-            <span>🇪🇬 Suez Canal Bottleneck</span>
-            <span>➔</span>
-          </button>
-          <button class="location-fly-btn" (click)="jumpToPreset('panama')">
-            <span>🇵🇦 Panama Inter-Oceanic Link</span>
-            <span>➔</span>
-          </button>
-          <button class="location-fly-btn" (click)="jumpToPreset('malacca')">
-            <span>🇸🇬 Strait of Malacca</span>
-            <span>➔</span>
-          </button>
-          <button class="location-fly-btn" (click)="jumpToPreset('europe')">
-            <span>🇪🇺 European Trade Network</span>
-            <span>➔</span>
-          </button>
-          <button class="location-fly-btn" (click)="jumpToPreset('tokyo')">
-            <span>🇯🇵 Tokyo Bay Megacity</span>
-            <span>➔</span>
-          </button>
-          <button class="location-fly-btn" (click)="jumpToPreset('usa')">
-            <span>🇺🇸 North America Corridor</span>
-            <span>➔</span>
-          </button>
-        </div>
-      </div>
-
-      <div class="panel-card">
-        <h3 class="card-title">📦 GIS Export Suite</h3>
-        <p style="font-size: 0.85rem; color: #94a3b8; margin: 0 0 1rem 0;">
-          Download active datasets as OGC standard GeoJSON files:
-        </p>
-        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
-          <button class="btn-secondary-gis" style="width: 100%; justify-content: center;" (click)="exportCountriesGeoJSON()">
-            📄 Download Countries GeoJSON
-          </button>
-          <button class="btn-secondary-gis" style="width: 100%; justify-content: center;" (click)="exportMaritimeGeoJSON()">
-            🚢 Download Maritime GeoJSON
-          </button>
-        </div>
-      </div>
+    <div class="extrusion-selector">
+      <span class="switcher-title">📊 3D Vector Extrusion:</span>
+      <button class="style-btn" [class.active]="extrusionMetric === 'none'" (click)="setExtrusionMetric('none')">
+        Flat
+      </button>
+      <button class="style-btn" [class.active]="extrusionMetric === 'gdp'" (click)="setExtrusionMetric('gdp')">
+        💰 GDP Columns
+      </button>
+      <button class="style-btn" [class.active]="extrusionMetric === 'population'" (click)="setExtrusionMetric('population')">
+        👥 Population
+      </button>
+      <button class="style-btn" [class.active]="extrusionMetric === 'area'" (click)="setExtrusionMetric('area')">
+        📐 Land Area
+      </button>
     </div>
   </div>
 
-  <!-- DuckDB WASM Spatial SQL Query Engine Section -->
-  <section class="sql-query-section">
-    <div class="sql-header">
-      <div class="sql-title">
-        <span>⚡ DuckDB WASM Spatial Query Engine</span>
-        <span class="duckdb-badge">SPATIAL SQL</span>
+  <!-- 2. THEN: CATEGORY & SUBCATEGORY ANALYTICS CARD WITH GRAPH RESULTS DISPLAYED DIRECTLY BELOW -->
+  <section class="indicator-analytics-section">
+    <!-- Category (Topic) & Subcategory (Indicator) Selectors Header Row -->
+    <div class="analytics-selectors-bar">
+      <div class="indicator-selectors">
+        <span class="switcher-title">📌 Category (Topic):</span>
+        <select class="gis-select" [value]="selectedTopicId" (change)="onTopicChange($event)">
+          <option *ngFor="let t of wbTopics" [value]="t.id">{{ t.name }}</option>
+        </select>
+
+        <span class="switcher-title" style="margin-left: 0.8rem;">📊 Subcategory (Indicator):</span>
+        <select class="gis-select indicator-dropdown" [value]="selectedIndicatorId" (change)="onIndicatorChange($event)">
+          <option *ngFor="let ind of wbIndicators" [value]="ind.id">{{ ind.name }}</option>
+        </select>
       </div>
-      <div class="sql-presets">
-        <span style="font-size: 0.8rem; color: #64748b; align-self: center;">SQL Presets:</span>
-        <button class="sql-preset-btn" (click)="setQueryPreset('high_income')">High Income Countries</button>
-        <button class="sql-preset-btn" (click)="setQueryPreset('maritime_canals')">World Canals</button>
-        <button class="sql-preset-btn" (click)="setQueryPreset('chokepoints')">High Alert Chokepoints</button>
-        <button class="sql-preset-btn" (click)="setQueryPreset('landlocked')">Multi-Border Nations</button>
+
+      <!-- Graph Style Switcher Pills -->
+      <div class="chart-type-switcher">
+        <span class="switcher-lbl">Graph Style:</span>
+        <button class="chart-type-btn" [class.active]="chartStyleOverride === 'auto'" (click)="setChartStyleOverride('auto')">
+          ✨ Auto ({{ chartStyle.toUpperCase() }})
+        </button>
+        <button class="chart-type-btn" [class.active]="chartStyleOverride === 'bars'" (click)="setChartStyleOverride('bars')">
+          📊 Columns
+        </button>
+        <button class="chart-type-btn" [class.active]="chartStyleOverride === 'area'" (click)="setChartStyleOverride('area')">
+          📈 Spline Area
+        </button>
+        <button class="chart-type-btn" [class.active]="chartStyleOverride === 'progress'" (click)="setChartStyleOverride('progress')">
+          📏 Progress Gauges
+        </button>
+        <button class="chart-type-btn" [class.active]="chartStyleOverride === 'stepped'" (click)="setChartStyleOverride('stepped')">
+          ⚡ Stepped Pulse
+        </button>
       </div>
     </div>
 
-    <textarea
-      class="sql-input-box"
-      [(ngModel)]="sqlQuery"
-      placeholder="Enter Spatial SQL statement..."
-    ></textarea>
+    <!-- Indicator Source Description Note -->
+    <div class="indicator-desc-badge">
+      <span>ℹ️ {{ selectedIndicatorDesc || 'Select country on 3D map above to view live historical time-series analytics.' }}</span>
+    </div>
 
-    <div class="sql-actions">
-      <button class="btn-primary-gis" (click)="runSpatialQuery()">
-        ▶️ Execute Spatial Query
-      </button>
-      <div class="query-stats">
-        <span>Returned <strong>{{ queryResultCount }}</strong> records in <strong>{{ queryExecutionTime }}</strong></span>
+    <!-- Fallback Notice Banner -->
+    <div *ngIf="indicatorNoticeMessage" class="indicator-notice-banner">
+      <span>{{ indicatorNoticeMessage }}</span>
+      <button class="close-notice-btn" (click)="indicatorNoticeMessage = null">✖</button>
+    </div>
+
+    <!-- Summary Telemetry Stat Pills -->
+    <div class="analytics-stats-pills">
+      <div class="stat-pill">
+        <span class="pill-lbl">📍 Selected Country:</span>
+        <span class="pill-val" style="color: #00f2fe;">{{ selectedDetailCard?.title || 'Click Country on Globe Above' }}</span>
+      </div>
+      <div class="stat-pill">
+        <span class="pill-lbl">⚡ Latest Telemetry:</span>
+        <span class="pill-val" style="color: #34d399;">{{ indicatorLatestVal }}</span>
+      </div>
+      <div class="stat-pill">
+        <span class="pill-lbl">📉 Historical Min:</span>
+        <span class="pill-val" style="color: #cbd5e1;">{{ indicatorMinVal }}</span>
+      </div>
+      <div class="stat-pill">
+        <span class="pill-lbl">📈 Historical Max:</span>
+        <span class="pill-val" style="color: #f59e0b;">{{ indicatorMaxVal }}</span>
       </div>
     </div>
 
-    <!-- Spatial SQL Results Table -->
-    <div class="results-table-container" *ngIf="queryResults.length > 0">
-      <table class="spatial-table">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Category / Region</th>
-            <th>Metric 1</th>
-            <th>Metric 2</th>
-            <th>Coordinates</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let row of queryResults">
-            <td style="font-weight: 600; color: #f8fafc;">{{ row.name }}</td>
-            <td>{{ row.category }}</td>
-            <td>{{ row.metric1 }}</td>
-            <td>{{ row.metric2 }}</td>
-            <td><code style="color: #38bdf8;">{{ row.lat.toFixed(2) }}°, {{ row.lng.toFixed(2) }}°</code></td>
-            <td>
-              <button class="style-btn" (click)="flyToTarget(row.lng, row.lat, 7, 55, 15)">
-                Fly 3D Camera
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Prominent Full-Width Graph Container (RESULTS DISPLAYED DIRECTLY BELOW CATEGORY & SUBCATEGORY) -->
+    <div class="prominent-graph-card">
+      <div *ngIf="loadingIndicatorData" class="graph-loading-state">
+        <div class="spinner"></div>
+        <span>Fetching live dataset from World Bank & WHO API...</span>
+      </div>
+
+      <div *ngIf="!loadingIndicatorData && formattedIndicatorPoints.length > 0" class="graph-viewport-wrapper">
+        <!-- STYLE 1: Vertical Column Bar Chart -->
+        <div *ngIf="chartStyle === 'bars'" class="full-bar-graph">
+          <div *ngFor="let pt of formattedIndicatorPoints" class="full-graph-col" [title]="pt.year + ': ' + pt.value.toLocaleString()">
+            <span class="col-val-label">{{ pt.value.toLocaleString() }}</span>
+            <div class="full-bar-fill" [style.height.%]="pt.percent"></div>
+            <span class="col-year-label">{{ pt.year }}</span>
+          </div>
+        </div>
+
+        <!-- STYLE 2: Continuous Smooth SVG Spline Area Chart -->
+        <div *ngIf="chartStyle === 'area'" class="svg-area-chart-container">
+          <svg class="area-svg" viewBox="0 0 800 180" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="areaGlowGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stop-color="#00f2fe" stop-opacity="0.55"/>
+                <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.05"/>
+              </linearGradient>
+            </defs>
+
+            <!-- Filled Gradient Area -->
+            <path [attr.d]="svgAreaPath" fill="url(#areaGlowGradient)" />
+
+            <!-- Smooth Spline Stroke Line -->
+            <path [attr.d]="svgLinePath" fill="none" stroke="#00f2fe" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" />
+
+            <!-- Data Point Nodes -->
+            <g *ngFor="let pt of svgPoints">
+              <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="5" fill="#ffffff" stroke="#00f2fe" stroke-width="2.5" />
+              <text [attr.x]="pt.x" [attr.y]="pt.y - 10" text-anchor="middle" fill="#00f2fe" font-size="10" font-weight="bold" font-family="monospace">
+                {{ pt.value.toLocaleString() }}
+              </text>
+            </g>
+          </svg>
+          <div class="svg-year-axis">
+            <span *ngFor="let pt of formattedIndicatorPoints">{{ pt.year }}</span>
+          </div>
+        </div>
+
+        <!-- STYLE 3: Horizontal Metric Progress Gauges -->
+        <div *ngIf="chartStyle === 'progress'" class="progress-gauges-grid">
+          <div *ngFor="let pt of formattedIndicatorPoints" class="gauge-card">
+            <div class="gauge-header">
+              <span class="gauge-year">📅 {{ pt.year }}</span>
+              <span class="gauge-val">{{ pt.value.toLocaleString() }}</span>
+            </div>
+            <div class="gauge-track">
+              <div class="gauge-fill" [style.width.%]="pt.percent"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STYLE 4: Stepped Waveform Pulse Chart -->
+        <div *ngIf="chartStyle === 'stepped'" class="stepped-pulse-chart">
+          <div *ngFor="let pt of formattedIndicatorPoints" class="pulse-col" [title]="pt.year + ': ' + pt.value.toLocaleString()">
+            <span class="pulse-val">{{ pt.value.toLocaleString() }}</span>
+            <div class="pulse-block" [style.height.%]="pt.percent">
+              <div class="pulse-top-node"></div>
+            </div>
+            <span class="pulse-year">{{ pt.year }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!loadingIndicatorData && formattedIndicatorPoints.length === 0" class="graph-empty-state">
+        <span style="font-size: 2rem;">🌐</span>
+        <p>Select any country on the 3D globe above to load its live <strong>{{ selectedIndicatorName }}</strong> historical analytics graph.</p>
+      </div>
     </div>
   </section>
 </div>

@@ -1,30 +1,128 @@
-<header class="global-navbar">
-  <div class="nav-brand">
-    <span class="brand-logo">🌐</span>
-    <span class="brand-title">WORLD EXPLORER</span>
-  </div>
-  <nav class="nav-links">
-    <a routerLink="/map" routerLinkActive="active" class="nav-btn nav-btn-gis">
-      <span class="nav-icon">🌐</span> 3D Vector Globe
-    </a>
-    <a routerLink="/classic-map" routerLinkActive="active" class="nav-btn">
-      <span class="nav-icon">🗺️</span> Classic 2D Map
-    </a>
-    <a routerLink="/quiz" routerLinkActive="active" class="nav-btn">
-      <span class="nav-icon">🎯</span> Global Quiz
-    </a>
-    <a routerLink="/locate" routerLinkActive="active" class="nav-btn">
-      <span class="nav-icon">📍</span> Country Locator
-    </a>
-    <a routerLink="/forex" routerLinkActive="active" class="nav-btn">
-      <span class="nav-icon">💱</span> FX Matrix
-    </a>
-    <a routerLink="/maritime" routerLinkActive="active" class="nav-btn">
-      <span class="nav-icon">🚢</span> Maritime Routes
-    </a>
-  </nav>
-</header>
+<div class="app-layout" [class.sidebar-collapsed]="sidebarCollapsed">
+  <!-- Creative Left Sidebar Navigation -->
+  <aside class="sidebar-nav">
+    <div class="sidebar-header">
+      <div class="brand-group">
+        <span class="brand-icon">🌐</span>
+        <div class="brand-text">
+          <span class="brand-title">WORLD EXPLORER</span>
+          <span class="brand-subtitle">GIS & Telemetry Suite</span>
+        </div>
+      </div>
+      <button class="sidebar-toggle-btn" (click)="toggleSidebar()" [title]="sidebarCollapsed ? 'Expand Navigation Menu' : 'Collapse Navigation Menu'">
+        {{ sidebarCollapsed ? '➔' : '◀' }}
+      </button>
+    </div>
 
-<main class="main-content">
-  <router-outlet />
-</main>
+    <div class="nav-section-title">MAIN MODULES</div>
+
+    <nav class="sidebar-links">
+      <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="sidebar-nav-item">
+        <span class="nav-icon">🏠</span>
+        <div class="nav-text">
+          <span class="nav-label">0. Home Page</span>
+          <span class="nav-desc">3D Planetary Globe</span>
+        </div>
+      </a>
+
+      <a routerLink="/world-data" routerLinkActive="active" class="sidebar-nav-item">
+        <span class="nav-icon">🌐</span>
+        <div class="nav-text">
+          <span class="nav-label">1. World Data Core</span>
+          <span class="nav-desc">3D Globe & Indicators</span>
+        </div>
+      </a>
+
+      <a routerLink="/empires" routerLinkActive="active" class="sidebar-nav-item">
+        <span class="nav-icon">🏛️</span>
+        <div class="nav-text">
+          <span class="nav-label">2. Historical Empires</span>
+          <span class="nav-desc">Civilizations & Shaded Maps</span>
+        </div>
+      </a>
+
+      <a routerLink="/maritime" routerLinkActive="active" class="sidebar-nav-item">
+        <span class="nav-icon">🚢</span>
+        <div class="nav-text">
+          <span class="nav-label">3. Maritime Routes</span>
+          <span class="nav-desc">Canals & Vessel Tracking</span>
+        </div>
+      </a>
+
+      <a routerLink="/forex" routerLinkActive="active" class="sidebar-nav-item">
+        <span class="nav-icon">💱</span>
+        <div class="nav-text">
+          <span class="nav-label">4. Forex Matrix</span>
+          <span class="nav-desc">FX Rates & Financial Hubs</span>
+        </div>
+      </a>
+
+      <a routerLink="/locate" routerLinkActive="active" class="sidebar-nav-item">
+        <span class="nav-icon">📍</span>
+        <div class="nav-text">
+          <span class="nav-label">5. Country Locator</span>
+          <span class="nav-desc">Geographic Locator Game</span>
+        </div>
+      </a>
+
+      <a routerLink="/quiz" routerLinkActive="active" class="sidebar-nav-item">
+        <span class="nav-icon">🎯</span>
+        <div class="nav-text">
+          <span class="nav-label">6. Global Quiz</span>
+          <span class="nav-desc">Vector Globe Trivia</span>
+        </div>
+      </a>
+
+      <a routerLink="/spatial-sql" routerLinkActive="active" class="sidebar-nav-item">
+        <span class="nav-icon">⚡</span>
+        <div class="nav-text">
+          <span class="nav-label">7. DuckDB Spatial SQL</span>
+          <span class="nav-desc">In-Browser Spatial Query</span>
+        </div>
+      </a>
+
+      <div class="nav-divider"></div>
+
+      <a routerLink="/classic-map" routerLinkActive="active" class="sidebar-nav-item">
+        <span class="nav-icon">🗺️</span>
+        <div class="nav-text">
+          <span class="nav-label">Classic 2D Map</span>
+          <span class="nav-desc">SVG Vector Overlay</span>
+        </div>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Viewport Area -->
+  <div class="main-wrapper" [class.full-viewport-home]="isHomePage">
+    <!-- Header Bar: Hidden on Homepage, Visible on all other pages -->
+    <header *ngIf="!isHomePage" class="top-header-bar">
+      <div class="top-left">
+        <button class="top-toggle-btn" (click)="toggleSidebar()">
+          ☰ Menu
+        </button>
+        <span class="header-status-badge">🟢 LIVE TELEMETRY CORE</span>
+      </div>
+
+      <!-- Quick Jump Module Selector Dropdown -->
+      <div class="top-right">
+        <span class="dropdown-label">🚀 Quick Jump Module:</span>
+        <select class="module-dropdown" (change)="onSelectModule($event)">
+          <option value="/home" [selected]="router.url.includes('home') || router.url === '/'">🏠 0. Home Page (3D Globe)</option>
+          <option value="/world-data" [selected]="router.url.includes('world-data')">🌐 1. World Data Core</option>
+          <option value="/empires" [selected]="router.url.includes('empires')">🏛️ 2. Historical Empires</option>
+          <option value="/maritime" [selected]="router.url.includes('maritime')">🚢 3. Maritime Routes</option>
+          <option value="/forex" [selected]="router.url.includes('forex')">💱 4. Forex Matrix</option>
+          <option value="/locate" [selected]="router.url.includes('locate')">📍 5. Country Locator Game</option>
+          <option value="/quiz" [selected]="router.url.includes('quiz')">🎯 6. Global Quiz</option>
+          <option value="/spatial-sql" [selected]="router.url.includes('spatial-sql')">⚡ 7. DuckDB Spatial SQL</option>
+          <option value="/classic-map" [selected]="router.url.includes('classic-map')">🗺️ Classic 2D Map</option>
+        </select>
+      </div>
+    </header>
+
+    <main class="page-content" [class.no-header]="isHomePage">
+      <router-outlet />
+    </main>
+  </div>
+</div>

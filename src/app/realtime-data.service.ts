@@ -83,11 +83,16 @@ export class RealtimeDataService {
   }
 
   getLiveForexRates(baseCurrency: string = 'USD'): Observable<Record<string, number> | null> {
-    const url = `https://open.er-api.com/v6/latest/${baseCurrency}`;
-    return this.http.get<any>(url).pipe(
-      map(res => (res && res.result === 'success' && res.rates) ? res.rates : null),
-      timeout({ each: 6000, with: () => of(null) }),
-      catchError(() => of(null))
+    const primaryUrl = `https://api.exchangerate-api.com/v4/latest/${baseCurrency}`;
+    const secondaryUrl = `https://open.er-api.com/v6/latest/${baseCurrency}`;
+
+    return this.http.get<any>(primaryUrl).pipe(
+      map(res => (res && res.rates) ? res.rates : null),
+      catchError(() => this.http.get<any>(secondaryUrl).pipe(
+        map(res => (res && res.rates) ? res.rates : null),
+        catchError(() => of(null))
+      )),
+      timeout({ each: 6000, with: () => of(null) })
     );
   }
 

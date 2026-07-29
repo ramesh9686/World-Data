@@ -1,55 +1,17 @@
 <div class="forex-page-container">
-    <!-- Live Global Forex Ticker Marquee -->
+    <!-- Live Global Forex Ticker Marquee (Dynamic Telemetry) -->
     <div class="forex-ticker-marquee">
         <div class="ticker-label">
             <span class="pulse-dot" [class.syncing]="isSyncing"></span>
             <span>LIVE FOREX TELEMETRY TICKER:</span>
         </div>
         <div class="ticker-scroll">
-            <div class="ticker-item">
-                <span class="pair">EUR/USD</span>
-                <span class="rate">$1.0870</span>
-                <span class="trend pos">+0.18%</span>
-            </div>
-            <div class="ticker-item">
-                <span class="pair">GBP/USD</span>
-                <span class="rate">$1.2985</span>
-                <span class="trend pos">+0.32%</span>
-            </div>
-            <div class="ticker-item">
-                <span class="pair">USD/JPY</span>
-                <span class="rate">¥155.40</span>
-                <span class="trend neg">-0.45%</span>
-            </div>
-            <div class="ticker-item">
-                <span class="pair">USD/INR</span>
-                <span class="rate">₹83.50</span>
-                <span class="trend pos">+0.05%</span>
-            </div>
-            <div class="ticker-item">
-                <span class="pair">USD/CNY</span>
-                <span class="rate">¥7.2540</span>
-                <span class="trend neg">-0.12%</span>
-            </div>
-            <div class="ticker-item">
-                <span class="pair">USD/CAD</span>
-                <span class="rate">CA$1.3680</span>
-                <span class="trend pos">+0.22%</span>
-            </div>
-            <div class="ticker-item">
-                <span class="pair">USD/AED</span>
-                <span class="rate">د.إ3.6730</span>
-                <span class="trend neu">0.00%</span>
-            </div>
-            <div class="ticker-item">
-                <span class="pair">USD/BRL</span>
-                <span class="rate">R$5.5520</span>
-                <span class="trend neg">-0.85%</span>
-            </div>
-            <div class="ticker-item">
-                <span class="pair">USD/ZAR</span>
-                <span class="rate">R18.240</span>
-                <span class="trend pos">+0.40%</span>
+            <div *ngFor="let item of tickerPairs" class="ticker-item">
+                <span class="pair">{{ item.pair }}</span>
+                <span class="rate">{{ item.rate }}</span>
+                <span class="trend" [class.pos]="item.isPos" [class.neg]="item.isNeg" [class.neu]="!item.isPos && !item.isNeg">
+                    {{ item.change }}
+                </span>
             </div>
         </div>
         <button (click)="toggleAudio()" class="audio-toggle-btn" [class.muted]="audioMuted">
@@ -112,7 +74,7 @@
                     <div class="deck-inputs">
                         <div class="amount-field-box">
                             <span class="symbol-prefix">{{ baseInfo.symbol }}</span>
-                            <input type="number" [(ngModel)]="fxAmount" (input)="playUiSound('click')" class="amount-input" placeholder="Amount..." min="0" />
+                            <input type="number" [ngModel]="fxAmount" (ngModelChange)="onAmountChange($event)" (input)="onAmountInput($event)" class="amount-input" placeholder="Amount..." min="0" />
                         </div>
                         <select [ngModel]="baseCurrencyCode" (ngModelChange)="setBaseCurrency($event)" class="deck-select">
                             <option *ngFor="let c of uniqueCurrencies" [value]="c.code">
@@ -140,7 +102,7 @@
                                 {{ convertValue(targetCurrencyCode) | number:'1.2-2' }}
                             </span>
                         </div>
-                        <select [(ngModel)]="targetCurrencyCode" (change)="playUiSound('click')" class="deck-select">
+                        <select [ngModel]="targetCurrencyCode" (ngModelChange)="setTargetCurrency($event)" class="deck-select">
                             <option *ngFor="let c of uniqueCurrencies" [value]="c.code">
                                 {{ c.flag }} {{ c.code }} - {{ c.name }} ({{ c.symbol }})
                             </option>
@@ -207,8 +169,8 @@
             <!-- Search Input -->
             <div class="search-box">
                 <span class="search-icon">🔍</span>
-                <input type="text" [(ngModel)]="searchQuery" placeholder="Search country, symbol or code (e.g. ₹, Euro, INR, $, ¥)..." class="search-input" />
-                <button *ngIf="searchQuery" (click)="searchQuery = ''" class="clear-search-btn">✕</button>
+                <input type="text" [ngModel]="searchQuery" (ngModelChange)="onSearchChange($event)" placeholder="Search country, symbol or code (e.g. ₹, Euro, INR, $, ¥)..." class="search-input" />
+                <button *ngIf="searchQuery" (click)="onSearchChange('')" class="clear-search-btn">✕</button>
             </div>
 
             <!-- Region Filter Pills -->
@@ -223,7 +185,7 @@
 
             <!-- Creative 3-Way View Switcher -->
             <div class="view-sort-controls">
-                <select [(ngModel)]="sortBy" class="sort-select">
+                <select [ngModel]="sortBy" (ngModelChange)="onSortChange($event)" class="sort-select">
                     <option value="convertedDesc">Sort: Highest Converted Value</option>
                     <option value="name">Sort: Country Name (A-Z)</option>
                     <option value="rateAsc">Sort: Exchange Rate (Low to High)</option>
@@ -273,6 +235,7 @@
                         {{ item.currencyName }} <span class="symbol-tag">({{ item.symbol }})</span>
                     </div>
                     <div class="converted-value-large">
+                        <span class="lbl-small">Converted Total:</span>
                         <span class="sym">{{ item.symbol }}</span> {{ convertValue(item.currencyCode) | number:'1.2-2' }}
                     </div>
                 </div>

@@ -4,8 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { GeoJsonExportService } from '../services/geojson-export.service';
 import { COUNTRIES_DATA, CountryData } from '../countries-data';
-import { WORLD_CANALS, STRATEGIC_CHOKEPOINTS, GLOBAL_MEGAPORTS, CARGO_VESSEL_FLEET, ShippingCorridor, CargoVessel } from '../maritime-data';
+import { WORLD_CANALS, STRATEGIC_CHOKEPOINTS, GLOBAL_MEGAPORTS, CARGO_VESSEL_FLEET, CargoVessel } from '../maritime-data';
 import { HISTORICAL_EMPIRES, HistoricalEmpire } from '../empires-data';
+import { WorldBankService, WorldBankDataPoint, WorldBankIndicator, WorldBankTopic } from '../world-bank.service';
 
 export interface SpatialQueryResultRow {
   name: string;
@@ -14,6 +15,34 @@ export interface SpatialQueryResultRow {
   metric2: string;
   lat: number;
   lng: number;
+}
+
+export interface QuizQuestion {
+  id: string;
+  type: 'capital' | 'flag' | 'location' | 'income' | 'general';
+  questionText: string;
+  countryCode: string;
+  countryName: string;
+  correctAnswer: string;
+  options: string[];
+  explanation?: string;
+}
+
+export interface FxRateInfo {
+  code: string;
+  name: string;
+  symbol: string;
+  flag: string;
+  rateVsUsd: number;
+}
+
+export interface SearchResultItem {
+  name: string;
+  category: string;
+  flag: string;
+  lat: number;
+  lng: number;
+  code?: string;
 }
 
 @Component({
@@ -29,8 +58,13 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
   private map: any = null;
   private maplibregl: any = null;
   private activeMarkers: any[] = [];
+  private vesselMarkers: any[] = [];
   private vesselAnimationTimer: any = null;
   private timelineTimer: any = null;
+  private vesselTickStep: number = 0;
+
+  // Primary Active GIS View Mode Tab
+  activeTabMode: 'globe' | 'quiz' | 'forex' | 'maritime' | 'empires' | 'indicators' = 'globe';
 
   // Temporal Timeline state (1990 - 2024)
   selectedYear: number = 2024;
@@ -44,6 +78,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
   showMaritimeLayer: boolean = true;
   showFxNodesLayer: boolean = true;
   showEmpiresLayer: boolean = true;
+  showShippingLanes: boolean = true;
 
   // Camera & Vector Map state
   currentLat: number = 30.5;
@@ -65,9 +100,31 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     countryId?: string;
   } | null = null;
 
-  // Basemap style switcher state
-  activeStyleId: 'dark' | 'satellite' | 'topo' | 'positron' | 'vector' = 'dark';
+  // Basemap style switcher state (Default changed to 'satellite' as requested)
+  activeStyleId: 'dark' | 'satellite' | 'topo' | 'positron' | 'vector' = 'satellite';
   mapStyles = {
+    satellite: {
+      version: 8,
+      sources: {
+        'esri-satellite': {
+          type: 'raster',
+          tiles: [
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+          ],
+          tileSize: 256,
+          attribution: 'Esri World Imagery'
+        }
+      },
+      layers: [
+        {
+          id: 'esri-satellite-layer',
+          type: 'raster',
+          source: 'esri-satellite',
+          minzoom: 0,
+          maxzoom: 19
+        }
+      ]
+    },
     dark: {
       version: 8,
       sources: {
@@ -87,28 +144,6 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
           id: 'carto-dark-layer',
           type: 'raster',
           source: 'carto-dark',
-          minzoom: 0,
-          maxzoom: 19
-        }
-      ]
-    },
-    satellite: {
-      version: 8,
-      sources: {
-        'esri-satellite': {
-          type: 'raster',
-          tiles: [
-            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
-          ],
-          tileSize: 256,
-          attribution: 'Esri World Imagery'
-        }
-      },
-      layers: [
-        {
-          id: 'esri-satellite-layer',
-          type: 'raster',
-          source: 'esri-satellite',
           minzoom: 0,
           maxzoom: 19
         }
@@ -187,7 +222,61 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   };
 
-  // FX Telemetry Financial Hub Nodes
+  // World Bank & Multi-Source Indicators State
+  wbTopics: WorldBankTopic[] = [];
+  selectedTopicId: number = 8; // Health by default
+  wbIndicators: WorldBankIndicator[] = [];
+  selectedIndicatorId: string = 'WHO:WHOSIS_000001';
+  selectedIndicatorName: string = 'WHO: Life expectancy at birth (years)';
+  selectedIndicatorDesc: string = 'Average number of years a newborn is expected to live in full health.';
+  wbIndicatorData: WorldBankDataPoint[] = [];
+  loadingIndicatorData: boolean = false;
+
+  // Interactive 3D Quiz Challenge Engine State
+  quizScore: number = 0;
+  quizStreak: number = 0;
+  quizCurrentIndex: number = 1;
+  quizTotalQuestions: number = 10;
+  quizAnswered: boolean = false;
+  quizFeedback: string | null = null;
+  quizIsCorrect: boolean = false;
+  quizCompleted: boolean = false;
+  currentQuizQuestion: QuizQuestion | null = null;
+
+  // General Landmark Trivia Bank
+  private generalTriviaBank = [
+    { questionText: "Which country is home to the iconic ivory-white marble Taj Mahal?", countryCode: "IN", countryName: "India", correctAnswer: "India", explanation: "Built in 1632 in Agra" },
+    { questionText: "In which country can you visit the ancient Great Pyramids of Giza?", countryCode: "EG", countryName: "Egypt", correctAnswer: "Egypt", explanation: "Constructed over 4,500 years ago along the Nile" },
+    { questionText: "Which nation is home to the Eiffel Tower and the Louvre Museum?", countryCode: "FR", countryName: "France", correctAnswer: "France", explanation: "The Louvre is the world's largest art museum" },
+    { questionText: "Which country features the ancient Colosseum and the floating canals of Venice?", countryCode: "IT", countryName: "Italy", correctAnswer: "Italy", explanation: "Heart of ancient Roman architecture" },
+    { questionText: "Which country built the historic Great Wall extending over 13,000 miles?", countryCode: "CN", countryName: "China", correctAnswer: "China", explanation: "Built across ancient northern borders" },
+    { questionText: "Which country is home to the historic 15th-century Inca citadel of Machu Picchu?", countryCode: "PE", countryName: "Peru", correctAnswer: "Peru", explanation: "Perched high in the Andes Mountains" },
+    { questionText: "Which country features the iconic sail-shaped Sydney Opera House?", countryCode: "AU", countryName: "Australia", correctAnswer: "Australia", explanation: "World Heritage landmark on Sydney Harbour" },
+    { questionText: "Which country received the Statue of Liberty as a gift from France in 1886?", countryCode: "US", countryName: "United States", correctAnswer: "United States", explanation: "Stands on Liberty Island in New York" },
+    { questionText: "Which nation features the 98-foot tall Christ the Redeemer statue in Rio de Janeiro?", countryCode: "BR", countryName: "Brazil", correctAnswer: "Brazil", explanation: "Overlooks Rio from Corcovado mountain" },
+    { questionText: "Which island nation is famous for Mount Fuji and cherry blossom gardens?", countryCode: "JP", countryName: "Japan", correctAnswer: "Japan", explanation: "Mount Fuji is an active volcanic peak" },
+    { questionText: "Which Scandinavian country is world-famous for its dramatic natural fjords?", countryCode: "NO", countryName: "Norway", correctAnswer: "Norway", explanation: "Features over 1,000 coastal sea fjords" },
+    { questionText: "Which Middle Eastern country is home to the ancient rock-cut city of Petra?", countryCode: "JO", countryName: "Jordan", correctAnswer: "Jordan", explanation: "Carved into rose-red sandstone cliffs" }
+  ];
+
+  // FX Telemetry Financial Hub Nodes & Converter State
+  fxAmount: number = 100;
+  fxBaseCurrency: string = 'USD';
+  fxRates: { [key: string]: FxRateInfo } = {
+    USD: { code: 'USD', name: 'US Dollar', symbol: '$', flag: '🇺🇸', rateVsUsd: 1.0 },
+    EUR: { code: 'EUR', name: 'Euro', symbol: '€', flag: '🇪🇺', rateVsUsd: 0.92 },
+    GBP: { code: 'GBP', name: 'British Pound', symbol: '£', flag: '🇬🇧', rateVsUsd: 0.77 },
+    JPY: { code: 'JPY', name: 'Japanese Yen', symbol: '¥', flag: '🇯🇵', rateVsUsd: 155.4 },
+    INR: { code: 'INR', name: 'Indian Rupee', symbol: '₹', flag: '🇮🇳', rateVsUsd: 83.5 },
+    CAD: { code: 'CAD', name: 'Canadian Dollar', symbol: 'CA$', flag: '🇨🇦', rateVsUsd: 1.37 },
+    AUD: { code: 'AUD', name: 'Australian Dollar', symbol: 'A$', flag: '🇦🇺', rateVsUsd: 1.51 },
+    CHF: { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF', flag: 'CHF', rateVsUsd: 0.89 },
+    CNY: { code: 'CNY', name: 'Chinese Yuan', symbol: '¥', flag: '🇨🇳', rateVsUsd: 7.25 },
+    AED: { code: 'AED', name: 'UAE Dirham', symbol: 'AED', flag: '🇦🇪', rateVsUsd: 3.67 },
+    SGD: { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$', flag: '🇸🇬', rateVsUsd: 1.34 },
+    BRL: { code: 'BRL', name: 'Brazilian Real', symbol: 'R$', flag: '🇧🇷', rateVsUsd: 5.55 }
+  };
+
   fxHubNodes = [
     { name: 'New York (NYSE/FED)', code: 'USD', rate: '$1.00', flag: '🇺🇸', lat: 40.7128, lng: -74.006 },
     { name: 'London (LSE/BOE)', code: 'GBP', rate: '£0.77', flag: '🇬🇧', lat: 51.5074, lng: -0.1278 },
@@ -195,8 +284,34 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     { name: 'Tokyo (BOJ)', code: 'JPY', rate: '¥155.4', flag: '🇯🇵', lat: 35.6762, lng: 139.6503 },
     { name: 'Singapore (MAS)', code: 'SGD', rate: 'S$1.34', flag: '🇸🇬', lat: 1.3521, lng: 103.8198 },
     { name: 'Dubai (DIFC)', code: 'AED', rate: 'AED 3.67', flag: '🇦🇪', lat: 25.2048, lng: 55.2708 },
-    { name: 'Sydney (RBA)', code: 'AUD', rate: 'A$1.51', flag: '🇦🇺', lat: -33.8688, lng: 151.2093 }
+    { name: 'Sydney (RBA)', code: 'AUD', rate: 'A$1.51', flag: '🇦🇺', lat: -33.8688, lng: 151.2093 },
+    { name: 'Mumbai (NSE/RBI)', code: 'INR', rate: '₹83.5', flag: '🇮🇳', lat: 19.0760, lng: 72.8777 }
   ];
+
+  // Maritime Cargo Fleet Animation State
+  cargoVesselFleet: CargoVessel[] = CARGO_VESSEL_FLEET;
+
+  // Historical Empires State
+  empiresList: HistoricalEmpire[] = HISTORICAL_EMPIRES;
+  selectedEmpireId: string = 'gupta-empire';
+  selectedEmpire: HistoricalEmpire | null = HISTORICAL_EMPIRES[0];
+  empireEraFilter: string = 'All';
+  timelineEraYear: number = 400;
+
+  get formattedTimelineYear(): string {
+    return this.timelineEraYear > 0 ? `${this.timelineEraYear} CE` : `${Math.abs(this.timelineEraYear)} BCE`;
+  }
+
+  Math = Math;
+
+  // Search Bar State
+  searchQuery: string = '';
+  searchResults: SearchResultItem[] = [];
+  isSearchOpen: boolean = false;
+
+  // Web Audio Synthesizer SFX State
+  audioMuted: boolean = false;
+  private audioCtx: AudioContext | null = null;
 
   // Spatial SQL Engine state
   sqlQuery: string = 'SELECT name, region, incomeLevel, capitalCity FROM countries WHERE incomeLevel = "High income" ORDER BY name ASC LIMIT 10';
@@ -208,11 +323,21 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private geoJsonService: GeoJsonExportService,
+    private wbService: WorldBankService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) {
+    this.wbTopics = this.wbService.getTopics();
+    this.wbIndicators = this.wbService.getIndicatorsByTopic(this.selectedTopicId);
+  }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
+      if (params['mode']) {
+        const m = params['mode'];
+        if (['globe', 'quiz', 'forex', 'maritime', 'empires', 'indicators'].includes(m)) {
+          this.setTabMode(m as any);
+        }
+      }
       if (params['lat'] && params['lng']) {
         this.currentLat = parseFloat(params['lat']);
         this.currentLng = parseFloat(params['lng']);
@@ -225,6 +350,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.runSpatialQuery();
+    this.startVesselFleetAnimation();
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -241,6 +367,38 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  // ------------------------------------------------------------------
+  // GIS Mode Tab Switcher & Navigation
+  // ------------------------------------------------------------------
+  setTabMode(mode: 'globe' | 'quiz' | 'forex' | 'maritime' | 'empires' | 'indicators'): void {
+    this.activeTabMode = mode;
+    this.playUiSound('select');
+
+    if (mode === 'quiz') {
+      this.startQuiz();
+    } else if (mode === 'maritime') {
+      this.showMaritimeLayer = true;
+      this.showShippingLanes = true;
+      this.jumpToPreset('suez');
+    } else if (mode === 'forex') {
+      this.showFxNodesLayer = true;
+      this.jumpToPreset('europe');
+    } else if (mode === 'empires') {
+      this.showEmpiresLayer = true;
+      this.selectEmpire('gupta-empire');
+    } else if (mode === 'indicators') {
+      this.showCountriesLayer = true;
+      this.extrusionMetric = 'gdp';
+    }
+
+    this.updateEmpireTerritoryOverlay();
+    this.renderAllVectorLayers();
+    this.cdr.markForCheck();
+  }
+
+  // ------------------------------------------------------------------
+  // MapLibre WebGL Engine Initialization
+  // ------------------------------------------------------------------
   private async initMapLibreEngine(): Promise<void> {
     if (!this.mapCanvasRef) return;
 
@@ -273,18 +431,206 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         this.cdr.markForCheck();
       });
 
-      // Canvas click listener: Finds nearest country or feature
       mapInstance.on('click', (e: any) => {
         this.handleCanvasMapClick(e.lngLat.lat, e.lngLat.lng);
       });
 
       mapInstance.on('load', () => {
         mapInstance.resize();
+        this.addShippingLanesLayer();
+        this.addEmpireTerritoryLayer();
         this.renderAllVectorLayers();
       });
     } catch (err) {
       console.error('Failed to initialize MapLibre GL JS engine:', err);
     }
+  }
+
+  private addShippingLanesLayer(): void {
+    if (!this.map) return;
+    try {
+      if (this.map.getSource('shipping-lanes')) return;
+
+      this.map.addSource('shipping-lanes', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: [
+            {
+              type: 'Feature',
+              geometry: {
+                type: 'LineString',
+                coordinates: [[121.5, 31.2], [139.7, 35.6], [180, 40.0], [-180, 40.0], [-122.4, 37.8], [-118.2, 33.7]]
+              },
+              properties: { name: 'Trans-Pacific Express Corridor', color: '#38bdf8' }
+            },
+            {
+              type: 'Feature',
+              geometry: {
+                type: 'LineString',
+                coordinates: [[121.5, 31.2], [103.8, 1.35], [80.0, 6.0], [56.2, 26.5], [43.3, 12.6], [32.3, 30.5], [25.0, 35.0], [1.5, 51.0], [4.4, 51.9]]
+              },
+              properties: { name: 'Asia-Europe Silk Sea Route', color: '#06b6d4' }
+            },
+            {
+              type: 'Feature',
+              geometry: {
+                type: 'LineString',
+                coordinates: [[-79.7, 9.1], [-74.0, 40.7], [-20.0, 45.0], [-0.1, 51.5], [4.4, 51.9]]
+              },
+              properties: { name: 'Trans-Atlantic Highway', color: '#818cf8' }
+            },
+            {
+              type: 'Feature',
+              geometry: {
+                type: 'LineString',
+                coordinates: [[56.2, 26.5], [72.8, 19.0], [103.8, 1.35], [121.5, 31.2]]
+              },
+              properties: { name: 'Persian Gulf Energy Route', color: '#f59e0b' }
+            },
+            {
+              type: 'Feature',
+              geometry: {
+                type: 'LineString',
+                coordinates: [[103.8, 1.35], [18.5, -34.3], [-0.1, 51.5]]
+              },
+              properties: { name: 'Cape of Good Hope Bypass Route', color: '#c084fc' }
+            }
+          ]
+        }
+      });
+
+      this.map.addLayer({
+        id: 'shipping-lanes-lines',
+        type: 'line',
+        source: 'shipping-lanes',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': ['get', 'color'],
+          'line-width': 2.5,
+          'line-dasharray': [3, 2],
+          'line-opacity': 0.85
+        }
+      });
+    } catch (e) {
+      console.warn('Failed adding shipping lanes layer:', e);
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Historical Empires Shaded Region Layer Construction
+  // ------------------------------------------------------------------
+  private addEmpireTerritoryLayer(): void {
+    if (!this.map) return;
+    try {
+      if (!this.map.getSource('empire-territories')) {
+        this.map.addSource('empire-territories', {
+          type: 'geojson',
+          data: {
+            type: 'FeatureCollection',
+            features: []
+          }
+        });
+
+        // Shaded glowing territory circles covering spanned empire countries
+        this.map.addLayer({
+          id: 'empire-territories-layer',
+          type: 'circle',
+          source: 'empire-territories',
+          paint: {
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 45, 5, 110, 8, 240],
+            'circle-color': ['get', 'color'],
+            'circle-opacity': 0.42,
+            'circle-stroke-width': 3,
+            'circle-stroke-color': '#ffffff',
+            'circle-blur': 0.2
+          }
+        });
+
+        // Glowing center core orbs
+        this.map.addLayer({
+          id: 'empire-territories-core',
+          type: 'circle',
+          source: 'empire-territories',
+          paint: {
+            'circle-radius': ['interpolate', ['linear'], ['zoom'], 2, 12, 5, 30, 8, 70],
+            'circle-color': ['get', 'color'],
+            'circle-opacity': 0.85,
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#ffd700'
+          }
+        });
+      }
+      this.updateEmpireTerritoryOverlay();
+    } catch (e) {
+      console.warn('Failed adding empire territory layer:', e);
+    }
+  }
+
+  private updateEmpireTerritoryOverlay(): void {
+    if (!this.map || !this.map.getSource('empire-territories')) return;
+
+    if (!this.showEmpiresLayer || !this.selectedEmpire) {
+      this.map.getSource('empire-territories').setData({
+        type: 'FeatureCollection',
+        features: []
+      });
+      return;
+    }
+
+    const empire = this.selectedEmpire;
+    const features: any[] = [];
+    const color = empire.color || '#f59e0b';
+
+    empire.countryCodes.forEach(code => {
+      const countryKey = Object.keys(COUNTRIES_DATA).find(k => k.toLowerCase() === code.toLowerCase());
+      if (countryKey && COUNTRIES_DATA[countryKey]) {
+        const c = COUNTRIES_DATA[countryKey];
+        const lat = parseFloat(c.latitude);
+        const lng = parseFloat(c.longitude);
+
+        if (!isNaN(lat) && !isNaN(lng) && (lat !== 0 || lng !== 0)) {
+          features.push({
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [lng, lat]
+            },
+            properties: {
+              name: c.name,
+              empireName: empire.name,
+              color: color
+            }
+          });
+        }
+      }
+    });
+
+    const coords = empire.capitalCoords;
+    const capLng = (coords.cx - 500) * (360 / 1000);
+    const capLat = (250 - coords.cy) * (180 / 500);
+
+    features.push({
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [capLng, capLat]
+      },
+      properties: {
+        name: empire.capitalCity,
+        empireName: empire.name,
+        color: '#ffd700',
+        isCapital: true
+      }
+    });
+
+    this.map.getSource('empire-territories').setData({
+      type: 'FeatureCollection',
+      features
+    });
   }
 
   handleCanvasMapClick(clickedLat: number, clickedLng: number): void {
@@ -304,11 +650,17 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     if (closestCountry && minDistance < 25) {
-      this.openCountryTelemetryCard(closestCountry, clickedLat, clickedLng);
+      const country: CountryData = closestCountry;
+      if (this.activeTabMode === 'quiz' && this.currentQuizQuestion && !this.quizAnswered) {
+        this.submitQuizAnswer(country.name);
+      } else {
+        this.openCountryTelemetryCard(country, clickedLat, clickedLng);
+      }
     }
   }
 
   openCountryTelemetryCard(c: CountryData, lat: number, lng: number): void {
+    this.playUiSound('select');
     this.selectedDetailCard = {
       title: `${c.flag || '🌐'} ${c.name} (${this.selectedYear})`,
       category: `Country • ${c.region?.value || 'Global'}`,
@@ -327,10 +679,656 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
       lat,
       lng
     };
+
+    this.loadIndicatorDataForCountry(c.id);
     this.flyToTarget(lng, lat, 6, 50, 15);
     this.cdr.markForCheck();
   }
 
+  // ------------------------------------------------------------------
+  // World Bank & Multi-Source Indicators Integration
+  // ------------------------------------------------------------------
+  indicatorNoticeMessage: string | null = null;
+
+  onTopicChange(event: Event): void {
+    const topicId = parseInt((event.target as HTMLSelectElement).value, 10);
+    this.selectedTopicId = topicId;
+    this.wbIndicators = this.wbService.getIndicatorsByTopic(topicId);
+    this.indicatorNoticeMessage = null;
+
+    if (this.wbIndicators.length > 0) {
+      this.selectedIndicatorId = this.wbIndicators[0].id;
+      this.selectedIndicatorName = this.wbIndicators[0].name;
+      this.selectedIndicatorDesc = this.wbIndicators[0].sourceNote || '';
+
+      if (this.selectedDetailCard?.countryId) {
+        this.loadIndicatorDataForCountry(this.selectedDetailCard.countryId);
+      }
+    }
+    this.cdr.markForCheck();
+  }
+
+  onIndicatorChange(event: Event): void {
+    this.selectedIndicatorId = (event.target as HTMLSelectElement).value;
+    this.indicatorNoticeMessage = null;
+    const found = this.wbIndicators.find(i => i.id === this.selectedIndicatorId);
+    if (found) {
+      this.selectedIndicatorName = found.name;
+      this.selectedIndicatorDesc = found.sourceNote || '';
+    }
+    if (this.selectedDetailCard?.countryId) {
+      this.loadIndicatorDataForCountry(this.selectedDetailCard.countryId);
+    }
+    this.cdr.markForCheck();
+  }
+
+  loadIndicatorDataForCountry(countryCode: string): void {
+    if (!countryCode || !this.selectedIndicatorId) return;
+    this.loadingIndicatorData = true;
+    this.wbIndicatorData = [];
+    this.indicatorNoticeMessage = null;
+
+    this.wbService.getIndicatorData(countryCode, this.selectedIndicatorId).subscribe({
+      next: (data) => {
+        this.wbIndicatorData = data;
+        this.loadingIndicatorData = false;
+        
+        const found = this.wbIndicators.find(i => i.id === this.selectedIndicatorId);
+        if (found) {
+          this.selectedIndicatorName = found.name;
+          this.selectedIndicatorDesc = found.sourceNote || '';
+        }
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.loadingIndicatorData = false;
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  get formattedIndicatorPoints(): { year: number; value: number; percent: number }[] {
+    if (!this.wbIndicatorData || this.wbIndicatorData.length === 0) return [];
+    const valid = this.wbIndicatorData.filter(d => d.value !== null && !isNaN(d.value!));
+    if (valid.length === 0) return [];
+
+    const values = valid.map(d => d.value!);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+
+    return valid.map(d => ({
+      year: d.year,
+      value: d.value!,
+      percent: Math.max(12, Math.min(100, Math.round(((d.value! - min) / range) * 85 + 15)))
+    }));
+  }
+
+  chartStyleOverride: 'auto' | 'bars' | 'area' | 'progress' | 'stepped' = 'auto';
+
+  setChartStyleOverride(style: 'auto' | 'bars' | 'area' | 'progress' | 'stepped'): void {
+    this.chartStyleOverride = style;
+    this.cdr.markForCheck();
+  }
+
+  get chartStyle(): 'bars' | 'area' | 'progress' | 'stepped' {
+    if (this.chartStyleOverride !== 'auto') {
+      return this.chartStyleOverride;
+    }
+    const name = (this.selectedIndicatorName || '').toLowerCase();
+    const topic = this.selectedTopicId;
+
+    if (name.includes('%') || name.includes('ratio') || name.includes('prevalence') || name.includes('access to') || topic === 11 || topic === 17) {
+      return 'progress';
+    }
+    if (name.includes('life expectancy') || name.includes('mortality') || name.includes('health') || topic === 8) {
+      return 'area';
+    }
+    if (name.includes('co2') || name.includes('emissions') || name.includes('disaster') || name.includes('renewable') || topic === 19 || topic === 6 || topic === 5) {
+      return 'stepped';
+    }
+    return 'bars';
+  }
+
+  get svgAreaPath(): string {
+    const pts = this.formattedIndicatorPoints;
+    if (pts.length === 0) return '';
+    const width = 800;
+    const height = 170;
+    const step = width / (pts.length - 1 || 1);
+
+    const coords = pts.map((pt, i) => {
+      const x = (i * step).toFixed(1);
+      const y = (height - (pt.percent / 100) * (height - 30) - 15).toFixed(1);
+      return `${x},${y}`;
+    });
+
+    const linePath = `M ${coords.join(' L ')}`;
+    return `${linePath} L ${width},${height} L 0,${height} Z`;
+  }
+
+  get svgLinePath(): string {
+    const pts = this.formattedIndicatorPoints;
+    if (pts.length === 0) return '';
+    const width = 800;
+    const height = 170;
+    const step = width / (pts.length - 1 || 1);
+
+    const coords = pts.map((pt, i) => {
+      const x = (i * step).toFixed(1);
+      const y = (height - (pt.percent / 100) * (height - 30) - 15).toFixed(1);
+      return `${x},${y}`;
+    });
+
+    return `M ${coords.join(' L ')}`;
+  }
+
+  get svgPoints(): { x: number; y: number; year: number; value: number }[] {
+    const pts = this.formattedIndicatorPoints;
+    if (pts.length === 0) return [];
+    const width = 800;
+    const height = 170;
+    const step = width / (pts.length - 1 || 1);
+
+    return pts.map((pt, i) => ({
+      x: parseFloat((i * step).toFixed(1)),
+      y: parseFloat((height - (pt.percent / 100) * (height - 30) - 15).toFixed(1)),
+      year: pt.year,
+      value: pt.value
+    }));
+  }
+
+  get indicatorMinVal(): string {
+    if (!this.wbIndicatorData || this.wbIndicatorData.length === 0) return 'N/A';
+    const vals = this.wbIndicatorData.filter(d => d.value !== null).map(d => d.value!);
+    if (vals.length === 0) return 'N/A';
+    return Math.min(...vals).toLocaleString();
+  }
+
+  get indicatorMaxVal(): string {
+    if (!this.wbIndicatorData || this.wbIndicatorData.length === 0) return 'N/A';
+    const vals = this.wbIndicatorData.filter(d => d.value !== null).map(d => d.value!);
+    if (vals.length === 0) return 'N/A';
+    return Math.max(...vals).toLocaleString();
+  }
+
+  get indicatorLatestVal(): string {
+    if (!this.wbIndicatorData || this.wbIndicatorData.length === 0) return 'N/A';
+    const valid = this.wbIndicatorData.filter(d => d.value !== null);
+    if (valid.length === 0) return 'N/A';
+    const latest = valid[valid.length - 1];
+    return `${latest.value!.toLocaleString()} (${latest.year})`;
+  }
+
+  // ------------------------------------------------------------------
+  // Interactive 3D Vector Quiz Engine
+  // ------------------------------------------------------------------
+  startQuiz(): void {
+    this.quizScore = 0;
+    this.quizStreak = 0;
+    this.quizCurrentIndex = 1;
+    this.quizCompleted = false;
+    this.generateQuizQuestion();
+  }
+
+  generateQuizQuestion(): void {
+    this.quizAnswered = false;
+    this.quizFeedback = null;
+
+    const countryKeys = Object.keys(COUNTRIES_DATA);
+    if (countryKeys.length === 0) return;
+
+    const isGeneralTrivia = Math.random() < 0.6 && this.generalTriviaBank.length > 0;
+
+    if (isGeneralTrivia) {
+      const qItem = this.generalTriviaBank[Math.floor(Math.random() * this.generalTriviaBank.length)];
+      const distractors = new Set<string>();
+
+      while (distractors.size < 3) {
+        const rKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
+        const rName = COUNTRIES_DATA[rKey].name;
+        if (rName && rName.toLowerCase() !== qItem.correctAnswer.toLowerCase()) {
+          distractors.add(rName);
+        }
+      }
+
+      const options = [qItem.correctAnswer, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
+
+      this.currentQuizQuestion = {
+        id: qItem.countryCode,
+        type: 'general',
+        questionText: qItem.questionText,
+        countryCode: qItem.countryCode,
+        countryName: qItem.countryName,
+        correctAnswer: qItem.correctAnswer,
+        options,
+        explanation: qItem.explanation
+      };
+
+      const cData = COUNTRIES_DATA[qItem.countryCode];
+      if (cData) {
+        const lat = parseFloat(cData.latitude);
+        const lng = parseFloat(cData.longitude);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          this.flyToTarget(lng, lat, 5, 50, 0);
+        }
+      }
+    } else {
+      const targetKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
+      const target = COUNTRIES_DATA[targetKey];
+      const distractors = new Set<string>();
+
+      while (distractors.size < 3) {
+        const rKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
+        const rCap = COUNTRIES_DATA[rKey].capitalCity;
+        if (rCap && rCap.toLowerCase() !== target.capitalCity.toLowerCase()) {
+          distractors.add(rCap);
+        }
+      }
+
+      const options = [target.capitalCity, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
+
+      this.currentQuizQuestion = {
+        id: targetKey,
+        type: 'capital',
+        questionText: `What is the capital city of ${target.flag || '🌐'} ${target.name}?`,
+        countryCode: targetKey,
+        countryName: target.name,
+        correctAnswer: target.capitalCity,
+        options,
+        explanation: `${target.capitalCity} is the capital city of ${target.name}`
+      };
+
+      const lat = parseFloat(target.latitude);
+      const lng = parseFloat(target.longitude);
+      if (!isNaN(lat) && !isNaN(lng)) {
+        this.flyToTarget(lng, lat, 6, 50, 0);
+      }
+    }
+
+    this.cdr.markForCheck();
+  }
+
+  submitQuizAnswer(chosenAnswer: string): void {
+    if (this.quizAnswered || !this.currentQuizQuestion) return;
+
+    this.quizAnswered = true;
+    const choice = chosenAnswer.trim().toLowerCase();
+    const correct = this.currentQuizQuestion.correctAnswer.trim().toLowerCase();
+    const cCode = this.currentQuizQuestion.countryCode.toLowerCase();
+    const cName = this.currentQuizQuestion.countryName.toLowerCase();
+
+    const isCorrect = (choice === correct || choice === cCode || choice === cName);
+    this.quizIsCorrect = isCorrect;
+
+    if (isCorrect) {
+      this.quizStreak++;
+      const bonus = (this.quizStreak > 1) ? this.quizStreak * 10 : 0;
+      this.quizScore += 100 + bonus;
+      const exp = this.currentQuizQuestion.explanation ? ` — ${this.currentQuizQuestion.explanation}` : '';
+      this.quizFeedback = `🎉 Correct! ${this.currentQuizQuestion.countryName}${exp}`;
+      this.playUiSound('correct');
+    } else {
+      this.quizStreak = 0;
+      const exp = this.currentQuizQuestion.explanation ? ` — ${this.currentQuizQuestion.explanation}` : '';
+      this.quizFeedback = `❌ Incorrect. Correct answer: ${this.currentQuizQuestion.correctAnswer}${exp}`;
+      this.playUiSound('wrong');
+    }
+
+    this.cdr.markForCheck();
+  }
+
+  nextQuizQuestion(): void {
+    if (this.quizCurrentIndex >= this.quizTotalQuestions) {
+      this.quizCompleted = true;
+      this.playUiSound('select');
+    } else {
+      this.quizCurrentIndex++;
+      this.generateQuizQuestion();
+    }
+    this.cdr.markForCheck();
+  }
+
+  // ------------------------------------------------------------------
+  // Live Forex Currency Telemetry Matrix
+  // ------------------------------------------------------------------
+  onFxAmountInput(event: Event): void {
+    const val = parseFloat((event.target as HTMLInputElement).value);
+    this.fxAmount = isNaN(val) ? 0 : val;
+    this.renderAllVectorLayers();
+    this.cdr.markForCheck();
+  }
+
+  setFxBaseCurrency(code: string): void {
+    this.fxBaseCurrency = code;
+    this.playUiSound('click');
+    this.renderAllVectorLayers();
+    this.cdr.markForCheck();
+  }
+
+  get convertedFxRates(): { code: string; name: string; symbol: string; flag: string; convertedValue: number }[] {
+    const baseInfo = this.fxRates[this.fxBaseCurrency] || this.fxRates['USD'];
+    const usdAmount = this.fxAmount / baseInfo.rateVsUsd;
+
+    return Object.values(this.fxRates).map(rateInfo => {
+      return {
+        code: rateInfo.code,
+        name: rateInfo.name,
+        symbol: rateInfo.symbol,
+        flag: rateInfo.flag,
+        convertedValue: usdAmount * rateInfo.rateVsUsd
+      };
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Historical Empires Time Machine
+  // ------------------------------------------------------------------
+  selectEmpire(empireId: string): void {
+    this.selectedEmpireId = empireId;
+    const found = HISTORICAL_EMPIRES.find(e => e.id === empireId);
+    if (found) {
+      this.selectedEmpire = found;
+      this.timelineEraYear = found.peakYear;
+      this.playUiSound('select');
+
+      const coords = found.capitalCoords;
+      const lng = (coords.cx - 500) * (360 / 1000);
+      const lat = (250 - coords.cy) * (180 / 500);
+
+      this.selectedDetailCard = {
+        title: `${found.flagEmoji} ${found.name}`,
+        category: `Historical Empire • ${found.era} Era`,
+        details: [
+          { label: '⏳ Span', value: found.yearSpan },
+          { label: '👑 Founder/Ruler', value: found.founderOrRuler },
+          { label: '🏛️ Capital', value: found.capitalCity },
+          { label: '📐 Peak Area', value: found.peakAreaSqKm }
+        ],
+        summary: `${found.summary} Key Achievements: ${found.keyAchievements.join(' • ')}`,
+        lat,
+        lng
+      };
+
+      this.flyToTarget(lng, lat, 6, 55, -20);
+      this.updateEmpireTerritoryOverlay();
+      this.renderAllVectorLayers();
+    }
+    this.cdr.markForCheck();
+  }
+
+  onTimelineEraScrub(event: Event): void {
+    const val = parseInt((event.target as HTMLInputElement).value, 10);
+    this.timelineEraYear = val;
+
+    let closestEmp = this.empiresList[0];
+    let minDiff = Math.abs(closestEmp.peakYear - val);
+
+    for (const emp of this.empiresList) {
+      const diff = Math.abs(emp.peakYear - val);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestEmp = emp;
+      }
+    }
+
+    if (closestEmp && closestEmp.id !== this.selectedEmpireId) {
+      this.selectEmpire(closestEmp.id);
+    } else {
+      this.updateEmpireTerritoryOverlay();
+    }
+    this.cdr.markForCheck();
+  }
+
+  setEmpireEraFilter(era: string): void {
+    this.empireEraFilter = era;
+    this.playUiSound('click');
+    this.cdr.markForCheck();
+  }
+
+  get filteredEmpires(): HistoricalEmpire[] {
+    if (this.empireEraFilter === 'All') {
+      return this.empiresList;
+    }
+    return this.empiresList.filter(e => e.era === this.empireEraFilter);
+  }
+
+  // ------------------------------------------------------------------
+  // Global Country Search & Quick-Fly Panel
+  // ------------------------------------------------------------------
+  onSearchInput(): void {
+    const q = this.searchQuery.trim().toLowerCase();
+    if (!q) {
+      this.searchResults = [];
+      this.isSearchOpen = false;
+      return;
+    }
+
+    const results: SearchResultItem[] = [];
+
+    Object.values(COUNTRIES_DATA).forEach(c => {
+      if (c.name.toLowerCase().includes(q) || c.id.toLowerCase() === q || c.capitalCity?.toLowerCase().includes(q)) {
+        const lat = parseFloat(c.latitude);
+        const lng = parseFloat(c.longitude);
+        if (!isNaN(lat) && !isNaN(lng)) {
+          results.push({
+            name: c.name,
+            category: `Country (${c.region?.value || 'Global'})`,
+            flag: c.flag || '🌐',
+            lat,
+            lng,
+            code: c.id
+          });
+        }
+      }
+    });
+
+    WORLD_CANALS.forEach(cn => {
+      if (cn.name.toLowerCase().includes(q) || cn.country.toLowerCase().includes(q)) {
+        results.push({
+          name: cn.name,
+          category: `Maritime Canal (${cn.country})`,
+          flag: cn.flag || '🚢',
+          lat: cn.coordinates.lat,
+          lng: cn.coordinates.lng
+        });
+      }
+    });
+
+    STRATEGIC_CHOKEPOINTS.forEach(chk => {
+      if (chk.name.toLowerCase().includes(q) || chk.country.toLowerCase().includes(q)) {
+        results.push({
+          name: chk.name,
+          category: `Strategic Chokepoint (${chk.status})`,
+          flag: '🚨',
+          lat: chk.coordinates.lat,
+          lng: chk.coordinates.lng
+        });
+      }
+    });
+
+    this.searchResults = results.slice(0, 8);
+    this.isSearchOpen = this.searchResults.length > 0;
+    this.cdr.markForCheck();
+  }
+
+  selectSearchResult(item: SearchResultItem): void {
+    this.searchQuery = item.name;
+    this.isSearchOpen = false;
+
+    if (item.code && COUNTRIES_DATA[item.code]) {
+      this.openCountryTelemetryCard(COUNTRIES_DATA[item.code], item.lat, item.lng);
+    } else {
+      this.flyToTarget(item.lng, item.lat, 7, 55, 10);
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Animated Vessel Fleet Motion Engine
+  // ------------------------------------------------------------------
+  private startVesselFleetAnimation(): void {
+    this.vesselAnimationTimer = setInterval(() => {
+      this.vesselTickStep++;
+      if (this.showMaritimeLayer && this.map) {
+        this.updateVesselMarkerPositions();
+      }
+    }, 2500);
+  }
+
+  private renderVesselMarkers(): void {
+    this.vesselMarkers.forEach(m => m.remove());
+    this.vesselMarkers = [];
+
+    if (!this.showMaritimeLayer || !this.map || !this.maplibregl) return;
+
+    this.cargoVesselFleet.forEach((vessel, idx) => {
+      const offset = ((this.vesselTickStep * 0.05 + idx * 0.2) % 1);
+      const wps = vessel.waypoints;
+      const startWp = wps[0];
+      const endWp = wps[wps.length - 1];
+
+      const lng = (startWp.x + (endWp.x - startWp.x) * offset - 500) * (360 / 1000);
+      const lat = (250 - (startWp.y + (endWp.y - startWp.y) * offset)) * (180 / 500);
+
+      const el = document.createElement('div');
+      el.className = 'custom-3d-marker vessel-marker';
+      el.innerHTML = `🚢`;
+      el.title = `${vessel.name} (${vessel.vesselType})`;
+
+      el.addEventListener('click', (ev: Event) => {
+        ev.stopPropagation();
+        this.selectedDetailCard = {
+          title: `🚢 ${vessel.name}`,
+          category: `${vessel.vesselType} • ${vessel.shippingLine || vessel.flagName}`,
+          details: [
+            { label: '🚢 IMO Number', value: `${vessel.imoNumber || 'N/A'}` },
+            { label: '📡 MMSI / Callsign', value: `${vessel.mmsiNumber || 'N/A'} / ${vessel.callsign || 'N/A'}` },
+            { label: '🏢 Shipping Line', value: vessel.shippingLine || 'N/A' },
+            { label: '📍 Flag Registry', value: `${vessel.flagEmoji} ${vessel.flagName}` },
+            { label: '📐 Dimensions', value: `${vessel.lengthMeters}m x ${vessel.beamMeters || 'N/A'}m (Draft: ${vessel.draftMeters || 'N/A'}m)` },
+            { label: '📦 Capacity & DWT', value: `${vessel.capacityTEU} (${vessel.dwtTons ? vessel.dwtTons.toLocaleString() + ' DWT' : ''})` },
+            { label: '⚡ Speed & Heading', value: `${vessel.speedKnots} knots @ ${vessel.headingDeg.toFixed(0)}°` },
+            { label: '📍 Dynamic GPS Coords', value: `${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E` },
+            { label: '🏁 Route', value: `${vessel.originPort} ➔ ${vessel.destinationPort}` }
+          ],
+          summary: `Active vessel navigating trade corridor ${vessel.corridorId.toUpperCase()}`,
+          lat,
+          lng
+        };
+        this.flyToTarget(lng, lat, 7, 55, 0);
+        this.cdr.markForCheck();
+      });
+
+      const marker = new this.maplibregl.Marker({ element: el })
+        .setLngLat([lng, lat])
+        .addTo(this.map!);
+
+      this.vesselMarkers.push(marker);
+    });
+  }
+
+  private updateVesselMarkerPositions(): void {
+    if (!this.map || !this.maplibregl || !this.showMaritimeLayer) return;
+
+    if (this.vesselMarkers.length === 0) {
+      this.renderVesselMarkers();
+      return;
+    }
+
+    this.cargoVesselFleet.forEach((vessel, idx) => {
+      const offset = ((this.vesselTickStep * 0.05 + idx * 0.2) % 1);
+      const wps = vessel.waypoints;
+      const startWp = wps[0];
+      const endWp = wps[wps.length - 1];
+
+      const lng = (startWp.x + (endWp.x - startWp.x) * offset - 500) * (360 / 1000);
+      const lat = (250 - (startWp.y + (endWp.y - startWp.y) * offset)) * (180 / 500);
+
+      if (this.vesselMarkers[idx]) {
+        this.vesselMarkers[idx].setLngLat([lng, lat]);
+      }
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Web Audio Synthesizer SFX Engine
+  // ------------------------------------------------------------------
+  toggleAudio(): void {
+    this.audioMuted = !this.audioMuted;
+    if (!this.audioMuted) {
+      this.playUiSound('click');
+    }
+    this.cdr.markForCheck();
+  }
+
+  playUiSound(type: 'click' | 'hover' | 'select' | 'zoom' | 'correct' | 'wrong' | 'fly'): void {
+    if (this.audioMuted) return;
+    try {
+      if (!this.audioCtx) {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtx) this.audioCtx = new AudioCtx();
+      }
+      if (this.audioCtx && this.audioCtx.state === 'suspended') {
+        this.audioCtx.resume();
+      }
+      if (!this.audioCtx) return;
+
+      const osc = this.audioCtx.createOscillator();
+      const gain = this.audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(this.audioCtx.destination);
+
+      const now = this.audioCtx.currentTime;
+
+      if (type === 'click') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(400, now + 0.05);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.05);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      } else if (type === 'select') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(520, now);
+        osc.frequency.exponentialRampToValueAtTime(1040, now + 0.12);
+        gain.gain.setValueAtTime(0.12, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+        osc.start(now);
+        osc.stop(now + 0.12);
+      } else if (type === 'fly' || type === 'zoom') {
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.start(now);
+        osc.stop(now + 0.08);
+      } else if (type === 'correct') {
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(523.25, now);
+        osc.frequency.exponentialRampToValueAtTime(1046.5, now + 0.2);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.start(now);
+        osc.stop(now + 0.2);
+      } else if (type === 'wrong') {
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.linearRampToValueAtTime(130, now + 0.25);
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        osc.start(now);
+        osc.stop(now + 0.25);
+      }
+    } catch (e) {
+      // Audio fallback
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // Map Camera Controls & Vector Marker Rendering
+  // ------------------------------------------------------------------
   togglePlayTimeline(): void {
     this.isPlayingTimeline = !this.isPlayingTimeline;
     if (this.isPlayingTimeline) {
@@ -363,6 +1361,8 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
       this.map.setStyle(this.mapStyles[styleId] as any);
       this.map.once('style.load', () => {
         this.map?.resize();
+        this.addShippingLanesLayer();
+        this.addEmpireTerritoryLayer();
         this.renderAllVectorLayers();
       });
     }
@@ -373,7 +1373,10 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     if (layerName === 'countries') this.showCountriesLayer = !this.showCountriesLayer;
     if (layerName === 'maritime') this.showMaritimeLayer = !this.showMaritimeLayer;
     if (layerName === 'fx') this.showFxNodesLayer = !this.showFxNodesLayer;
-    if (layerName === 'empires') this.showEmpiresLayer = !this.showEmpiresLayer;
+    if (layerName === 'empires') {
+      this.showEmpiresLayer = !this.showEmpiresLayer;
+      this.updateEmpireTerritoryOverlay();
+    }
 
     this.renderAllVectorLayers();
     this.cdr.markForCheck();
@@ -382,13 +1385,15 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
   private clearActiveMarkers(): void {
     this.activeMarkers.forEach(m => m.remove());
     this.activeMarkers = [];
+    this.vesselMarkers.forEach(m => m.remove());
+    this.vesselMarkers = [];
   }
 
   private renderAllVectorLayers(): void {
     if (!this.map || !this.maplibregl) return;
     this.clearActiveMarkers();
 
-    // 1. Countries Data Vector Layer with 3D Extrusion Height Calculation
+    // 1. Countries Data Vector Layer
     if (this.showCountriesLayer) {
       Object.values(COUNTRIES_DATA).forEach(c => {
         const lat = parseFloat(c.latitude);
@@ -399,7 +1404,6 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
           el.className = 'custom-3d-marker country-marker';
           el.title = `${c.name} (${this.selectedYear})`;
 
-          // Dynamic Extrusion Column Styling
           if (this.extrusionMetric === 'gdp') {
             const heightPx = Math.min(60, Math.max(12, (c.area || 100000) / 40000));
             el.style.height = `${heightPx}px`;
@@ -419,7 +1423,11 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
 
           el.addEventListener('click', (ev: Event) => {
             ev.stopPropagation();
-            this.openCountryTelemetryCard(c, lat, lng);
+            if (this.activeTabMode === 'quiz' && this.currentQuizQuestion && !this.quizAnswered) {
+              this.submitQuizAnswer(c.name);
+            } else {
+              this.openCountryTelemetryCard(c, lat, lng);
+            }
           });
 
           const marker = new this.maplibregl.Marker({ element: el })
@@ -431,7 +1439,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     }
 
-    // 2. Maritime Routes, Canals & Chokepoints Layer
+    // 2. Maritime Layer
     if (this.showMaritimeLayer) {
       WORLD_CANALS.forEach(c => {
         const el = document.createElement('div');
@@ -441,12 +1449,14 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         el.addEventListener('click', (ev: Event) => {
           ev.stopPropagation();
           this.selectedDetailCard = {
-            title: `🇪🇬 ${c.name}`,
-            category: `Maritime Canal • ${c.country}`,
+            title: `${c.flag} ${c.name}`,
+            category: `Verified Artificial Canal • ${c.country}`,
             details: [
-              { label: '📏 Length', value: c.lengthKm },
-              { label: '🔒 Lock System', value: c.lockCount },
-              { label: '🚢 Annual Traffic', value: c.annualVessels },
+              { label: '📏 Total Canal Length', value: c.lengthKm },
+              { label: '🔒 Lock Systems', value: c.lockCount },
+              { label: '🚢 Annual Transits', value: c.annualVessels },
+              { label: '📐 Max Draft / Beam', value: `${c.maxDraftMeters || 'N/A'}m Draft • ${c.maxBeamMeters || 'N/A'}m Beam` },
+              { label: '📦 Annual Metric Cargo', value: c.annualCargoTons || 'N/A' },
               { label: '🌊 Waterway Type', value: c.waterwayType }
             ],
             summary: c.summary,
@@ -473,12 +1483,13 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
           ev.stopPropagation();
           this.selectedDetailCard = {
             title: `🚨 ${chk.name}`,
-            category: `Strategic Bottleneck • ${chk.country}`,
+            category: `Strategic Chokepoint • ${chk.country}`,
             details: [
-              { label: '⚠️ Status Alert', value: chk.status },
+              { label: '⚠️ Security Status', value: chk.status },
               { label: '🚢 Daily Vessels', value: `${chk.dailyVessels} Ships/day` },
-              { label: '📦 Cargo Volume', value: chk.cargoVolume },
-              { label: '⛽ Key Cargo', value: chk.keyCommodities.join(', ') }
+              { label: '🛢️ Daily Oil Flow', value: chk.dailyOilBarrels || 'N/A' },
+              { label: '📦 Global Trade Share', value: chk.cargoVolume },
+              { label: '⛽ Key Commodities', value: chk.keyCommodities.join(', ') }
             ],
             summary: chk.summary,
             lat: chk.coordinates.lat,
@@ -494,11 +1505,19 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.activeMarkers.push(marker);
       });
+
+      this.renderVesselMarkers();
     }
 
     // 3. FX Telemetry Currency Hub Nodes
     if (this.showFxNodesLayer) {
+      const baseInfo = this.fxRates[this.fxBaseCurrency] || this.fxRates['USD'];
+      const usdAmt = this.fxAmount / baseInfo.rateVsUsd;
+
       this.fxHubNodes.forEach(node => {
+        const rateInfo = this.fxRates[node.code] || { rateVsUsd: 1.0, symbol: '$' };
+        const converted = (usdAmt * rateInfo.rateVsUsd).toFixed(2);
+
         const el = document.createElement('div');
         el.className = 'custom-3d-marker fx-marker';
         el.innerHTML = `<span style="font-size: 0.7rem; font-weight: 800; color: #000;">${node.code}</span>`;
@@ -510,6 +1529,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
             category: `FX Currency Telemetry Hub`,
             details: [
               { label: '💱 Currency Code', value: `${node.flag} ${node.code}` },
+              { label: `💵 Value (${this.fxAmount} ${this.fxBaseCurrency})`, value: `${rateInfo.symbol || ''} ${converted}` },
               { label: '📈 Live FX vs USD', value: node.rate },
               { label: '📍 Location', value: `${node.lat.toFixed(2)}°, ${node.lng.toFixed(2)}°` }
             ],
@@ -528,49 +1548,6 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         this.activeMarkers.push(marker);
       });
     }
-
-    // 4. Historical Empires Layer
-    if (this.showEmpiresLayer) {
-      HISTORICAL_EMPIRES.slice(0, 8).forEach(emp => {
-        const coords = emp.capitalCoords;
-        const lng = (coords.cx - 500) * (360 / 1000);
-        const lat = (250 - coords.cy) * (180 / 500);
-
-        const el = document.createElement('div');
-        el.className = 'custom-3d-marker empire-marker';
-        el.style.backgroundColor = emp.color;
-        el.title = emp.name;
-
-        el.addEventListener('click', (ev: Event) => {
-          ev.stopPropagation();
-          this.selectedDetailCard = {
-            title: `🏛️ ${emp.name}`,
-            category: `Historical Civilization • ${emp.era} Era`,
-            details: [
-              { label: '⏳ Peak Era', value: emp.yearSpan },
-              { label: '👑 Founder/Ruler', value: emp.founderOrRuler },
-              { label: '🏛️ Capital', value: emp.capitalCity },
-              { label: '📐 Peak Area', value: emp.peakAreaSqKm }
-            ],
-            summary: `${emp.summary} Achievements: ${emp.keyAchievements.join(' • ')}`,
-            lat,
-            lng
-          };
-          this.flyToTarget(lng, lat, 6, 55, -20);
-          this.cdr.markForCheck();
-        });
-
-        const marker = new this.maplibregl.Marker({ element: el })
-          .setLngLat([lng, lat])
-          .addTo(this.map!);
-
-        this.activeMarkers.push(marker);
-      });
-    }
-  }
-
-  navigateToModule(modulePath: string): void {
-    this.router.navigate([modulePath]);
   }
 
   onPitchChange(event: Event): void {
@@ -654,6 +1631,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   flyToTarget(lng: number, lat: number, zoom: number = 6, pitch: number = 45, bearing: number = 0): void {
+    this.playUiSound('fly');
     if (this.map) {
       this.map.flyTo({
         center: [lng, lat],

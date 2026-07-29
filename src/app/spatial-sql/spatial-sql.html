@@ -1,0 +1,95 @@
+<div class="spatial-sql-page">
+  <!-- Header Banner -->
+  <header class="sql-header-banner">
+    <div class="header-brand">
+      <span class="header-icon">⚡</span>
+      <div>
+        <h1 class="header-title">7. DUCKDB WASM SPATIAL QUERY ENGINE</h1>
+        <p class="header-subtitle">High-Performance In-Browser Spatial SQL Workbench • Real-Time Spatial Queries • Integrated Vector Map Preview</p>
+      </div>
+    </div>
+    <span class="duckdb-badge">DUCKDB WASM v1.28</span>
+  </header>
+
+  <!-- Spatial SQL Workbench Query Editor Section -->
+  <section class="sql-workbench-card">
+    <div class="workbench-top">
+      <div class="presets-group">
+        <span class="presets-lbl">🚀 SQL Presets:</span>
+        <button class="preset-pill-btn" (click)="setQueryPreset('high_income')">💰 High Income Nations</button>
+        <button class="preset-pill-btn" (click)="setQueryPreset('maritime_canals')">🚢 World Canals</button>
+        <button class="preset-pill-btn" (click)="setQueryPreset('chokepoints')">⚠️ Strategic Chokepoints</button>
+        <button class="preset-pill-btn" (click)="setQueryPreset('landlocked')">🌍 Regional Nations</button>
+      </div>
+
+      <div class="telemetry-group">
+        <span>Returned <strong style="color: #00f2fe;">{{ queryResultCount }}</strong> records in <strong style="color: #34d399;">{{ queryExecutionTime }}</strong></span>
+      </div>
+    </div>
+
+    <!-- SQL Textarea Query Box -->
+    <textarea
+      class="sql-editor-textarea"
+      [(ngModel)]="sqlQuery"
+      placeholder="Type Spatial SQL statement..."
+    ></textarea>
+
+    <div class="workbench-actions">
+      <button class="btn-execute-sql" [class.executing]="isExecuting" (click)="runSpatialQuery()">
+        <span>{{ isExecuting ? '⏳ Executing...' : '▶️ Execute Spatial Query' }}</span>
+      </button>
+      <span style="font-size: 0.8rem; color: #94a3b8;">Syntax: ANSI SQL Standard • Spatial Point & Bounding Box Extents Supported</span>
+    </div>
+  </section>
+
+  <!-- Split Workspace: Results Table + Interactive Map Preview -->
+  <div class="workbench-workspace-grid">
+    <!-- Left Results Table -->
+    <div class="results-card">
+      <div class="card-toolbar">
+        <span class="toolbar-title">📊 Spatial Query Results Table ({{ queryResultCount }} Rows)</span>
+      </div>
+
+      <div class="results-table-wrapper">
+        <table class="spatial-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Category</th>
+              <th>Metric 1</th>
+              <th>Metric 2</th>
+              <th>Coordinates</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let row of queryResults; let i = index">
+              <td style="font-weight: 800; color: #00f2fe;">{{ i + 1 }}</td>
+              <td style="font-weight: 700; color: #ffffff;">{{ row.name }}</td>
+              <td><span class="category-badge">{{ row.category }}</span></td>
+              <td>{{ row.metric1 }}</td>
+              <td>{{ row.metric2 }}</td>
+              <td><code style="color: #38bdf8;">{{ row.lat.toFixed(2) }}°, {{ row.lng.toFixed(2) }}°</code></td>
+              <td>
+                <button class="fly-btn" (click)="flyToTarget(row.lng, row.lat, 6.5, 45, 0)">
+                  Fly Camera ➔
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Right Map Preview Card -->
+    <div class="map-preview-card">
+      <div class="card-toolbar">
+        <span class="toolbar-title">🗺️ Interactive GIS Preview Map</span>
+      </div>
+      <div class="preview-map-container">
+        <div #previewMapCanvas id="spatial-preview-canvas"></div>
+      </div>
+    </div>
+  </div>
+</div>

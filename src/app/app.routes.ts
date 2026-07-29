@@ -6,13 +6,18 @@ import { ForexComponent } from './forex/forex';
 import { MaritimeComponent } from './maritime/maritime';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'map', pathMatch: 'full' },
+  { path: '', loadComponent: () => import('./home/home').then(m => m.HomeComponent) },
+  { path: 'home', loadComponent: () => import('./home/home').then(m => m.HomeComponent) },
+  { path: 'world-data', loadComponent: () => import('./geolibre/geolibre').then(m => m.GeolibreComponent) },
   { path: 'map', loadComponent: () => import('./geolibre/geolibre').then(m => m.GeolibreComponent) },
   { path: 'geolibre', loadComponent: () => import('./geolibre/geolibre').then(m => m.GeolibreComponent) },
-  { path: 'classic-map', component: MapComponent },
-  { path: 'quiz', component: QuizComponent },
-  { path: 'locate', component: LocateComponent },
-  { path: 'forex', component: ForexComponent },
+  { path: 'empires', loadComponent: () => import('./empires/empires').then(m => m.EmpiresComponent) },
   { path: 'maritime', component: MaritimeComponent },
-  { path: '**', redirectTo: 'map' }
+  { path: 'forex', component: ForexComponent },
+  { path: 'locate', component: LocateComponent },
+  { path: 'quiz', component: QuizComponent },
+  { path: 'spatial-sql', loadComponent: () => import('./spatial-sql/spatial-sql').then(m => m.SpatialSqlComponent) },
+  { path: 'duckdb', redirectTo: 'spatial-sql' },
+  { path: 'classic-map', component: MapComponent },
+  { path: '**', redirectTo: 'home' }
 ];
