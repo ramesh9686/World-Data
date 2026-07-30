@@ -14,7 +14,10 @@ export interface HistoricalEmpire {
   countryCodes: string[];
   summary: string;
   keyAchievements: string[];
+  seshatCode?: string;
+  seshatSScore?: number;
 }
+
 
 export const HISTORICAL_EMPIRES: HistoricalEmpire[] = [
   // ── SOUTH ASIA ──────────────────────────────────────────────────

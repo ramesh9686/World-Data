@@ -1,218 +1,868 @@
-<div class="empires-page-container">
-  <!-- Header Banner -->
+<div class="empires-page-container" [class.full-width-layout]="isFullWidthMap">
+  <!-- Header Banner & Navigation Tabs -->
   <header class="empires-header">
     <div class="header-brand">
       <span class="header-logo">🏛️</span>
       <div>
-        <h1 class="header-title">HISTORICAL EMPIRES TIME MACHINE</h1>
-        <p class="header-subtitle">Interactive 2D Vector Cartography • Exact Capital Locations • 100% Shaded Territory Overlays</p>
+        <h1 class="header-title">SESHAT CLIOPATRIA & OLDMAPS ENGINE</h1>
+        <p class="header-subtitle">14,000+ Historical Polity Boundaries (-3400 BCE to 2024 CE) • OldMapsOnline Cartographic Archive</p>
       </div>
     </div>
 
-    <!-- Era Filter Buttons -->
-    <div class="era-filter-pills">
-      <button
-        *ngFor="let era of ['All', 'Ancient', 'Classical', 'Medieval', 'Early Modern', 'Modern']"
-        class="era-pill-btn"
-        [class.active]="empireEraFilter === era"
-        (click)="setEmpireEraFilter(era)"
-      >
-        {{ era }}
+    <!-- Main View Navigation Tabs -->
+    <div class="header-view-tabs">
+      <button class="view-tab-btn" [class.active]="activeTab === 'temporal-map'" (click)="setTabMode('temporal-map')">
+        🌍 Temporal Map (Cliopatria 14k)
+      </button>
+      <button class="view-tab-btn" [class.active]="activeTab === 'old-maps'" (click)="setTabMode('old-maps')">
+        🗺️ OldMaps Archival Search
+      </button>
+      <button class="view-tab-btn" [class.active]="activeTab === 'map'" (click)="setTabMode('map')">
+        🏛️ GIS Empires
+      </button>
+      <button class="view-tab-btn" [class.active]="activeTab === 'seshat'" (click)="setTabMode('seshat')">
+        📜 Seshat Databank
+      </button>
+      <button class="view-tab-btn" [class.active]="activeTab === 'compare'" (click)="setTabMode('compare')">
+        ⚔️ Comparative Matrix
       </button>
     </div>
   </header>
 
-  <!-- Timeline Era Scrubber Bar -->
-  <div class="timeline-bar-card">
-    <div class="scrubber-label">
-      <span>⏳ Timeline Year Scrub:</span>
-      <strong class="year-highlight">{{ formattedTimelineYear }}</strong>
+  <!-- Live Cliopatria Dataset Download & Unzip Progress Status Banner -->
+  <div *ngIf="cliopatriaEngine.isLoading || cliopatriaEngine.isLoaded" class="cliopatria-status-banner">
+    <div class="status-banner-left">
+      <span class="status-indicator-icon">{{ cliopatriaEngine.isLoaded ? '✅' : '⏳' }}</span>
+      <div>
+        <span class="status-banner-title">{{ cliopatriaEngine.statusMessage }}</span>
+        <span *ngIf="cliopatriaEngine.isLoaded" class="status-banner-subtitle">
+          Seshat Cliopatria ZIP unzipped & cached. Exact polygon borders rendering for {{ legendRegions.length }} active polities.
+        </span>
+      </div>
     </div>
-    <input
-      type="range"
-      min="-500"
-      max="2000"
-      step="25"
-      [value]="timelineEraYear"
-      (input)="onTimelineEraScrub($event)"
-      class="timeline-range-slider"
-    />
-    <div class="scrubber-ticks">
-      <span>500 BCE</span>
-      <span>1 CE</span>
-      <span>500 CE</span>
-      <span>1000 CE</span>
-      <span>1500 CE</span>
-      <span>2000 CE</span>
+    <div *ngIf="cliopatriaEngine.isLoading" class="banner-progress-bar-wrap">
+      <div class="banner-progress-fill" [style.width.%]="cliopatriaEngine.progressPercent"></div>
     </div>
   </div>
 
-  <!-- Workspace Grid: 2D SVG Map + Empire Selection Sidebar -->
-  <div class="empires-workspace-grid">
-    <!-- Main Map Viewport Card -->
-    <div class="empires-map-card">
-      <div class="map-toolbar">
-        <div class="toolbar-title">
-          <span class="live-dot"></span>
-          <span>2D GIS Vector Engine • {{ selectedEmpire?.name || 'Select Empire' }}</span>
-        </div>
-        <div class="cam-controls">
-          <button (click)="zoomIn()" class="cam-btn" title="Zoom In">➕</button>
-          <button (click)="zoomOut()" class="cam-btn" title="Zoom Out">➖</button>
-          <button (click)="resetViewport()" class="cam-btn" title="Reset Viewport">🎯 Reset</button>
-          <span class="zoom-badge">{{ zoomLevel.toFixed(1) }}x</span>
-        </div>
-      </div>
-
-      <div class="svg-map-container"
-           (mousedown)="startPan($event)"
-           (mousemove)="doPan($event)"
-           (mouseup)="endPan()"
-           (mouseleave)="endPan()"
-           (wheel)="onWheelZoom($event)">
-        
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1010 666" class="empires-svg-viewport">
-          <defs>
-            <filter id="empire-path-glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="2" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-
-            <linearGradient id="ocean-bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stop-color="#040814" />
-              <stop offset="50%" stop-color="#0b1329" />
-              <stop offset="100%" stop-color="#030712" />
-            </linearGradient>
-          </defs>
-
-          <!-- Ocean Background -->
-          <rect width="1010" height="666" fill="url(#ocean-bg-grad)" />
-
-          <!-- Graticule Lines -->
-          <g class="graticule-grid" stroke="rgba(56, 189, 248, 0.08)" stroke-width="0.75" stroke-dasharray="3,3">
-            <line x1="0" y1="333" x2="1010" y2="333" stroke="rgba(56, 189, 248, 0.25)" stroke-dasharray="none" />
-            <line x1="0" y1="166" x2="1010" y2="166" />
-            <line x1="0" y1="500" x2="1010" y2="500" />
-            <line x1="250" y1="0" x2="250" y2="666" />
-            <line x1="500" y1="0" x2="500" y2="666" stroke="rgba(56, 189, 248, 0.25)" stroke-dasharray="none" />
-            <line x1="750" y1="0" x2="750" y2="666" />
-          </g>
-
-          <g [style.transform]="viewportTransform" class="svg-zoom-group">
-            <!-- WORLD COUNTRY SHADED POLYGONS -->
-            <g class="countries-polygon-layer">
-              <path *ngFor="let item of worldPaths"
-                    [attr.d]="item.d"
-                    [attr.id]="item.id"
-                    [attr.name]="item.name"
-                    [attr.fill]="getCountryFill(item.id)"
-                    [attr.fill-opacity]="getCountryOpacity(item.id)"
-                    [attr.stroke]="getCountryStroke(item.id)"
-                    [attr.stroke-width]="getCountryStrokeWidth(item.id)"
-                    [attr.filter]="isCountryShaded(item.id) ? 'url(#empire-path-glow)' : null"
-                    class="country-svg-path"
-                    [class.shaded]="isCountryShaded(item.id)">
-                <title>{{ item.name }}{{ isCountryShaded(item.id) ? ' (Shaded Territory of ' + selectedEmpire?.name + ')' : '' }}</title>
-              </path>
-            </g>
-
-            <!-- EMPIRE CAPITAL ORBS & PULSE RINGS -->
-            <g class="empires-capital-orbs">
-              <g *ngFor="let emp of filteredEmpires"
-                 (click)="selectEmpire(emp.id)"
-                 class="capital-orb-node"
-                 [class.active]="selectedEmpireId === emp.id"
-                 [attr.transform]="'translate(' + emp.capitalCoords.cx + ',' + emp.capitalCoords.cy + ')'">
-                
-                <!-- Expanding Pulse Ring -->
-                <circle r="14" class="orb-pulse-ring" [style.stroke]="emp.color" />
-                <!-- Inner Core Orb -->
-                <circle r="5" class="orb-core" [style.fill]="emp.color" [style.stroke]="'#ffd700'" />
-                <!-- Flag Label -->
-                <text y="-10" text-anchor="middle" class="orb-flag-label">{{ emp.flagEmoji }}</text>
-              </g>
-            </g>
-          </g>
-        </svg>
-      </div>
-    </div>
-
-    <!-- Right Empire Selection Sidebar -->
-    <div class="empires-sidebar">
-      <div class="sidebar-card">
-        <h3 class="sidebar-title">🏛️ Historical Empires ({{ filteredEmpires.length }})</h3>
-        <p style="font-size: 0.82rem; color: #94a3b8; margin: 0 0 0.8rem 0;">
-          Select an empire below to highlight & shade its sovereign territory polygons across the world map:
-        </p>
-
-        <div class="empires-list">
-          <button
-            *ngFor="let emp of filteredEmpires"
-            class="empire-item-btn"
-            [class.active]="selectedEmpireId === emp.id"
-            (click)="selectEmpire(emp.id)"
-          >
-            <span class="item-flag">{{ emp.flagEmoji }}</span>
-            <div class="item-info">
-              <span class="item-name">{{ emp.name }}</span>
-              <span class="item-span">{{ emp.yearSpan }} • {{ emp.capitalCity }}</span>
+  <!-- TAB 0: TEMPORAL GLOBAL WORLD MAP (3400 BCE to 2024 CE) -->
+  <ng-container *ngIf="activeTab === 'temporal-map'">
+    <!-- Interactive Temporal Year Scrubber & Control HUD -->
+    <div class="temporal-hud-card">
+      <div class="hud-year-row">
+        <div class="hud-title-box">
+          <span class="hud-icon">⏳</span>
+          <div>
+            <span class="hud-label">Historical Year Selector:</span>
+            <div class="year-display-wrap">
+              <strong class="target-year-text">{{ formattedTimelineYear }}</strong>
+              <span class="year-hint">Type any year between -3400 and 2024</span>
             </div>
-            <span class="item-arrow">➔</span>
+          </div>
+        </div>
+
+        <div class="direct-year-input-box">
+          <label>Target Year (Integer):</label>
+          <input
+            type="number"
+            min="-3400"
+            max="2024"
+            [ngModel]="targetYear"
+            (ngModelChange)="setTargetYear($event)"
+            class="year-number-input"
+            placeholder="e.g. -30"
+          />
+        </div>
+      </div>
+
+      <!-- Scrubber Range Slider -->
+      <div class="slider-row">
+        <input
+          type="range"
+          min="-3400"
+          max="2024"
+          step="10"
+          [value]="targetYear"
+          (input)="onYearSliderChange($event)"
+          class="temporal-range-slider"
+        />
+        <div class="slider-ticks">
+          <span>3400 BCE</span>
+          <span>2000 BCE</span>
+          <span>1000 BCE</span>
+          <span class="highlight-tick">1 CE</span>
+          <span>500 CE</span>
+          <span>1000 CE</span>
+          <span>1500 CE</span>
+          <span>2024 CE</span>
+        </div>
+      </div>
+
+      <!-- Epoch Quick-Jump Presets -->
+      <div class="epoch-presets-row">
+        <span class="presets-lbl">⚡ Epoch Quick Jumps:</span>
+        <div class="preset-chips-wrap">
+          <button
+            *ngFor="let preset of epochPresets"
+            class="epoch-chip-btn"
+            [class.active]="targetYear === preset.year"
+            (click)="jumpToEpoch(preset.year)"
+            [title]="preset.historicalContext"
+          >
+            {{ preset.label }}
           </button>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- Bottom Full-Width Empire Description & Telemetry Panel -->
-  <div *ngIf="selectedEmpire" class="empire-bottom-panel" [style.borderColor]="selectedEmpire.color">
-    <div class="panel-header-row">
-      <div class="empire-title-badge">
-        <span class="empire-flag">{{ selectedEmpire.flagEmoji }}</span>
+    <!-- Temporal Map Workspace Grid -->
+    <div class="empires-workspace-grid" [class.full-width-mode]="isFullWidthMap">
+      <!-- Main Map Viewport Card -->
+      <div class="empires-map-card" [class.expanded-viewport]="isFullWidthMap">
+        <div class="map-toolbar">
+          <div class="toolbar-title">
+            <span class="live-dot"></span>
+            <span>Cliopatria Exact Boundaries • {{ legendTitleHeader }} ({{ legendRegions.length }} Active Polities)</span>
+          </div>
+          <div class="cam-controls">
+            <button (click)="toggleFullWidthMap()" class="cam-btn expand-btn" [title]="isFullWidthMap ? 'Standard View' : 'Expand Full Width'">
+              {{ isFullWidthMap ? '↔️ Standard View' : '🖥️ Full Width Map' }}
+            </button>
+            <button (click)="zoomIn()" class="cam-btn" title="Zoom In">➕</button>
+            <button (click)="zoomOut()" class="cam-btn" title="Zoom Out">➖</button>
+            <button (click)="resetViewport()" class="cam-btn" title="Reset Viewport">🎯 Reset</button>
+            <span class="zoom-badge">{{ zoomLevel.toFixed(1) }}x</span>
+          </div>
+        </div>
+
+        <div class="svg-map-container"
+             [class.ultra-height]="isFullWidthMap"
+             (mousedown)="startPan($event)"
+             (mousemove)="doPan($event)"
+             (mouseup)="endPan()"
+             (mouseleave)="endPan()"
+             (wheel)="onWheelZoom($event)">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1010 666" class="empires-svg-viewport">
+            <defs>
+              <filter id="empire-path-glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="2" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+
+              <linearGradient id="ocean-bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#040814" />
+                <stop offset="50%" stop-color="#0b1329" />
+                <stop offset="100%" stop-color="#030712" />
+              </linearGradient>
+            </defs>
+
+            <!-- Ocean Background -->
+            <rect width="1010" height="666" fill="url(#ocean-bg-grad)" />
+
+            <!-- Graticule Lines -->
+            <g class="graticule-grid" stroke="rgba(56, 189, 248, 0.08)" stroke-width="0.75" stroke-dasharray="3,3">
+              <line x1="0" y1="333" x2="1010" y2="333" stroke="rgba(56, 189, 248, 0.25)" stroke-dasharray="none" />
+              <line x1="0" y1="166" x2="1010" y2="166" />
+              <line x1="0" y1="500" x2="1010" y2="500" />
+              <line x1="250" y1="0" x2="250" y2="666" />
+              <line x1="500" y1="0" x2="500" y2="666" stroke="rgba(56, 189, 248, 0.25)" stroke-dasharray="none" />
+              <line x1="750" y1="0" x2="750" y2="666" />
+            </g>
+
+            <g [style.transform]="viewportTransform" class="svg-zoom-group">
+              <!-- WORLD BASELINE COUNTRY OUTLINES -->
+              <g class="countries-polygon-layer">
+                <path *ngFor="let item of worldPaths"
+                      [attr.d]="item.d"
+                      [attr.id]="item.id"
+                      [attr.name]="item.name"
+                      fill="rgba(30, 41, 59, 0.35)"
+                      stroke="rgba(255, 255, 255, 0.08)"
+                      stroke-width="0.5"
+                      class="country-svg-path">
+                </path>
+              </g>
+
+              <!-- EXACT CLIOPATRIA HISTORICAL POLITY POLYGONS (old-map.vercel.app) -->
+              <g class="cliopatria-polygons-layer">
+                <path *ngFor="let feat of cliopatriaFeaturesForYear"
+                      [attr.d]="feat.svgPath"
+                      [attr.fill]="getFeatureFillColor(feat)"
+                      [attr.fill-opacity]="getFeatureOpacity(feat)"
+                      stroke="#1f2937"
+                      stroke-width="0.75"
+                      (click)="selectCliopatriaFeature(feat)"
+                      class="cliopatria-polygon-path"
+                      [class.highlighted]="highlightedLegendName && (feat.properties.Name === highlightedLegendName || feat.properties.NAME === highlightedLegendName)">
+                  <title>{{ feat.properties.Name || feat.properties.NAME || 'Polity' }} (Active in {{ formattedTimelineYear }})</title>
+                </path>
+              </g>
+            </g>
+          </svg>
+
+          <!-- FLOATING CLICKED POLITY TELEMETRY & WIKIPEDIA CARD (top-left) -->
+          <div *ngIf="selectedCliopatriaFeature || selectedPolity || highlightedLegendName" class="floating-polity-telemetry-card">
+            <div class="card-polity-header">
+              <div class="polity-title-group">
+                <span class="header-icon-badge">🏛️</span>
+                <div>
+                  <h3 class="polity-card-name">
+                    {{ highlightedLegendName || selectedCliopatriaFeature?.properties?.Name || selectedPolity?.name || 'Selected Polity' }}
+                  </h3>
+                  <span class="polity-card-era">
+                    Active in {{ formattedTimelineYear }}
+                    <ng-container *ngIf="selectedCliopatriaFeature?.properties?.FromYear !== undefined">
+                      ({{ temporalService.formatYearLabel(selectedCliopatriaFeature?.properties?.FromYear!) }} – {{ temporalService.formatYearLabel(selectedCliopatriaFeature?.properties?.ToYear!) }})
+                    </ng-container>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Wikipedia Article Summary & Image -->
+            <div class="wiki-summary-content">
+              <div *ngIf="isLoadingWiki" class="wiki-loading-txt">
+                <span>🔄 Fetching Wikipedia summary & historical facts...</span>
+              </div>
+
+              <div *ngIf="!isLoadingWiki && selectedWikiSummary" class="wiki-details-body">
+                <div *ngIf="selectedWikiSummary.thumbnail" class="wiki-thumb-wrap">
+                  <img [src]="selectedWikiSummary.thumbnail.source" [alt]="selectedWikiSummary.title" class="wiki-thumb-img" />
+                </div>
+
+                <p class="wiki-extract-text">{{ selectedWikiSummary.extract }}</p>
+
+                <a *ngIf="selectedWikiSummary.pageUrl"
+                   [href]="selectedWikiSummary.pageUrl"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   class="wiki-read-more-link">
+                  📖 View Full Wikipedia Article ➔
+                </a>
+              </div>
+
+              <div *ngIf="!isLoadingWiki && !selectedWikiSummary" class="wiki-fallback-txt">
+                <span>Historical polity record active in {{ formattedTimelineYear }}. Click legend items to highlight boundaries.</span>
+              </div>
+            </div>
+
+            <!-- Telemetry Metrics -->
+            <div class="polity-metrics-strip" *ngIf="selectedCliopatriaFeature?.properties?.Area || selectedPolity?.seshatSScore">
+              <div *ngIf="selectedCliopatriaFeature?.properties?.Area" class="mini-stat-chip">
+                <span class="chip-lbl">📐 Territory Area</span>
+                <span class="chip-val">{{ selectedCliopatriaFeature?.properties?.Area?.toLocaleString() }} km²</span>
+              </div>
+              <div *ngIf="selectedPolity?.seshatSScore" class="mini-stat-chip">
+                <span class="chip-lbl">📜 Seshat S-Score</span>
+                <span class="chip-val" style="color: #f59e0b;">{{ selectedPolity?.seshatSScore }} / 100</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- FLOATING HISTORICAL LEGEND BOX (bottom-right, matching old-map.vercel.app) -->
+          <div *ngIf="legendRegions.length > 0" class="floating-historical-legend-card">
+            <div class="legend-card-header">
+              <span class="legend-card-title">{{ legendTitleHeader }}</span>
+              <span class="legend-card-count">{{ legendRegions.length }} Polities</span>
+            </div>
+
+            <div class="legend-regions-scroll-list">
+              <div *ngFor="let region of legendRegions"
+                   class="legend-region-row"
+                   [class.active]="highlightedLegendName === region.name"
+                   (mouseenter)="highlightLegendRegion(region.name)"
+                   (mouseleave)="highlightLegendRegion(null)">
+                <span class="legend-color-dot" [style.background]="region.color"></span>
+                <span class="legend-region-name">{{ region.name }}</span>
+                <span *ngIf="region.count > 1" class="legend-region-badge">x{{ region.count }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Active Temporal Polities Sidebar -->
+      <div class="empires-sidebar" [class.collapsible-sidebar]="isFullWidthMap">
+        <div class="sidebar-card">
+          <h3 class="sidebar-title">📜 Active Polities in {{ formattedTimelineYear }} ({{ activeTemporalPolities.length }})</h3>
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0 0 0.8rem 0;">
+            Polities & sovereign states active in human history during <strong>Year {{ targetYear }}</strong>:
+          </p>
+
+          <div class="empires-list">
+            <button
+              *ngFor="let polity of activeTemporalPolities"
+              class="empire-item-btn"
+              [class.active]="selectedPolity?.polityId === polity.polityId"
+              (click)="selectTemporalPolity(polity)"
+            >
+              <span class="item-flag">{{ polity.flagEmoji }}</span>
+              <div class="item-info">
+                <span class="item-name">{{ polity.name }}</span>
+                <span class="item-span">
+                  {{ temporalService.formatYearLabel(polity.fromYear) }} – {{ temporalService.formatYearLabel(polity.toYear) }}
+                </span>
+              </div>
+              <span class="item-arrow">➔</span>
+            </button>
+
+            <!-- Cliopatria Features List -->
+            <div *ngIf="legendRegions.length > 0" class="cliopatria-features-box">
+              <span class="stat-lbl" style="color: #38bdf8; font-weight: 800; display: block; margin-bottom: 0.4rem;">
+                📂 Cliopatria Exact Boundaries ({{ legendRegions.length }} Active):
+              </span>
+              <div class="cliopatria-chips-wrap">
+                <span *ngFor="let region of legendRegions.slice(0, 15)"
+                      class="cliopatria-chip"
+                      [style.borderColor]="region.color"
+                      (mouseenter)="highlightLegendRegion(region.name)"
+                      (mouseleave)="highlightLegendRegion(null)">
+                  {{ region.name }}
+                </span>
+              </div>
+            </div>
+
+            <div *ngIf="activeTemporalPolities.length === 0 && legendRegions.length === 0" class="no-polities-box">
+              <span>🏜️ No catalogued imperial state for Year {{ formattedTimelineYear }}. Try scrubbing to another era (e.g. -30 BCE, 100 CE, 750 CE, 1250 CE, 1550 CE).</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom Telemetry Panel for Selected Temporal Polity -->
+    <div *ngIf="selectedPolity" class="empire-bottom-panel" [style.borderColor]="selectedPolity.color">
+      <div class="panel-header-row">
+        <div class="empire-title-badge">
+          <span class="empire-flag">{{ selectedPolity.flagEmoji }}</span>
+          <div>
+            <h2 class="empire-title">{{ selectedPolity.name }}</h2>
+            <span class="empire-badge" [style.borderColor]="selectedPolity.color">
+              Active {{ temporalService.formatYearLabel(selectedPolity.fromYear) }} – {{ temporalService.formatYearLabel(selectedPolity.toYear) }}
+            </span>
+          </div>
+        </div>
+
+        <div class="panel-stats-strip">
+          <div class="stat-box">
+            <span class="stat-lbl">🏛️ Capital City</span>
+            <span class="stat-val" style="color: #ffd700;">{{ selectedPolity.capitalCity }}</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-lbl">📐 Peak Territory</span>
+            <span class="stat-val" style="color: #00f2fe;">{{ selectedPolity.peakAreaSqKm }}</span>
+          </div>
+          <div class="stat-box seshat-sscore-highlight" (click)="setTabMode('seshat')">
+            <span class="stat-lbl">📜 Seshat S-Score</span>
+            <span class="stat-val" style="color: #f59e0b; font-weight: 800;">{{ selectedPolity.seshatSScore }} / 100 ➔</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="empire-summary-txt">{{ selectedPolity.summary }}</p>
+    </div>
+  </ng-container>
+
+  <!-- TAB 0.5: OLDMAPS ONLINE ARCHIVAL SEARCH -->
+  <ng-container *ngIf="activeTab === 'old-maps'">
+    <div class="oldmaps-search-container">
+      <div class="oldmaps-header-bar">
         <div>
-          <h2 class="empire-title">{{ selectedEmpire.name }}</h2>
-          <span class="empire-badge" [style.borderColor]="selectedEmpire.color">{{ selectedEmpire.era }} Era • Peak {{ selectedEmpire.yearSpan }}</span>
+          <h2>🗺️ OldMapsOnline Cartographic Archive</h2>
+          <p>Search authentic vintage paper maps and historical cartography records matching <strong>Year {{ formattedTimelineYear }}</strong>.</p>
+        </div>
+
+        <button (click)="fetchArchivalMaps()" class="refresh-maps-btn">
+          {{ isSearchingMaps ? '🔄 Searching Archive...' : '🔍 Search Maps for Year ' + formattedTimelineYear }}
+        </button>
+      </div>
+
+      <div class="oldmaps-grid">
+        <div *ngFor="let mapItem of historicalMapsList" class="oldmap-card">
+          <div class="map-thumb-box">
+            <img [src]="mapItem.thumbnailUrl" [alt]="mapItem.title" class="map-thumb-img" />
+            <span class="map-year-tag">c. {{ mapItem.year }}</span>
+          </div>
+          <div class="map-card-info">
+            <h4 class="map-title">{{ mapItem.title }}</h4>
+            <span class="map-publisher">🏛️ {{ mapItem.publisher }}</span>
+            <a [href]="mapItem.recordUrl" target="_blank" rel="noopener" class="map-link-btn">
+              📖 View Archival Record ➔
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- TAB 1: MAP & GIS OVERVIEW -->
+  <ng-container *ngIf="activeTab === 'map'">
+    <div class="era-filter-bar">
+      <div class="era-filter-pills">
+        <button
+          *ngFor="let era of ['All', 'Ancient', 'Classical', 'Medieval', 'Early Modern', 'Modern']"
+          class="era-pill-btn"
+          [class.active]="empireEraFilter === era"
+          (click)="setEmpireEraFilter(era)"
+        >
+          {{ era }}
+        </button>
+      </div>
+    </div>
+
+    <div class="empires-workspace-grid" [class.full-width-mode]="isFullWidthMap">
+      <div class="empires-map-card" [class.expanded-viewport]="isFullWidthMap">
+        <div class="map-toolbar">
+          <div class="toolbar-title">
+            <span class="live-dot"></span>
+            <span>2D GIS Vector Engine • {{ selectedEmpire?.name || 'Select Empire' }}</span>
+          </div>
+          <div class="cam-controls">
+            <button (click)="toggleFullWidthMap()" class="cam-btn expand-btn">
+              {{ isFullWidthMap ? '↔️ Standard View' : '🖥️ Full Width Map' }}
+            </button>
+            <button (click)="zoomIn()" class="cam-btn" title="Zoom In">➕</button>
+            <button (click)="zoomOut()" class="cam-btn" title="Zoom Out">➖</button>
+            <button (click)="resetViewport()" class="cam-btn" title="Reset Viewport">🎯 Reset</button>
+            <span class="zoom-badge">{{ zoomLevel.toFixed(1) }}x</span>
+          </div>
+        </div>
+
+        <div class="svg-map-container"
+             [class.ultra-height]="isFullWidthMap"
+             (mousedown)="startPan($event)"
+             (mousemove)="doPan($event)"
+             (mouseup)="endPan()"
+             (mouseleave)="endPan()"
+             (wheel)="onWheelZoom($event)">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1010 666" class="empires-svg-viewport">
+            <defs>
+              <filter id="empire-path-glow" x="-20%" y="-20%" width="140%" height="140%">
+                <feGaussianBlur stdDeviation="2" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+
+              <linearGradient id="ocean-bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#040814" />
+                <stop offset="50%" stop-color="#0b1329" />
+                <stop offset="100%" stop-color="#030712" />
+              </linearGradient>
+            </defs>
+
+            <rect width="1010" height="666" fill="url(#ocean-bg-grad)" />
+
+            <g class="graticule-grid" stroke="rgba(56, 189, 248, 0.08)" stroke-width="0.75" stroke-dasharray="3,3">
+              <line x1="0" y1="333" x2="1010" y2="333" stroke="rgba(56, 189, 248, 0.25)" stroke-dasharray="none" />
+              <line x1="0" y1="166" x2="1010" y2="166" />
+              <line x1="0" y1="500" x2="1010" y2="500" />
+              <line x1="250" y1="0" x2="250" y2="666" />
+              <line x1="500" y1="0" x2="500" y2="666" stroke="rgba(56, 189, 248, 0.25)" stroke-dasharray="none" />
+              <line x1="750" y1="0" x2="750" y2="666" />
+            </g>
+
+            <g [style.transform]="viewportTransform" class="svg-zoom-group">
+              <g class="countries-polygon-layer">
+                <path *ngFor="let item of worldPaths"
+                      [attr.d]="item.d"
+                      [attr.id]="item.id"
+                      [attr.name]="item.name"
+                      [attr.fill]="getCountryFill(item.id)"
+                      [attr.fill-opacity]="getCountryOpacity(item.id)"
+                      [attr.stroke]="getCountryStroke(item.id)"
+                      [attr.stroke-width]="getCountryStrokeWidth(item.id)"
+                      [attr.filter]="isCountryShaded(item.id) ? 'url(#empire-path-glow)' : null"
+                      class="country-svg-path"
+                      [class.shaded]="isCountryShaded(item.id)">
+                  <title>{{ item.name }}{{ isCountryShaded(item.id) ? ' (Shaded Territory of ' + selectedEmpire?.name + ')' : '' }}</title>
+                </path>
+              </g>
+            </g>
+          </svg>
         </div>
       </div>
 
-      <div class="panel-stats-strip">
-        <div class="stat-box">
-          <span class="stat-lbl">👑 Founder / Ruler</span>
-          <span class="stat-val">{{ selectedEmpire.founderOrRuler }}</span>
-        </div>
-        <div class="stat-box">
-          <span class="stat-lbl">🏛️ Capital City</span>
-          <span class="stat-val" style="color: #ffd700;">{{ selectedEmpire.capitalCity }}</span>
-        </div>
-        <div class="stat-box">
-          <span class="stat-lbl">📐 Peak Land Area</span>
-          <span class="stat-val" style="color: #00f2fe;">{{ selectedEmpire.peakAreaSqKm }}</span>
+      <div class="empires-sidebar" [class.collapsible-sidebar]="isFullWidthMap">
+        <div class="sidebar-card">
+          <h3 class="sidebar-title">🏛️ Historical Empires ({{ filteredEmpires.length }})</h3>
+          <p style="font-size: 0.82rem; color: #94a3b8; margin: 0 0 0.8rem 0;">
+            Select an empire to highlight & shade its sovereign territory polygons across the world map:
+          </p>
+
+          <div class="empires-list">
+            <button
+              *ngFor="let emp of filteredEmpires"
+              class="empire-item-btn"
+              [class.active]="selectedEmpireId === emp.id"
+              (click)="selectEmpire(emp.id)"
+            >
+              <span class="item-flag">{{ emp.flagEmoji }}</span>
+              <div class="item-info">
+                <span class="item-name">{{ emp.name }}</span>
+                <span class="item-span">{{ emp.yearSpan }} • {{ emp.capitalCity }}</span>
+              </div>
+              <span class="item-arrow">➔</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
 
-    <p class="empire-summary-txt">{{ selectedEmpire.summary }}</p>
+    <div *ngIf="selectedEmpire" class="empire-bottom-panel" [style.borderColor]="selectedEmpire.color">
+      <div class="panel-header-row">
+        <div class="empire-title-badge">
+          <span class="empire-flag">{{ selectedEmpire.flagEmoji }}</span>
+          <div>
+            <h2 class="empire-title">{{ selectedEmpire.name }}</h2>
+            <span class="empire-badge" [style.borderColor]="selectedEmpire.color">{{ selectedEmpire.era }} Era • Peak {{ selectedEmpire.yearSpan }}</span>
+          </div>
+        </div>
 
-    <!-- Shaded Sovereign Territory Regions HUD -->
-    <div *ngIf="spannedCountryNames.length > 0" class="spanned-territories-box">
-      <span class="stat-lbl" style="color: #38bdf8; font-weight: 800; display: block; margin-bottom: 0.4rem;">
-        🗺️ Shaded Sovereign Territories ({{ spannedCountryNames.length }} Regions Spanned):
-      </span>
-      <div class="territory-pills-wrap">
-        <span *ngFor="let cName of spannedCountryNames" class="territory-pill" [style.borderColor]="selectedEmpire.color">
-          🏛️ {{ cName }}
+        <div class="panel-stats-strip">
+          <div class="stat-box">
+            <span class="stat-lbl">👑 Founder / Ruler</span>
+            <span class="stat-val">{{ selectedEmpire.founderOrRuler }}</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-lbl">🏛️ Capital City</span>
+            <span class="stat-val" style="color: #ffd700;">{{ selectedEmpire.capitalCity }}</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-lbl">📐 Peak Land Area</span>
+            <span class="stat-val" style="color: #00f2fe;">{{ selectedEmpire.peakAreaSqKm }}</span>
+          </div>
+          <div *ngIf="selectedSeshatData" class="stat-box seshat-sscore-highlight" (click)="setTabMode('seshat')">
+            <span class="stat-lbl">📜 Seshat S-Score</span>
+            <span class="stat-val" style="color: #f59e0b; font-weight: 800;">{{ selectedSeshatData.sScore }} / 100 ➔</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="empire-summary-txt">{{ selectedEmpire.summary }}</p>
+
+      <div *ngIf="spannedCountryNames.length > 0" class="spanned-territories-box">
+        <span class="stat-lbl" style="color: #38bdf8; font-weight: 800; display: block; margin-bottom: 0.4rem;">
+          🗺️ Shaded Sovereign Territories ({{ spannedCountryNames.length }} Regions Spanned):
         </span>
+        <div class="territory-pills-wrap">
+          <span *ngFor="let cName of spannedCountryNames" class="territory-pill" [style.borderColor]="selectedEmpire.color">
+            🏛️ {{ cName }}
+          </span>
+        </div>
+      </div>
+
+      <div class="achievements-section">
+        <span class="achievements-title">✨ Key Achievements & Legacy:</span>
+        <ul class="achievements-grid">
+          <li *ngFor="let ach of selectedEmpire.keyAchievements">{{ ach }}</li>
+        </ul>
       </div>
     </div>
+  </ng-container>
 
-    <div class="achievements-section">
-      <span class="achievements-title">✨ Key Achievements & Legacy:</span>
-      <ul class="achievements-grid">
-        <li *ngFor="let ach of selectedEmpire.keyAchievements">{{ ach }}</li>
-      </ul>
+  <!-- TAB 2: SESHAT GLOBAL HISTORY DATABANK -->
+  <ng-container *ngIf="activeTab === 'seshat'">
+    <div class="seshat-databank-container">
+      <div class="seshat-top-bar">
+        <div class="seshat-picker">
+          <label class="picker-label">Select Historical Empire / Polity:</label>
+          <select [value]="selectedEmpireId" (change)="selectEmpireFromSelect($event)" class="seshat-select-dropdown">
+            <option *ngFor="let emp of empiresList" [value]="emp.id">
+              {{ emp.flagEmoji }} {{ emp.name }} ({{ emp.yearSpan }})
+            </option>
+          </select>
+        </div>
+
+        <div *ngIf="selectedSeshatData" class="seshat-score-badge">
+          <div class="score-number">{{ selectedSeshatData.sScore }}</div>
+          <div class="score-details">
+            <span class="score-title">SOCIAL COMPLEXITY INDEX ($S$-Score)</span>
+            <span class="score-code">Seshat Polity Code: <code>{{ selectedSeshatData.seshatCode }}</code></span>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="selectedSeshatData" class="seshat-content-grid">
+        <div class="seshat-card radar-card">
+          <h3 class="card-section-title">📊 Social Complexity Radar (6 Dimensions)</h3>
+          
+          <div class="radar-visualization-wrapper">
+            <svg viewBox="0 0 300 300" class="seshat-radar-svg">
+              <defs>
+                <radialGradient id="radar-glow-bg" cx="50%" cy="50%" r="50%">
+                  <stop offset="0%" stop-color="rgba(245, 158, 11, 0.15)" />
+                  <stop offset="100%" stop-color="rgba(15, 23, 42, 0.4)" />
+                </radialGradient>
+              </defs>
+
+              <circle cx="150" cy="150" r="105" fill="url(#radar-glow-bg)" />
+
+              <polygon *ngFor="let pct of [0.2, 0.4, 0.6, 0.8, 1.0]"
+                       [attr.points]="seshatService.calculateRadarPolygonPoints({ polityScale: pct*100, governance: pct*100, infrastructure: pct*100, informationSystems: pct*100, militaryTech: pct*100, axialReligion: pct*100 }, 150, 150, 105)"
+                       fill="none"
+                       stroke="rgba(255, 255, 255, 0.08)"
+                       stroke-width="1"
+                       stroke-dasharray="2,2" />
+
+              <line *ngFor="let axis of radarAxes"
+                    x1="150" y1="150"
+                    [attr.x2]="axis.x" [attr.y2]="axis.y"
+                    stroke="rgba(255, 255, 255, 0.15)" stroke-width="1" />
+
+              <polygon [attr.points]="selectedEmpirePolygon"
+                       fill="rgba(245, 158, 11, 0.35)"
+                       stroke="#f59e0b"
+                       stroke-width="2.5"
+                       class="radar-polygon-animated" />
+
+              <text *ngFor="let axis of radarAxes"
+                    [attr.x]="axis.labelX"
+                    [attr.y]="axis.labelY"
+                    text-anchor="middle"
+                    dominant-baseline="central"
+                    class="radar-axis-label">
+                {{ axis.label }}
+              </text>
+            </svg>
+          </div>
+
+          <div class="dimension-progress-list">
+            <div class="dim-row">
+              <span class="dim-lbl">🏛️ Polity Scale (Pop & Territory):</span>
+              <div class="dim-bar-track">
+                <div class="dim-bar-fill" [style.width.%]="selectedSeshatData.dimensions.polityScale" style="background: #f59e0b;"></div>
+              </div>
+              <span class="dim-val">{{ selectedSeshatData.dimensions.polityScale }} / 100</span>
+            </div>
+
+            <div class="dim-row">
+              <span class="dim-lbl">📜 Governance & Legal Code:</span>
+              <div class="dim-bar-track">
+                <div class="dim-bar-fill" [style.width.%]="selectedSeshatData.dimensions.governance" style="background: #3b82f6;"></div>
+              </div>
+              <span class="dim-val">{{ selectedSeshatData.dimensions.governance }} / 100</span>
+            </div>
+
+            <div class="dim-row">
+              <span class="dim-lbl">🛣️ Infrastructure & Public Works:</span>
+              <div class="dim-bar-track">
+                <div class="dim-bar-fill" [style.width.%]="selectedSeshatData.dimensions.infrastructure" style="background: #10b981;"></div>
+              </div>
+              <span class="dim-val">{{ selectedSeshatData.dimensions.infrastructure }} / 100</span>
+            </div>
+
+            <div class="dim-row">
+              <span class="dim-lbl">📖 Information Systems & Writing:</span>
+              <div class="dim-bar-track">
+                <div class="dim-bar-fill" [style.width.%]="selectedSeshatData.dimensions.informationSystems" style="background: #a855f7;"></div>
+              </div>
+              <span class="dim-val">{{ selectedSeshatData.dimensions.informationSystems }} / 100</span>
+            </div>
+
+            <div class="dim-row">
+              <span class="dim-lbl">⚔️ Military Technology:</span>
+              <div class="dim-bar-track">
+                <div class="dim-bar-fill" [style.width.%]="selectedSeshatData.dimensions.militaryTech" style="background: #ef4444;"></div>
+              </div>
+              <span class="dim-val">{{ selectedSeshatData.dimensions.militaryTech }} / 100</span>
+            </div>
+
+            <div class="dim-row">
+              <span class="dim-lbl">🪷 Axial Religion & Cohesion:</span>
+              <div class="dim-bar-track">
+                <div class="dim-bar-fill" [style.width.%]="selectedSeshatData.dimensions.axialReligion" style="background: #06b6d4;"></div>
+              </div>
+              <span class="dim-val">{{ selectedSeshatData.dimensions.axialReligion }} / 100</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="seshat-card details-card">
+          <h3 class="card-section-title">🏛️ Polity Telemetry & Administrative Attributes</h3>
+          
+          <div class="telemetry-grid">
+            <div class="telemetry-item">
+              <span class="t-label">Administrative Hierarchy</span>
+              <span class="t-value">{{ selectedSeshatData.adminLevels }} Tiers</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">Capital Population</span>
+              <span class="t-value">{{ selectedSeshatData.capitalPopulationEst }}</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">Peak Empire Population</span>
+              <span class="t-value">{{ selectedSeshatData.peakPopulationEst }}</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">Script & Language</span>
+              <span class="t-value">{{ selectedSeshatData.primaryLanguageScript }}</span>
+            </div>
+            <div class="telemetry-item">
+              <span class="t-label">Monetary & Exchange System</span>
+              <span class="t-value">{{ selectedSeshatData.monetarySystem }}</span>
+            </div>
+          </div>
+
+          <h3 class="card-section-title" style="margin-top: 1.5rem;">📜 Seshat Coded Field Variables & Historical Evidence</h3>
+          
+          <div class="evidence-cards-list">
+            <div *ngFor="let varItem of selectedSeshatData.codedVariables" class="evidence-card">
+              <div class="evidence-header">
+                <span class="var-name">{{ varItem.variableName }}</span>
+                <span class="var-status-tag" [class.present]="varItem.status === 'present'">
+                  {{ varItem.status | uppercase }}
+                </span>
+              </div>
+              <p class="var-desc">{{ varItem.valueDescription }}</p>
+              <div class="var-evidence-box">
+                <strong>Historical Evidence:</strong> {{ varItem.historicalEvidence }}
+              </div>
+              <div class="var-citations">
+                📚 <strong>Citations:</strong> {{ varItem.citations.join(' | ') }}
+              </div>
+            </div>
+          </div>
+
+          <div class="cliodynamics-box">
+            <h4>📈 Cliodynamic & Historical Macro-Dynamics Note:</h4>
+            <p>{{ selectedSeshatData.cliodynamicNotes }}</p>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </ng-container>
+
+  <!-- TAB 3: IMPERIAL COMPARISON MATRIX -->
+  <ng-container *ngIf="activeTab === 'compare'">
+    <div class="comparison-matrix-container">
+      <div class="matrix-header">
+        <h2>⚔️ IMPERIAL COMPARATIVE ANALYTICS MATRIX</h2>
+        <p>Compare up to 3 historical empires side-by-side across Seshat Social Complexity metrics ($S$-Score), governance hierarchy, and infrastructure.</p>
+        
+        <div class="empire-selector-chips">
+          <span class="chip-label">Select Empires to Compare:</span>
+          <button *ngFor="let emp of empiresList"
+                  class="compare-chip-btn"
+                  [class.selected]="isEmpireSelectedForComparison(emp.id)"
+                  (click)="toggleComparisonEmpire(emp.id)">
+            {{ emp.flagEmoji }} {{ emp.name }}
+          </button>
+        </div>
+      </div>
+
+      <div class="comparison-grid">
+        <div class="compare-radar-card">
+          <h3>📊 Overlaid Social Complexity Spider Chart</h3>
+          
+          <div class="radar-visualization-wrapper">
+            <svg viewBox="0 0 300 300" class="seshat-radar-svg">
+              <circle cx="150" cy="150" r="105" fill="rgba(15, 23, 42, 0.6)" />
+
+              <polygon *ngFor="let pct of [0.2, 0.4, 0.6, 0.8, 1.0]"
+                       [attr.points]="seshatService.calculateRadarPolygonPoints({ polityScale: pct*100, governance: pct*100, infrastructure: pct*100, informationSystems: pct*100, militaryTech: pct*100, axialReligion: pct*100 }, 150, 150, 105)"
+                       fill="none"
+                       stroke="rgba(255, 255, 255, 0.08)"
+                       stroke-width="1"
+                       stroke-dasharray="2,2" />
+
+              <line *ngFor="let axis of radarAxes"
+                    x1="150" y1="150"
+                    [attr.x2]="axis.x" [attr.y2]="axis.y"
+                    stroke="rgba(255, 255, 255, 0.15)" stroke-width="1" />
+
+              <polygon *ngFor="let render of comparisonRenders"
+                       [attr.points]="render.polygonPoints"
+                       [attr.fill]="render.color + '33'"
+                       [attr.stroke]="render.color"
+                       stroke-width="2.5" />
+
+              <text *ngFor="let axis of radarAxes"
+                    [attr.x]="axis.labelX"
+                    [attr.y]="axis.labelY"
+                    text-anchor="middle"
+                    dominant-baseline="central"
+                    class="radar-axis-label">
+                {{ axis.label }}
+              </text>
+            </svg>
+          </div>
+
+          <div class="comparison-legend">
+            <div *ngFor="let render of comparisonRenders" class="legend-item">
+              <span class="color-dot" [style.background]="render.color"></span>
+              <span class="legend-name">{{ render.empire.polityName }} (S-Score: {{ render.empire.sScore }})</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="compare-table-card">
+          <h3>📋 Side-by-Side Metric Matrix</h3>
+          
+          <div class="table-scroll-wrapper">
+            <table class="comparison-table">
+              <thead>
+                <tr>
+                  <th>Metric / Dimension</th>
+                  <th *ngFor="let render of comparisonRenders" [style.color]="render.color">
+                    {{ render.empire.polityName }}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>Social Complexity (S-Score)</strong></td>
+                  <td *ngFor="let render of comparisonRenders">
+                    <strong [style.color]="render.color" style="font-size: 1.1rem;">{{ render.empire.sScore }} / 100</strong>
+                  </td>
+                </tr>
+                <tr>
+                  <td>🏛️ Polity Scale</td>
+                  <td *ngFor="let render of comparisonRenders">{{ render.empire.dimensions.polityScale }} / 100</td>
+                </tr>
+                <tr>
+                  <td>📜 Governance</td>
+                  <td *ngFor="let render of comparisonRenders">{{ render.empire.dimensions.governance }} / 100</td>
+                </tr>
+                <tr>
+                  <td>🛣️ Infrastructure</td>
+                  <td *ngFor="let render of comparisonRenders">{{ render.empire.dimensions.infrastructure }} / 100</td>
+                </tr>
+                <tr>
+                  <td>📖 Information Systems</td>
+                  <td *ngFor="let render of comparisonRenders">{{ render.empire.dimensions.informationSystems }} / 100</td>
+                </tr>
+                <tr>
+                  <td>⚔️ Military Technology</td>
+                  <td *ngFor="let render of comparisonRenders">{{ render.empire.dimensions.militaryTech }} / 100</td>
+                </tr>
+                <tr>
+                  <td>🪷 Axial Religion</td>
+                  <td *ngFor="let render of comparisonRenders">{{ render.empire.dimensions.axialReligion }} / 100</td>
+                </tr>
+                <tr>
+                  <td>👑 Admin Hierarchy Tiers</td>
+                  <td *ngFor="let render of comparisonRenders">{{ render.empire.adminLevels }} Tiers</td>
+                </tr>
+                <tr>
+                  <td>🌆 Capital Population</td>
+                  <td *ngFor="let render of comparisonRenders">{{ render.empire.capitalPopulationEst }}</td>
+                </tr>
+                <tr>
+                  <td>👥 Peak Empire Population</td>
+                  <td *ngFor="let render of comparisonRenders">{{ render.empire.peakPopulationEst }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
 </div>
