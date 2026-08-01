@@ -1,65 +1,70 @@
 /* ==========================================================================
-   GLOBAL MARITIME TRADE ROUTES & SHIPPING CHOKEPOINTS COMPONENT STYLES
+   Page 3: Maritime Routes - 3D GIS & Searoute-TS Telemetry Engine CSS
    ========================================================================== */
 
 .maritime-page-container {
-  min-height: 100vh;
-  padding: 1.5rem 2rem 4rem;
-  background: radial-gradient(circle at 50% 0%, #0b192e 0%, #030712 85%);
-  color: #f8fafc;
-  font-family: 'Outfit', 'Space Grotesk', system-ui, sans-serif;
-  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  padding: 1.5rem;
+  max-width: 1750px;
+  margin: 0 auto;
+  color: #e2e8f0;
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
+  position: relative;
 }
 
-/* ── Live Maritime Telemetry Ticker Marquee ────────────────────────────── */
+/* --------------------------------------------------------------------------
+   Top Marquee Telemetry Ticker
+   -------------------------------------------------------------------------- */
 .maritime-ticker-bar {
-  background: rgba(11, 25, 46, 0.85);
-  border: 1px solid rgba(6, 182, 212, 0.3);
-  border-radius: 14px;
-  padding: 0.6rem 1.25rem;
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  margin-bottom: 1.75rem;
-  backdrop-filter: blur(16px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  gap: 1rem;
+  background: rgba(6, 10, 20, 0.9);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(16px);
 }
 
 .ticker-label {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #00f2fe;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.75rem;
-  font-weight: 900;
-  color: #06b6d4;
-  letter-spacing: 0.08em;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
 .radar-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #06b6d4;
-  box-shadow: 0 0 10px #06b6d4;
-  animation: radar-pulse 1.8s ease-in-out infinite;
+  background: #00f2fe;
+  box-shadow: 0 0 10px #00f2fe;
+  animation: radarPulse 1.8s infinite;
 }
 
-@keyframes radar-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.3; transform: scale(0.6); }
+@keyframes radarPulse {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.4); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.7; }
 }
 
 .ticker-scroll {
   display: flex;
   align-items: center;
-  gap: 1.75rem;
+  gap: 1.8rem;
+  flex: 1;
   overflow-x: auto;
   scrollbar-width: none;
-  flex: 1;
+  font-size: 0.78rem;
+  white-space: nowrap;
 }
 
 .ticker-scroll::-webkit-scrollbar {
@@ -69,507 +74,719 @@
 .ticker-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.8rem;
-  white-space: nowrap;
+  gap: 0.4rem;
 }
 
-.ticker-item .lbl {
-  color: #64748b;
-  font-weight: 700;
-}
+.ticker-item .lbl { color: #64748b; font-weight: 700; }
+.ticker-item .val { color: #f8fafc; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+.ticker-item .trend { font-weight: 800; font-size: 0.72rem; border-radius: 4px; padding: 0.1rem 0.35rem; }
+.ticker-item .trend.pos { color: #34d399; background: rgba(52, 211, 153, 0.15); }
+.ticker-item .trend.warn { color: #fbbf24; background: rgba(251, 191, 36, 0.15); }
+.ticker-item .trend.alert { color: #f87171; background: rgba(248, 113, 113, 0.15); }
 
-.ticker-item .val {
-  color: #f1f5f9;
-  font-weight: 800;
-}
-
-.ticker-item .trend {
-  font-size: 0.7rem;
-  font-weight: 800;
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
-}
-
-.trend.pos { color: #34d399; background: rgba(16, 185, 129, 0.15); }
-.trend.neg { color: #f87171; background: rgba(239, 68, 68, 0.15); }
-.trend.warn { color: #fbbf24; background: rgba(245, 158, 11, 0.15); }
-.trend.alert { color: #ef4444; background: rgba(239, 68, 68, 0.2); }
-
-.ais-badge-btn {
-  background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(168, 85, 247, 0.2));
-  border: 1px solid rgba(0, 242, 254, 0.5);
+.ais-badge-btn, .audio-toggle-btn {
+  background: rgba(22, 30, 48, 0.8);
+  border: 1px solid rgba(0, 242, 254, 0.3);
   color: #00f2fe;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
   font-size: 0.78rem;
   font-weight: 800;
-  padding: 0.4rem 0.85rem;
-  border-radius: 9999px;
   cursor: pointer;
   white-space: nowrap;
-  flex-shrink: 0;
   transition: all 0.25s ease;
-  box-shadow: 0 0 12px rgba(0, 242, 254, 0.25);
 }
 
-.ais-badge-btn:hover {
-  background: linear-gradient(135deg, #00f2fe, #7c3aed);
-  color: #ffffff;
-  box-shadow: 0 0 20px rgba(0, 242, 254, 0.6);
-}
-
-.audio-toggle-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #06b6d4;
-  font-size: 0.75rem;
-  font-weight: 800;
-  padding: 0.35rem 0.75rem;
-  border-radius: 8px;
-  cursor: pointer;
-  white-space: nowrap;
-  flex-shrink: 0;
-  transition: all 0.2s ease;
-}
-
-.audio-toggle-btn:hover {
-  background: rgba(6, 182, 212, 0.2);
-  border-color: #06b6d4;
+.ais-badge-btn:hover, .audio-toggle-btn:hover {
+  background: rgba(0, 242, 254, 0.2);
+  box-shadow: 0 0 14px rgba(0, 242, 254, 0.4);
 }
 
 .audio-toggle-btn.muted {
   color: #94a3b8;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
-
-/* ── Page Header Hero ────────────────────────────────────────────────── */
+/* --------------------------------------------------------------------------
+   Header Hero Banner
+   -------------------------------------------------------------------------- */
 .maritime-header-hero {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  gap: 2rem;
-  margin-bottom: 1.5rem;
+  align-items: center;
   flex-wrap: wrap;
+  gap: 1.25rem;
+  background: rgba(11, 15, 26, 0.85);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  border-radius: 24px;
+  padding: 1.4rem 2rem;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    0 16px 45px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(24px) saturate(190%);
+}
+
+.header-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0, 242, 254, 0.12);
+  border: 1px solid rgba(0, 242, 254, 0.35);
+  border-radius: 9999px;
+  padding: 0.2rem 0.75rem;
+  margin-bottom: 0.3rem;
+}
+
+.live-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #00f2fe;
+  box-shadow: 0 0 10px #00f2fe;
+  animation: radarPulse 1.8s infinite;
+}
+
+.status-pill-text {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #00f2fe;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .hero-title {
-  font-size: 2.1rem;
+  margin: 0;
+  font-size: 1.85rem;
   font-weight: 900;
-  margin: 0 0 0.5rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #06b6d4 50%, #38bdf8 100%);
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  letter-spacing: -0.02em;
 }
 
 .hero-subtitle {
-  font-size: 0.9rem;
+  margin: 0.25rem 0 0 0;
   color: #94a3b8;
-  margin: 0;
-  max-width: 680px;
-  line-height: 1.5;
+  font-size: 0.88rem;
+  max-width: 700px;
 }
 
 .hero-stats-box {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  background: rgba(11, 25, 46, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.85rem 1.25rem;
-  border-radius: 14px;
-  backdrop-filter: blur(12px);
+  gap: 0.85rem;
+  flex-wrap: wrap;
 }
 
 .stat-badge {
+  background: rgba(18, 25, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.55rem 0.95rem;
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   gap: 0.15rem;
 }
 
-.b-lbl {
-  font-size: 0.62rem;
+.b-lbl { font-size: 0.68rem; color: #94a3b8; font-weight: 800; }
+.b-val { font-size: 0.92rem; font-weight: 800; color: #ffffff; }
+.b-val.highlight { color: #00f2fe; }
+
+.btn-primary-gis {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  background: linear-gradient(135deg, #00f2fe 0%, #7c3aed 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.7rem 1.4rem;
+  border-radius: 9999px;
   font-weight: 800;
-  color: #64748b;
-  letter-spacing: 0.06em;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 24px rgba(0, 242, 254, 0.35);
 }
 
-.b-val {
-  font-size: 1.2rem;
-  font-weight: 900;
-  color: #f1f5f9;
-  font-family: 'JetBrains Mono', monospace;
+.btn-primary-gis:hover {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 0 28px rgba(0, 242, 254, 0.65);
 }
 
-.b-val.highlight {
-  color: #06b6d4;
+/* --------------------------------------------------------------------------
+   Interactive Real-World Sea Route Calculator Widget (`searoute-ts`)
+   -------------------------------------------------------------------------- */
+.route-calculator-card {
+  background: rgba(11, 15, 26, 0.88);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  border-radius: 24px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.18),
+    0 16px 48px rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(24px) saturate(190%);
 }
 
+.calculator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding-bottom: 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
 
-/* ── Filter Bar Controls ─────────────────────────────────────────────── */
-.maritime-filter-bar {
+.calc-title-group {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 0.85rem;
+}
+
+.calc-icon {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 0 12px rgba(0, 242, 254, 0.8));
+}
+
+.calc-title {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.calc-sub {
+  margin: 0.2rem 0 0 0;
+  font-size: 0.82rem;
+  color: #94a3b8;
+}
+
+.engine-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  font-family: 'JetBrains Mono', monospace;
+  color: #00f2fe;
+  background: rgba(0, 242, 254, 0.15);
+  border: 1px solid rgba(0, 242, 254, 0.35);
+  padding: 0.25rem 0.7rem;
+  border-radius: 9999px;
+}
+
+.calculator-controls {
+  display: flex;
+  align-items: center;
   gap: 1rem;
-  margin-bottom: 1.5rem;
   flex-wrap: wrap;
-  background: rgba(11, 25, 46, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.85rem 1.25rem;
+}
+
+.port-select-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1;
+  min-width: 220px;
+}
+
+.port-lbl {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #cbd5e1;
+  text-transform: uppercase;
+}
+
+.gis-select {
+  background: rgba(22, 30, 48, 0.9);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  color: #ffffff;
+  padding: 0.6rem 1rem;
+  border-radius: 14px;
+  font-size: 0.9rem;
+  outline: none;
+  font-family: 'Outfit', sans-serif;
+  box-shadow: inset 2px 2px 4px rgba(0, 0, 0, 0.5);
+  transition: all 0.25s ease;
+}
+
+.gis-select:focus {
+  border-color: #a855f7;
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.45);
+}
+
+.swap-ports-btn {
+  background: rgba(22, 30, 48, 0.8);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  color: #00f2fe;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 1.2rem;
+  transition: all 0.25s ease;
+}
+
+.swap-ports-btn:hover {
+  background: #00f2fe;
+  color: #000000;
+  box-shadow: 0 0 18px rgba(0, 242, 254, 0.6);
+  transform: rotate(180deg);
+}
+
+.btn-calc-route {
+  margin-top: 1.2rem;
+  background: linear-gradient(135deg, #00f2fe 0%, #7c3aed 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.75rem 1.6rem;
+  border-radius: 14px;
+  font-weight: 800;
+  font-size: 0.92rem;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: 0 8px 24px rgba(0, 242, 254, 0.35);
+}
+
+.btn-calc-route:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 28px rgba(0, 242, 254, 0.7);
+}
+
+.route-telemetry-grid {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  padding-top: 0.5rem;
+}
+
+.route-stat-card {
+  flex: 1;
+  min-width: 180px;
+  background: rgba(18, 25, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  padding: 0.8rem 1.1rem;
   border-radius: 16px;
-  backdrop-filter: blur(16px);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.1);
+  transition: transform 0.25s ease;
+}
+
+.route-stat-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(0, 242, 254, 0.4);
+}
+
+.r-lbl { font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em; }
+.r-val { font-size: 1.1rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
+.r-sub { font-size: 0.75rem; color: #94a3b8; }
+
+.cyan-txt { color: #00f2fe; }
+.green-txt { color: #34d399; }
+.amber-txt { color: #f59e0b; }
+.rose-txt { color: #ec4899; }
+
+/* --------------------------------------------------------------------------
+   Cargo Fleet Filter & Quick Fly-To Bar
+   -------------------------------------------------------------------------- */
+.maritime-filter-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: rgba(11, 15, 26, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 0.9rem 1.4rem;
+  backdrop-filter: blur(20px);
 }
 
 .cargo-filter-group, .flyto-pills-group {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.55rem;
   flex-wrap: wrap;
 }
 
 .filter-lbl {
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 800;
   color: #64748b;
-  margin-right: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-right: 0.4rem;
 }
 
 .filter-pill, .fly-pill {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #94a3b8;
-  font-size: 0.75rem;
+  background: rgba(22, 30, 48, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  padding: 0.45rem 0.95rem;
+  border-radius: 9999px;
+  font-size: 0.82rem;
   font-weight: 700;
-  padding: 0.35rem 0.75rem;
-  border-radius: 20px;
   cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.fly-pill.gold {
-  color: #fbbf24;
-  border-color: rgba(251, 191, 36, 0.3);
-}
-
-.fly-pill.gold:hover {
-  background: rgba(251, 191, 36, 0.2);
-  color: #ffffff;
-  border-color: #fbbf24;
-  box-shadow: 0 0 12px rgba(251, 191, 36, 0.4);
+  transition: all 0.25s ease;
 }
 
 .filter-pill:hover, .fly-pill:hover {
-  background: rgba(6, 182, 212, 0.15);
-  color: #06b6d4;
-  border-color: rgba(6, 182, 212, 0.3);
+  background: rgba(0, 242, 254, 0.15);
+  border-color: #00f2fe;
+  color: #00f2fe;
 }
 
 .filter-pill.active {
-  background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(56, 189, 248, 0.3));
-  color: #ffffff;
-  border-color: #06b6d4;
-  box-shadow: 0 0 12px rgba(6, 182, 212, 0.4);
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.25), rgba(124, 58, 237, 0.25));
+  border-color: #00f2fe;
+  color: #00f2fe;
+  box-shadow: 0 0 16px rgba(0, 242, 254, 0.4);
 }
 
+.fly-pill.gold { border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; }
+.fly-pill.gold:hover { background: rgba(245, 158, 11, 0.25); color: #ffffff; }
+.fly-pill.cyan { border-color: rgba(0, 242, 254, 0.4); color: #00f2fe; }
+.fly-pill.alert { border-color: rgba(248, 113, 113, 0.4); color: #f87171; }
 
-/* ── Oceanic SVG Viewport & Canvas Area ──────────────────────────────── */
-.maritime-viewport-wrapper {
+/* --------------------------------------------------------------------------
+   3D Map Viewport Frame & MapLibre Canvas
+   -------------------------------------------------------------------------- */
+.map-viewport-card {
   position: relative;
-  width: 100%;
-  height: 620px;
-  background: #030712;
-  border: 1px solid rgba(6, 182, 212, 0.3);
-  border-radius: 20px;
+  background: rgba(4, 8, 16, 0.88);
+  border: 1px solid rgba(0, 242, 254, 0.22);
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8);
-  cursor: grab;
-}
-
-.maritime-viewport-wrapper:active {
-  cursor: grabbing;
-}
-
-.hovered-country-hud {
-  position: absolute;
-  top: 1.25rem;
-  left: 1.25rem;
-  background: rgba(11, 25, 46, 0.9);
-  border: 1px solid #06b6d4;
-  color: #06b6d4;
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85rem;
-  font-weight: 900;
-  padding: 0.4rem 0.85rem;
-  border-radius: 8px;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 0 16px rgba(6, 182, 212, 0.3);
-  z-index: 50;
-  pointer-events: none;
-}
-
-.maritime-svg-map {
-  width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* Camera Controls */
-.camera-control-group {
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.15),
+    0 18px 50px rgba(0, 0, 0, 0.75);
+  min-height: 600px;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
-  z-index: 50;
 }
 
-.cam-btn {
-  background: rgba(11, 25, 46, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #f8fafc;
-  font-size: 0.85rem;
-  font-weight: 800;
-  width: 36px;
-  height: 36px;
-  border-radius: 8px;
-  cursor: pointer;
+.viewport-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(11, 15, 26, 0.92);
+  padding: 0.85rem 1.4rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(16px);
+  z-index: 10;
+}
+
+.viewport-title {
   display: flex;
   align-items: center;
-  justify-content: center;
-  backdrop-filter: blur(12px);
-  transition: all 0.15s ease;
-
-  &.reset {
-    width: auto;
-    padding: 0 0.75rem;
-    font-size: 0.75rem;
-  }
-}
-
-.cam-btn:hover {
-  background: #06b6d4;
-  color: #030712;
-  border-color: #06b6d4;
-  box-shadow: 0 0 12px rgba(6, 182, 212, 0.5);
-}
-
-
-/* ── SVG Map Layers & Animations ─────────────────────────────────────── */
-.maritime-country-path {
-  fill: #0f233d;
-  stroke: rgba(56, 189, 248, 0.25);
-  stroke-width: 0.8;
-  transition: fill 0.2s ease, stroke 0.2s ease;
-  cursor: pointer;
-}
-
-.maritime-country-path:hover {
-  fill: rgba(6, 182, 212, 0.35);
-  stroke: #06b6d4;
-  stroke-width: 1.5;
-  filter: drop-shadow(0 0 8px #06b6d4);
-}
-
-.vessel-node {
-  cursor: pointer;
-}
-
-.ship-label {
-  pointer-events: none;
-  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
-}
-
-
-/* ── Floating Glassmorphism Telemetry Inspector HUD Dock ─────────────── */
-.maritime-telemetry-dock {
-  position: fixed;
-  bottom: 1.5rem;
-  right: 2rem;
-  width: 480px;
-  background: rgba(11, 25, 46, 0.94);
-  border: 1px solid rgba(6, 182, 212, 0.4);
-  border-radius: 20px;
-  padding: 1.35rem 1.6rem;
-  backdrop-filter: blur(24px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(6, 182, 212, 0.15);
-  z-index: 100;
-  animation: dock-slide-up 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes dock-slide-up {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.dock-content {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85rem;
-}
-
-.dock-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
-}
-
-.dock-tag {
-  font-size: 0.65rem;
-  font-weight: 900;
-  color: #06b6d4;
-  letter-spacing: 0.08em;
-}
-
-.dock-tag.gold-tag {
-  color: #fbbf24;
-}
-
-.dock-title {
-  font-size: 1.25rem;
-  font-weight: 900;
-  color: #f8fafc;
-  margin: 0.15rem 0;
-}
-
-.country-sub {
-  font-size: 0.75rem;
-  color: #94a3b8;
-}
-
-.status-badge {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.72rem;
-  font-weight: 800;
-  padding: 0.25rem 0.65rem;
-  border-radius: 6px;
-  border: 1px solid;
-}
-
-.gold-badge {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
-  border-color: rgba(251, 191, 36, 0.4);
-}
-
-.type-badge {
-  background: rgba(6, 182, 212, 0.15);
-  color: #06b6d4;
-  border-color: rgba(6, 182, 212, 0.3);
-}
-
-.dock-metrics-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 0.65rem;
-}
-
-.metric-card {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  padding: 0.6rem 0.75rem;
-  border-radius: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.metric-card .lbl {
-  font-size: 0.6rem;
   font-weight: 800;
-  color: #64748b;
+  font-size: 0.95rem;
+  color: #f8fafc;
 }
 
-.metric-card .val {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.82rem;
-  font-weight: 800;
-  color: #f1f5f9;
-}
-
-.metric-card .val.highlight {
-  color: #06b6d4;
-}
-
-.metric-card .val.gold-txt {
-  color: #fbbf24;
-}
-
-.metric-card .val.gps-txt {
-  color: #a855f7;
-}
-
-.metric-card .val.alert-txt {
-  color: #ef4444;
-}
-
-.dock-summary {
-  font-size: 0.8rem;
-  color: #cbd5e1;
-  line-height: 1.45;
-  margin: 0;
-}
-
-.commodity-pills-row {
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-  flex-wrap: wrap;
-}
-
-.comm-pill {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
-  font-size: 0.68rem;
-  font-weight: 700;
-  padding: 0.2rem 0.5rem;
-  border-radius: 12px;
-}
-
-/* Voyage Progress Bar */
-.voyage-progress-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.3rem;
-}
-
-.voyage-lbl-row {
-  display: flex;
-  justify-content: space-between;
+.active-mode-badge {
+  background: rgba(0, 242, 254, 0.18);
+  border: 1px solid #00f2fe;
+  color: #00f2fe;
   font-size: 0.7rem;
   font-weight: 800;
-  color: #94a3b8;
+  padding: 0.2rem 0.6rem;
+  border-radius: 9999px;
+  margin-left: 0.5rem;
 }
 
-.voyage-bar {
-  width: 100%;
-  height: 6px;
-  background: rgba(0, 0, 0, 0.5);
-  border-radius: 4px;
-  overflow: hidden;
+.live-indicator {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #00f2fe;
+  box-shadow: 0 0 12px #00f2fe;
+  animation: radarPulse 2s infinite;
+}
+
+.telemetry-readout {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.82rem;
+  color: #94a3b8;
+  font-family: 'JetBrains Mono', monospace;
+  background: rgba(4, 8, 16, 0.6);
+  padding: 0.3rem 0.8rem;
+  border-radius: 9999px;
   border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.voyage-fill {
+.telemetry-val { color: #00f2fe; font-weight: 800; }
+.telemetry-divider { color: rgba(255, 255, 255, 0.2); }
+
+.maplibre-canvas-container {
+  position: relative;
+  flex: 1;
+  width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, #06b6d4, #a855f7);
-  box-shadow: 0 0 10px #06b6d4;
-  transition: width 0.4s ease;
+  min-height: 540px;
+  background: #030712;
 }
 
-/* AIS Satellite Settings Modal */
+#maplibre-canvas {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Custom 3D Map Markers */
+.custom-3d-marker {
+  font-size: 1.4rem;
+  cursor: pointer;
+  filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.8));
+  transition: transform 0.25s ease;
+}
+
+.custom-3d-marker:hover {
+  transform: scale(1.3);
+}
+
+/* Selected Detail Telemetry Dock Card */
+.selected-detail-card {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  width: 380px;
+  background: rgba(11, 15, 26, 0.94);
+  border: 1px solid rgba(0, 242, 254, 0.5);
+  border-radius: 22px;
+  padding: 1.35rem;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    0 20px 50px rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(24px) saturate(190%);
+  z-index: 20;
+  animation: slideUpCard 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUpCard {
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.detail-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.85rem;
+}
+
+.detail-card-title h3 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #00f2fe;
+}
+
+.detail-card-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #00f2fe;
+  background: rgba(0, 242, 254, 0.15);
+  padding: 0.25rem 0.65rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(0, 242, 254, 0.3);
+}
+
+.close-card-btn {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0.2rem;
+  transition: color 0.2s ease;
+}
+
+.close-card-btn:hover { color: #ec4899; }
+
+.detail-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.detail-card-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  padding: 0.3rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.detail-card-lbl { color: #94a3b8; }
+.detail-card-val { color: #f1f5f9; font-weight: 700; }
+
+.detail-card-summary {
+  margin-top: 0.85rem;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  line-height: 1.45;
+  background: rgba(0, 0, 0, 0.4);
+  padding: 0.75rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.detail-card-actions {
+  margin-top: 0.95rem;
+  display: flex;
+  gap: 0.6rem;
+}
+
+.card-action-btn {
+  flex: 1;
+  background: rgba(0, 242, 254, 0.15);
+  border: 1px solid #00f2fe;
+  color: #00f2fe;
+  padding: 0.55rem;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.card-action-btn:hover {
+  background: #00f2fe;
+  color: #000000;
+  box-shadow: 0 0 18px rgba(0, 242, 254, 0.6);
+}
+
+/* --------------------------------------------------------------------------
+   Control & Basemap Bar
+   -------------------------------------------------------------------------- */
+.control-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: rgba(11, 15, 26, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 0.95rem 1.5rem;
+  backdrop-filter: blur(20px);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+
+.basemap-switcher {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+}
+
+.switcher-title {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-right: 0.4rem;
+}
+
+.style-btn {
+  background: rgba(22, 30, 48, 0.75);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #cbd5e1;
+  padding: 0.5rem 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.style-btn:hover {
+  background: rgba(0, 242, 254, 0.15);
+  border-color: #00f2fe;
+  color: #00f2fe;
+}
+
+.style-btn.active {
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.25), rgba(124, 58, 237, 0.25));
+  border-color: #00f2fe;
+  color: #00f2fe;
+  box-shadow: 0 0 16px rgba(0, 242, 254, 0.4);
+}
+
+.reset-north-btn {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #fbbf24;
+}
+
+.reset-north-btn:hover {
+  background: rgba(245, 158, 11, 0.3);
+  border-color: #f59e0b;
+  color: #ffffff;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.4);
+}
+
+.camera-dials {
+  display: flex;
+  align-items: center;
+  gap: 1.35rem;
+  flex-wrap: wrap;
+}
+
+.dial-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+.range-input {
+  width: 100px;
+  accent-color: #00f2fe;
+  cursor: pointer;
+}
+
+.coord-tag {
+  background: rgba(0, 0, 0, 0.6);
+  padding: 0.25rem 0.65rem;
+  border-radius: 8px;
+  font-family: 'JetBrains Mono', monospace;
+  color: #00f2fe;
+  border: 1px solid rgba(0, 242, 254, 0.3);
+}
+
+/* --------------------------------------------------------------------------
+   AIS Modal Overlay
+   -------------------------------------------------------------------------- */
 .ais-modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(12px);
-  z-index: 300;
+  background: rgba(4, 8, 16, 0.85);
+  backdrop-filter: blur(16px);
+  z-index: 1000;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -577,29 +794,28 @@
 }
 
 .ais-modal-card {
-  width: 100%;
-  max-width: 540px;
-  background: rgba(13, 17, 28, 0.95);
+  background: rgba(11, 15, 26, 0.96);
   border: 1px solid rgba(0, 242, 254, 0.4);
   border-radius: 24px;
-  padding: 1.75rem;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(24px);
+  max-width: 580px;
+  width: 100%;
+  padding: 1.6rem;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9);
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
 }
 
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  padding-bottom: 0.85rem;
 }
 
 .modal-header h3 {
   margin: 0;
   font-size: 1.15rem;
-  font-weight: 800;
+  font-weight: 900;
   color: #00f2fe;
 }
 
@@ -612,24 +828,23 @@
 }
 
 .modal-desc {
-  font-size: 0.85rem;
-  color: #94a3b8;
+  margin: 0;
+  font-size: 0.88rem;
+  color: #cbd5e1;
   line-height: 1.5;
-  margin-bottom: 1.25rem;
 }
 
 .ais-mode-selector {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  margin-bottom: 1.25rem;
 }
 
 .mode-radio-card {
   display: flex;
   align-items: flex-start;
   gap: 0.85rem;
-  background: rgba(22, 30, 48, 0.8);
+  background: rgba(18, 25, 42, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem;
   border-radius: 16px;
@@ -640,7 +855,7 @@
 .mode-radio-card.active {
   border-color: #00f2fe;
   background: rgba(0, 242, 254, 0.12);
-  box-shadow: 0 0 16px rgba(0, 242, 254, 0.25);
+  box-shadow: 0 0 16px rgba(0, 242, 254, 0.3);
 }
 
 .radio-text {
@@ -650,75 +865,43 @@
 }
 
 .radio-text strong {
-  font-size: 0.9rem;
+  font-size: 0.92rem;
   color: #ffffff;
 }
 
 .radio-text span {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: #94a3b8;
 }
 
 .api-key-input-box {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-bottom: 1.25rem;
+  gap: 0.4rem;
 }
 
 .api-key-input-box label {
-  font-size: 0.82rem;
-  color: #94a3b8;
+  font-size: 0.8rem;
+  color: #cbd5e1;
   font-weight: 700;
 }
 
 .ais-api-input {
-  background: rgba(8, 12, 22, 0.9);
+  background: rgba(4, 8, 16, 0.9);
   border: 1px solid rgba(0, 242, 254, 0.4);
   color: #ffffff;
-  padding: 0.65rem 1rem;
+  padding: 0.6rem 1rem;
   border-radius: 12px;
+  font-size: 0.88rem;
   font-family: 'JetBrains Mono', monospace;
-  font-size: 0.85rem;
   outline: none;
 }
 
 .modal-footer-stats {
   display: flex;
   justify-content: space-between;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: #94a3b8;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
   padding-top: 0.85rem;
-}
-
-/* ── View in 3D GeoLibre WebGL Jump Button ───────────────────────────── */
-.btn-geolibre-jump {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.55rem;
-  width: 100%;
-  margin-top: 0.85rem;
-  background: linear-gradient(135deg, #00f2fe, #7c3aed);
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  color: #ffffff;
-  font-family: 'Outfit', 'Space Grotesk', sans-serif;
-  font-size: 0.88rem;
-  font-weight: 800;
-  padding: 0.7rem 1.2rem;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 
-    inset 2px 2px 4px rgba(255, 255, 255, 0.4),
-    inset -2px -2px 6px rgba(0, 0, 0, 0.4),
-    0 6px 20px rgba(0, 242, 254, 0.4);
-}
-
-.btn-geolibre-jump:hover {
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 
-    inset 2px 2px 6px rgba(255, 255, 255, 0.6),
-    0 0 28px rgba(0, 242, 254, 0.7);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
 }

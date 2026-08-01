@@ -1,7 +1,10 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { COUNTRIES_DATA, CountryData } from '../countries-data';
+import { Router } from '@angular/router';
+import { GeoJsonExportService } from '../services/geojson-export.service';
+import { seaRoute } from 'searoute-ts';
+
 import {
   MaritimeChokepoint,
   MaritimeCanal,
@@ -15,56 +18,184 @@ import {
   CARGO_VESSEL_FLEET
 } from '../maritime-data';
 
-import { GeoJsonExportService } from '../services/geojson-export.service';
-import { Router } from '@angular/router';
+export interface RoutePortOption {
+  id: string;
+  name: string;
+  country: string;
+  flag: string;
+  lng: number;
+  lat: number;
+}
 
 @Component({
   selector: 'app-maritime',
   standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './maritime.html',
-  styleUrl: './maritime.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  styleUrl: './maritime.css'
 })
-export class MaritimeComponent implements OnInit, OnDestroy {
+export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
+  @ViewChild('mapCanvas', { static: false }) mapCanvasRef!: ElementRef<HTMLDivElement>;
+
+  // MapLibre WebGL Engine State
+  private map: any = null;
+  private maplibregl: any = null;
+  private activeMarkers: any[] = [];
+  private vesselMarkers: any[] = [];
+  private vesselMotionTimer: any = null;
+  private vesselTickStep: number = 0;
+
+  // Camera & Telemetry
+  currentLat: number = 20.0;
+  currentLng: number = 65.0;
+  currentZoom: number = 2.5;
+  currentPitch: number = 35;
+  currentBearing: number = 0;
+
+  // Basemap style switcher
+  activeStyleId: 'dark' | 'satellite' | 'topo' | 'positron' = 'dark';
+  mapStyles = {
+    dark: {
+      version: 8,
+      sources: {
+        'carto-dark': {
+          type: 'raster',
+          tiles: [
+            'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+            'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png',
+            'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}@2x.png'
+          ],
+          tileSize: 256,
+          attribution: '© CARTO'
+        }
+      },
+      layers: [
+        {
+          id: 'carto-dark-layer',
+          type: 'raster',
+          source: 'carto-dark',
+          minzoom: 0,
+          maxzoom: 19
+        }
+      ]
+    },
+    satellite: {
+      version: 8,
+      sources: {
+        'esri-satellite': {
+          type: 'raster',
+          tiles: [
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+          ],
+          tileSize: 256,
+          attribution: 'Esri World Imagery'
+        }
+      },
+      layers: [
+        {
+          id: 'esri-satellite-layer',
+          type: 'raster',
+          source: 'esri-satellite',
+          minzoom: 0,
+          maxzoom: 19
+        }
+      ]
+    },
+    topo: {
+      version: 8,
+      sources: {
+        'open-topo': {
+          type: 'raster',
+          tiles: [
+            'https://a.tile.opentopomap.org/{z}/{x}/{y}.png',
+            'https://b.tile.opentopomap.org/{z}/{x}/{y}.png'
+          ],
+          tileSize: 256,
+          attribution: 'OpenTopoMap'
+        }
+      },
+      layers: [
+        {
+          id: 'open-topo-layer',
+          type: 'raster',
+          source: 'open-topo',
+          minzoom: 0,
+          maxzoom: 17
+        }
+      ]
+    },
+    positron: {
+      version: 8,
+      sources: {
+        'carto-light': {
+          type: 'raster',
+          tiles: [
+            'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png',
+            'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}@2x.png'
+          ],
+          tileSize: 256,
+          attribution: '© CARTO'
+        }
+      },
+      layers: [
+        {
+          id: 'carto-light-layer',
+          type: 'raster',
+          source: 'carto-light',
+          minzoom: 0,
+          maxzoom: 19
+        }
+      ]
+    }
+  };
+
+  // Major Global Ports for Route Calculation
+  availablePorts: RoutePortOption[] = [
+    { id: 'shanghai', name: 'Shanghai (Port of Shanghai)', country: 'China', flag: '🇨🇳', lng: 121.47, lat: 31.23 },
+    { id: 'singapore', name: 'Port of Singapore', country: 'Singapore', flag: '🇸🇬', lng: 103.82, lat: 1.35 },
+    { id: 'rotterdam', name: 'Port of Rotterdam', country: 'Netherlands', flag: '🇳🇱', lng: 4.48, lat: 51.92 },
+    { id: 'los_angeles', name: 'Port of Los Angeles', country: 'United States', flag: '🇺🇸', lng: -118.24, lat: 33.74 },
+    { id: 'dubai', name: 'Jebel Ali Port (Dubai)', country: 'UAE', flag: '🇦🇪', lng: 55.06, lat: 24.98 },
+    { id: 'mumbai', name: 'JNPT Port (Mumbai)', country: 'India', flag: '🇮🇳', lng: 72.88, lat: 18.95 },
+    { id: 'london', name: 'Port of London', country: 'United Kingdom', flag: '🇬🇧', lng: -0.12, lat: 51.50 },
+    { id: 'tokyo', name: 'Port of Tokyo / Yokohama', country: 'Japan', flag: '🇯🇵', lng: 139.64, lat: 35.44 },
+    { id: 'suez', name: 'Suez Canal Terminal (Port Said)', country: 'Egypt', flag: '🇪🇬', lng: 32.30, lat: 30.50 },
+    { id: 'panama', name: 'Panama Canal Terminal (Colon)', country: 'Panama', flag: '🇵🇦', lng: -79.55, lat: 8.95 },
+    { id: 'santos', name: 'Port of Santos', country: 'Brazil', flag: '🇧🇷', lng: -46.33, lat: -23.96 },
+    { id: 'capetown', name: 'Port of Cape Town', country: 'South Africa', flag: '🇿🇦', lng: 18.42, lat: -33.92 }
+  ];
+
+  // Interactive Route Calculator State
+  selectedOriginId: string = 'shanghai';
+  selectedDestinationId: string = 'rotterdam';
+  calculatedRouteGeoJson: any = null;
+  calculatedDistanceNmi: number = 0;
+  calculatedDistanceKm: number = 0;
+  calculatedEtaDays: number = 0;
+  calculatedCo2Tons: number = 0;
+  calculatedDetourRatio: number = 1.0;
+  isCalculatingRoute: boolean = false;
+
   // Datasets
   chokepoints = STRATEGIC_CHOKEPOINTS;
   canals = WORLD_CANALS;
   corridors = SHIPPING_CORRIDORS;
   megaports = GLOBAL_MEGAPORTS;
-  vessels: CargoVessel[] = [];
+  vessels: CargoVessel[] = CARGO_VESSEL_FLEET;
 
-  // Active Selections & Modals
+  // Selected Detail Inspector State
   selectedChokepoint: MaritimeChokepoint | null = null;
   selectedCanal: MaritimeCanal | null = null;
   selectedVessel: CargoVessel | null = null;
   selectedPort: MaritimePort | null = null;
-  selectedCountryData: CountryData | null = null;
-  hoveredCountryName: string = '';
   selectedCargoFilter: 'All' | 'Container' | 'Tanker' | 'LNG' | 'Bulk' = 'All';
 
-  // Live AIS Telemetry Engine State
+  // Live AIS Telemetry Modal & SFX
+  isAisModalOpen: boolean = false;
   liveAisMode: 'simulated_live' | 'custom_api' = 'simulated_live';
   customAisApiKey: string = '';
-  isAisModalOpen: boolean = false;
-  aisPingCount: number = 14209;
-  lastAisSyncTime: string = 'Just Now';
-
-  // Viewport Camera Engine
-  zoom = 1.0;
-  panX = 0;
-  panY = 0;
-  isPanning = false;
-  panStartX = 0;
-  panStartY = 0;
-
-  get viewportTransform(): string {
-    return `translate(${this.panX}px, ${this.panY}px) scale(${this.zoom})`;
-  }
-
-  // Animation Engine Timer
-  private motionTimer: any = null;
-  audioMuted = false;
+  aisPingCount: number = 18940;
+  audioMuted: boolean = false;
   private audioCtx: AudioContext | null = null;
 
   constructor(
@@ -73,107 +204,381 @@ export class MaritimeComponent implements OnInit, OnDestroy {
     private router: Router
   ) {}
 
-  openLocationInGeoLibre(lat: number, lng: number, zoom: number = 7): void {
-    this.router.navigate(['/geolibre'], {
-      queryParams: { lat, lng, zoom }
-    });
-  }
-
-  exportMaritimeGeoJson(): void {
-    const geojson = this.geoJsonService.exportMaritimeToGeoJSON();
-    this.geoJsonService.downloadGeoJSON(geojson, 'maritime-chokepoints-and-canals.geojson');
-  }
-
   ngOnInit(): void {
-    // Clone fleet dataset for live mutation
-    this.vessels = CARGO_VESSEL_FLEET.map(v => ({ ...v, progressPercent: v.progressPercent || 0 }));
     this.selectedChokepoint = this.chokepoints[0]; // Suez Canal default
-    this.startVesselMotionEngine();
+  }
+
+  async ngAfterViewInit(): Promise<void> {
+    await this.initMapLibreEngine();
   }
 
   ngOnDestroy(): void {
-    if (this.motionTimer) {
-      clearInterval(this.motionTimer);
+    if (this.vesselMotionTimer) clearInterval(this.vesselMotionTimer);
+    this.clearActiveMarkers();
+    if (this.map) {
+      this.map.remove();
+      this.map = null;
     }
   }
 
-  // Real-Time Vessel Movement & GPS Latitude/Longitude Telemetry Engine
-  private startVesselMotionEngine(): void {
-    this.motionTimer = setInterval(() => {
-      let updated = false;
+  // ------------------------------------------------------------------
+  // MapLibre WebGL Engine Initialization
+  // ------------------------------------------------------------------
+  private async initMapLibreEngine(): Promise<void> {
+    if (!this.mapCanvasRef) return;
 
-      for (const vessel of this.vessels) {
-        // Increment progress (speed factor)
-        vessel.progressPercent += (vessel.speedKnots / 300) * vessel.speedMultiplier;
-        if (vessel.progressPercent >= 100) {
-          vessel.progressPercent = 0;
-        }
+    try {
+      const maplibreModule = await import('maplibre-gl');
+      this.maplibregl = (maplibreModule as any).default || maplibreModule;
 
-        // Compute current interpolated SVG position (x, y) along waypoints
-        const posAndHeading = this.interpolateWaypoints(vessel.waypoints, vessel.progressPercent);
-        vessel.currentPos = { x: posAndHeading.x, y: posAndHeading.y };
-        vessel.headingDeg = posAndHeading.headingDeg;
+      const mapInstance = new this.maplibregl.Map({
+        container: this.mapCanvasRef.nativeElement,
+        style: this.mapStyles[this.activeStyleId] as any,
+        center: [this.currentLng, this.currentLat],
+        zoom: this.currentZoom,
+        pitch: this.currentPitch,
+        bearing: this.currentBearing
+      });
 
-        // Calculate dynamic live real-world GPS Latitude & Longitude from SVG coordinate projection
-        vessel.currentLng = parseFloat(((posAndHeading.x - 505) * (360 / 1010)).toFixed(4));
-        vessel.currentLat = parseFloat(((333 - posAndHeading.y) * (180 / 666)).toFixed(4));
+      this.map = mapInstance;
 
-        updated = true;
-      }
+      mapInstance.addControl(new this.maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
+      mapInstance.addControl(new this.maplibregl.ScaleControl({ unit: 'nautical' }), 'bottom-left');
+      mapInstance.addControl(new this.maplibregl.FullscreenControl(), 'top-right');
 
-      this.aisPingCount++;
-
-      if (updated) {
+      mapInstance.on('move', () => {
+        const center = mapInstance.getCenter();
+        this.currentLat = center.lat;
+        this.currentLng = center.lng;
+        this.currentZoom = parseFloat(mapInstance.getZoom().toFixed(2));
+        this.currentPitch = Math.round(mapInstance.getPitch());
+        this.currentBearing = Math.round(mapInstance.getBearing());
         this.cdr.markForCheck();
+      });
+
+      mapInstance.on('load', () => {
+        mapInstance.resize();
+        this.initRouteLayer();
+        this.renderAllMapLayers();
+        this.startVesselFleetMotion();
+        this.calculateSeaRoute();
+      });
+    } catch (err) {
+      console.error('Failed to initialize MapLibre GL JS engine in Maritime component:', err);
+    }
+  }
+
+  private initRouteLayer(): void {
+    if (!this.map) return;
+    try {
+      if (this.map.getSource('calculated-sea-route')) return;
+
+      this.map.addSource('calculated-sea-route', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: []
+        }
+      });
+
+      // Neon Cyan Outer Glow Path Line
+      this.map.addLayer({
+        id: 'sea-route-glow',
+        type: 'line',
+        source: 'calculated-sea-route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#00f2fe',
+          'line-width': 7,
+          'line-opacity': 0.4,
+          'line-blur': 3
+        }
+      });
+
+      // Solid Bright Core Route Line
+      this.map.addLayer({
+        id: 'sea-route-core',
+        type: 'line',
+        source: 'calculated-sea-route',
+        layout: {
+          'line-join': 'round',
+          'line-cap': 'round'
+        },
+        paint: {
+          'line-color': '#ffffff',
+          'line-width': 3.5
+        }
+      });
+    } catch (e) {
+      console.warn('Failed adding sea route layer:', e);
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // real-world Maritime Sea Route Calculation using `searoute-ts`
+  // ------------------------------------------------------------------
+  calculateSeaRoute(): void {
+    const originPort = this.availablePorts.find(p => p.id === this.selectedOriginId);
+    const destPort = this.availablePorts.find(p => p.id === this.selectedDestinationId);
+
+    if (!originPort || !destPort || originPort.id === destPort.id) {
+      return;
+    }
+
+    this.isCalculatingRoute = true;
+    this.playUiSound('sonar');
+
+    try {
+      const originCoords: [number, number] = [originPort.lng, originPort.lat];
+      const destCoords: [number, number] = [destPort.lng, destPort.lat];
+
+      // Invoke searoute-ts seaRoute algorithm
+      const routeFeature: any = seaRoute(originCoords, destCoords);
+
+      if (routeFeature && routeFeature.geometry) {
+        this.calculatedRouteGeoJson = routeFeature;
+        const props = routeFeature.properties || {};
+        
+        this.calculatedDistanceNmi = Math.round(props.length || 0);
+        this.calculatedDistanceKm = Math.round(this.calculatedDistanceNmi * 1.852);
+        // Estimated transit days at 18 knots average container vessel speed
+        this.calculatedEtaDays = parseFloat((this.calculatedDistanceNmi / (18 * 24)).toFixed(1));
+        // Estimated fuel CO2 footprint (approx 0.015 tons CO2 per nautical mile)
+        this.calculatedCo2Tons = Math.round(this.calculatedDistanceNmi * 0.015 * 28);
+        this.calculatedDetourRatio = parseFloat((props.detourRatio || 1.0).toFixed(2));
+
+        if (this.map && this.map.getSource('calculated-sea-route')) {
+          this.map.getSource('calculated-sea-route').setData(routeFeature);
+
+          // Fly map camera to midpoint of route
+          const coords = routeFeature.geometry.coordinates;
+          if (coords && coords.length > 0) {
+            const midIndex = Math.floor(coords.length / 2);
+            const midPoint = coords[midIndex];
+            this.flyToTarget(midPoint[0], midPoint[1], 3.5, 40, 0);
+          }
+        }
       }
-    }, 40);
+    } catch (err) {
+      console.error('searoute-ts calculation failed:', err);
+    } finally {
+      this.isCalculatingRoute = false;
+      this.cdr.markForCheck();
+    }
   }
 
-  // Interpolate Position & Angle along SVG Waypoint Array
-  private interpolateWaypoints(waypoints: { x: number; y: number }[], progressPercent: number): { x: number; y: number; headingDeg: number } {
-    if (!waypoints || waypoints.length === 0) {
-      return { x: 500, y: 300, headingDeg: 0 };
-    }
-    if (waypoints.length === 1) {
-      return { x: waypoints[0].x, y: waypoints[0].y, headingDeg: 0 };
-    }
-
-    const totalSegments = waypoints.length - 1;
-    const globalProgress = (progressPercent / 100) * totalSegments;
-    const segmentIndex = Math.min(Math.floor(globalProgress), totalSegments - 1);
-    const segmentProgress = globalProgress - segmentIndex;
-
-    const p1 = waypoints[segmentIndex];
-    const p2 = waypoints[segmentIndex + 1];
-
-    const currentX = p1.x + (p2.x - p1.x) * segmentProgress;
-    const currentY = p1.y + (p2.y - p1.y) * segmentProgress;
-
-    // Heading calculation in degrees
-    const deltaX = p2.x - p1.x;
-    const deltaY = p2.y - p1.y;
-    const headingRad = Math.atan2(deltaY, deltaX);
-    const headingDeg = (headingRad * 180) / Math.PI;
-
-    return { x: currentX, y: currentY, headingDeg };
+  swapRoutePorts(): void {
+    const temp = this.selectedOriginId;
+    this.selectedOriginId = this.selectedDestinationId;
+    this.selectedDestinationId = temp;
+    this.calculateSeaRoute();
   }
 
-  // Live AIS Telemetry Modal Handlers
-  openAisModal(): void {
-    this.isAisModalOpen = true;
+  // ------------------------------------------------------------------
+  // Map Markers Rendering (Canals, Chokepoints, Megaports, Vessels)
+  // ------------------------------------------------------------------
+  private clearActiveMarkers(): void {
+    this.activeMarkers.forEach(m => m.remove());
+    this.activeMarkers = [];
+    this.vesselMarkers.forEach(m => m.remove());
+    this.vesselMarkers = [];
+  }
+
+  private renderAllMapLayers(): void {
+    if (!this.map || !this.maplibregl) return;
+    this.clearActiveMarkers();
+
+    // 1. Render Strategic Chokepoints Markers
+    this.chokepoints.forEach(cp => {
+      const lat = cp.coordinates.lat;
+      const lng = cp.coordinates.lng;
+
+      const el = document.createElement('div');
+      el.className = 'custom-3d-marker chokepoint-marker';
+      el.innerHTML = `🚨`;
+      el.title = `Chokepoint: ${cp.name}`;
+
+      el.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        this.selectChokepoint(cp);
+      });
+
+      const marker = new this.maplibregl.Marker({ element: el })
+        .setLngLat([lng, lat])
+        .addTo(this.map!);
+
+      this.activeMarkers.push(marker);
+    });
+
+    // 2. Render World Canals Markers
+    this.canals.forEach(canal => {
+      const lat = canal.coordinates.lat;
+      const lng = canal.coordinates.lng;
+
+      const el = document.createElement('div');
+      el.className = 'custom-3d-marker canal-marker';
+      el.innerHTML = canal.flag || '🏞️';
+      el.title = `Canal: ${canal.name}`;
+
+      el.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        this.selectCanal(canal);
+      });
+
+      const marker = new this.maplibregl.Marker({ element: el })
+        .setLngLat([lng, lat])
+        .addTo(this.map!);
+
+      this.activeMarkers.push(marker);
+    });
+
+    // 3. Render Container Megaports Markers
+    this.megaports.forEach(port => {
+      const coords = port.coordinates;
+      const lat = (250 - coords.cy) * (180 / 500);
+      const lng = (coords.cx - 500) * (360 / 1000);
+
+      const el = document.createElement('div');
+      el.className = 'custom-3d-marker port-marker';
+      el.innerHTML = `🏗️`;
+      el.title = `Megaport: ${port.name}`;
+
+      el.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        this.selectPort(port);
+      });
+
+      const marker = new this.maplibregl.Marker({ element: el })
+        .setLngLat([lng, lat])
+        .addTo(this.map!);
+
+      this.activeMarkers.push(marker);
+    });
+
+    this.renderVesselFleetMarkers();
+  }
+
+  // ------------------------------------------------------------------
+  // Live IMO/AIS Vessel Fleet Motion Engine
+  // ------------------------------------------------------------------
+  private startVesselFleetMotion(): void {
+    this.vesselMotionTimer = setInterval(() => {
+      this.vesselTickStep++;
+      this.aisPingCount += Math.floor(Math.random() * 5) + 1;
+      this.updateVesselMarkerPositions();
+    }, 2200);
+  }
+
+  private renderVesselFleetMarkers(): void {
+    this.vesselMarkers.forEach(m => m.remove());
+    this.vesselMarkers = [];
+
+    if (!this.map || !this.maplibregl) return;
+
+    this.filteredVessels.forEach((vessel, idx) => {
+      const offset = ((this.vesselTickStep * 0.03 + idx * 0.15) % 1);
+      const wps = vessel.waypoints;
+      const startWp = wps[0];
+      const endWp = wps[wps.length - 1];
+
+      const lng = (startWp.x + (endWp.x - startWp.x) * offset - 500) * (360 / 1000);
+      const lat = (250 - (startWp.y + (endWp.y - startWp.y) * offset)) * (180 / 500);
+
+      const el = document.createElement('div');
+      el.className = 'custom-3d-marker vessel-marker';
+      el.innerHTML = `🚢`;
+      el.title = `${vessel.name} (${vessel.vesselType})`;
+
+      el.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        this.selectVessel(vessel, lat, lng);
+      });
+
+      const marker = new this.maplibregl.Marker({ element: el })
+        .setLngLat([lng, lat])
+        .addTo(this.map!);
+
+      this.vesselMarkers.push(marker);
+    });
+  }
+
+  private updateVesselMarkerPositions(): void {
+    if (!this.map || !this.maplibregl) return;
+    if (this.vesselMarkers.length === 0) {
+      this.renderVesselFleetMarkers();
+      return;
+    }
+
+    this.filteredVessels.forEach((vessel, idx) => {
+      const offset = ((this.vesselTickStep * 0.03 + idx * 0.15) % 1);
+      const wps = vessel.waypoints;
+      const startWp = wps[0];
+      const endWp = wps[wps.length - 1];
+
+      const lng = (startWp.x + (endWp.x - startWp.x) * offset - 500) * (360 / 1000);
+      const lat = (250 - (startWp.y + (endWp.y - startWp.y) * offset)) * (180 / 500);
+
+      if (this.vesselMarkers[idx]) {
+        this.vesselMarkers[idx].setLngLat([lng, lat]);
+      }
+    });
+  }
+
+  // ------------------------------------------------------------------
+  // Interactive Selection Handlers
+  // ------------------------------------------------------------------
+  selectChokepoint(cp: MaritimeChokepoint): void {
+    this.selectedChokepoint = cp;
+    this.selectedCanal = null;
+    this.selectedVessel = null;
+    this.selectedPort = null;
+    this.flyToTarget(cp.coordinates.lng, cp.coordinates.lat, 6, 50, 0);
+    this.playUiSound('sonar');
+  }
+
+  selectCanal(canal: MaritimeCanal): void {
+    this.selectedCanal = canal;
+    this.selectedChokepoint = null;
+    this.selectedVessel = null;
+    this.selectedPort = null;
+    this.flyToTarget(canal.coordinates.lng, canal.coordinates.lat, 7, 55, 0);
+    this.playUiSound('sonar');
+  }
+
+  selectPort(port: MaritimePort): void {
+    this.selectedPort = port;
+    this.selectedChokepoint = null;
+    this.selectedCanal = null;
+    this.selectedVessel = null;
+    const coords = port.coordinates;
+    const lat = (250 - coords.cy) * (180 / 500);
+    const lng = (coords.cx - 500) * (360 / 1000);
+    this.flyToTarget(lng, lat, 7, 55, 0);
     this.playUiSound('select');
-    this.cdr.markForCheck();
   }
 
-  closeAisModal(): void {
-    this.isAisModalOpen = false;
-    this.cdr.markForCheck();
+  selectVessel(vessel: CargoVessel, lat?: number, lng?: number): void {
+    this.selectedVessel = vessel;
+    this.selectedChokepoint = null;
+    this.selectedCanal = null;
+    this.selectedPort = null;
+
+    if (lat !== undefined && lng !== undefined) {
+      vessel.currentLat = parseFloat(lat.toFixed(4));
+      vessel.currentLng = parseFloat(lng.toFixed(4));
+      this.flyToTarget(lng, lat, 6.5, 45, 0);
+    }
+    this.playUiSound('ping');
   }
 
-  // Filtered Corridors & Vessels
-  get filteredCorridors(): ShippingCorridor[] {
-    if (this.selectedCargoFilter === 'All') return this.corridors;
-    return this.corridors.filter(c => c.cargoType === this.selectedCargoFilter || c.cargoType === 'Multi');
+  setCargoFilter(filter: 'All' | 'Container' | 'Tanker' | 'LNG' | 'Bulk'): void {
+    this.selectedCargoFilter = filter;
+    this.renderVesselFleetMarkers();
+    this.playUiSound('click');
+    this.cdr.markForCheck();
   }
 
   get filteredVessels(): CargoVessel[] {
@@ -187,151 +592,88 @@ export class MaritimeComponent implements OnInit, OnDestroy {
     });
   }
 
-  onCountryHover(name: string): void {
-    this.hoveredCountryName = name;
+  // ------------------------------------------------------------------
+  // Camera Controls & Navigation
+  // ------------------------------------------------------------------
+  switchBasemapStyle(styleId: 'dark' | 'satellite' | 'topo' | 'positron'): void {
+    this.activeStyleId = styleId;
+    if (this.map) {
+      this.map.setStyle(this.mapStyles[styleId] as any);
+      this.map.once('style.load', () => {
+        this.map?.resize();
+        this.initRouteLayer();
+        this.renderAllMapLayers();
+        if (this.calculatedRouteGeoJson) {
+          this.map.getSource('calculated-sea-route')?.setData(this.calculatedRouteGeoJson);
+        }
+      });
+    }
     this.cdr.markForCheck();
   }
 
-  onCountryLeave(): void {
-    this.hoveredCountryName = '';
+  flyToTarget(lng: number, lat: number, zoom: number = 6, pitch: number = 45, bearing: number = 0): void {
+    if (this.map) {
+      this.map.flyTo({
+        center: [lng, lat],
+        zoom: zoom,
+        pitch: pitch,
+        bearing: bearing,
+        duration: 1800,
+        essential: true
+      });
+    }
+  }
+
+  onPitchChange(event: Event): void {
+    const pitch = parseInt((event.target as HTMLInputElement).value, 10);
+    this.currentPitch = pitch;
+    if (this.map) this.map.setPitch(pitch);
     this.cdr.markForCheck();
   }
 
-  selectCountry(countryId: string, countryName: string): void {
-    const key = countryId.toLowerCase();
-    this.selectedCountryData = COUNTRIES_DATA[key] || {
-      id: countryId.toUpperCase(),
-      iso2Code: countryId.toUpperCase(),
-      name: countryName,
-      region: { id: '', iso2code: '', value: 'Coastal Realm' },
-      adminregion: { id: '', iso2code: '', value: '' },
-      incomeLevel: { id: '', iso2code: '', value: 'Global Trade Hub' },
-      lendingType: { id: '', iso2code: '', value: '' },
-      capitalCity: 'Coastal Capital',
-      longitude: '0',
-      latitude: '0',
-      flag: '🌐',
-      flagUrl: '',
-      currencies: 'Local Currency',
-      languages: 'National Language',
-      subregion: 'Maritime Zone',
-      area: 100000,
-      borders: []
-    };
-    this.selectedChokepoint = null;
-    this.selectedCanal = null;
-    this.selectedVessel = null;
-    this.selectedPort = null;
+  onBearingChange(event: Event): void {
+    const bearing = parseInt((event.target as HTMLInputElement).value, 10);
+    this.currentBearing = bearing;
+    if (this.map) this.map.setBearing(bearing);
+    this.cdr.markForCheck();
+  }
+
+  resetNorth(): void {
+    this.currentPitch = 35;
+    this.currentBearing = 0;
+    if (this.map) {
+      this.map.easeTo({ pitch: 35, bearing: 0, duration: 800 });
+    }
+    this.cdr.markForCheck();
+  }
+
+  openLocationInGeoLibre(lat?: number, lng?: number, zoom: number = 7): void {
+    if (lat !== undefined && lng !== undefined) {
+      this.router.navigate(['/geolibre'], {
+        queryParams: { lat, lng, zoom }
+      });
+    }
+  }
+
+  exportMaritimeGeoJson(): void {
+    const geojson = this.geoJsonService.exportMaritimeToGeoJSON();
+    this.geoJsonService.downloadGeoJSON(geojson, 'maritime-chokepoints-and-canals.geojson');
+  }
+
+  // ------------------------------------------------------------------
+  // Live AIS Telemetry Modal Handlers
+  // ------------------------------------------------------------------
+  openAisModal(): void {
+    this.isAisModalOpen = true;
     this.playUiSound('select');
     this.cdr.markForCheck();
   }
 
-  // User Selection Actions
-  selectChokepoint(cp: MaritimeChokepoint): void {
-    this.selectedChokepoint = cp;
-    this.selectedCanal = null;
-    this.selectedVessel = null;
-    this.selectedPort = null;
-    this.selectedCountryData = null;
-    this.flyToLocation(cp.coordinates.cx, cp.coordinates.cy, 1.6);
-    this.playUiSound('sonar');
-  }
-
-  selectCanal(canal: MaritimeCanal): void {
-    this.selectedCanal = canal;
-    this.selectedChokepoint = null;
-    this.selectedVessel = null;
-    this.selectedPort = null;
-    this.flyToLocation(canal.coordinates.cx, canal.coordinates.cy, 1.8);
-    this.playUiSound('sonar');
-  }
-
-  selectPort(port: MaritimePort): void {
-    this.selectedPort = port;
-    this.selectedChokepoint = null;
-    this.selectedVessel = null;
-    this.flyToLocation(port.coordinates.cx, port.coordinates.cy, 1.8);
-    this.playUiSound('select');
-  }
-
-  selectVessel(vessel: CargoVessel): void {
-    this.selectedVessel = vessel;
-    if (vessel.currentPos) {
-      this.flyToLocation(vessel.currentPos.x, vessel.currentPos.y, 2.0);
-    }
-    this.playUiSound('ping');
-  }
-
-  setCargoFilter(filter: 'All' | 'Container' | 'Tanker' | 'LNG' | 'Bulk'): void {
-    this.selectedCargoFilter = filter;
-    this.playUiSound('click');
+  closeAisModal(): void {
+    this.isAisModalOpen = false;
     this.cdr.markForCheck();
   }
 
-  // Camera Controls
-  zoomIn(): void {
-    this.zoom = Math.min(4.5, this.zoom + 0.3);
-    this.playUiSound('click');
-    this.cdr.markForCheck();
-  }
-
-  zoomOut(): void {
-    this.zoom = Math.max(0.8, this.zoom - 0.3);
-    this.playUiSound('click');
-    this.cdr.markForCheck();
-  }
-
-  resetCamera(): void {
-    this.zoom = 1.0;
-    this.panX = 0;
-    this.panY = 0;
-    this.selectedChokepoint = null;
-    this.selectedVessel = null;
-    this.selectedPort = null;
-    this.playUiSound('click');
-    this.cdr.markForCheck();
-  }
-
-  flyToLocation(cx: number, cy: number, targetZoom: number = 1.6): void {
-    // 505, 333 is central SVG canvas midpoint
-    this.panX = (505 - cx) * targetZoom;
-    this.panY = (333 - cy) * targetZoom;
-    this.zoom = targetZoom;
-    this.cdr.markForCheck();
-  }
-
-  // Pan & Drag Handlers
-  startPan(event: MouseEvent): void {
-    const target = event.target as HTMLElement;
-    if (target.closest('.camera-control-group, .maritime-telemetry-dock, .filter-pill, .ais-badge-btn')) {
-      return;
-    }
-    this.isPanning = true;
-    this.panStartX = event.clientX - this.panX;
-    this.panStartY = event.clientY - this.panY;
-  }
-
-  doPan(event: MouseEvent): void {
-    if (!this.isPanning) return;
-    this.panX = event.clientX - this.panStartX;
-    this.panY = event.clientY - this.panStartY;
-    this.cdr.markForCheck();
-  }
-
-  endPan(): void {
-    this.isPanning = false;
-  }
-
-  onWheelZoom(event: WheelEvent): void {
-    if (event.ctrlKey || event.metaKey) {
-      event.preventDefault();
-      const delta = event.deltaY < 0 ? 0.15 : -0.15;
-      this.zoom = Math.min(4.5, Math.max(0.8, this.zoom + delta));
-      this.cdr.markForCheck();
-    }
-  }
-
-  // Web Audio Synthesizer SFX Engine
   toggleAudio(): void {
     this.audioMuted = !this.audioMuted;
     this.cdr.markForCheck();
@@ -359,11 +701,11 @@ export class MaritimeComponent implements OnInit, OnDestroy {
       if (type === 'sonar') {
         osc.type = 'sine';
         osc.frequency.setValueAtTime(880, now);
-        osc.frequency.exponentialRampToValueAtTime(440, now + 0.3);
+        osc.frequency.exponentialRampToValueAtTime(440, now + 0.25);
         gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
         osc.start(now);
-        osc.stop(now + 0.3);
+        osc.stop(now + 0.25);
       } else if (type === 'ping') {
         osc.type = 'triangle';
         osc.frequency.setValueAtTime(1200, now);
