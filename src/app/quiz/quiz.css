@@ -68,6 +68,36 @@
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.25rem;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  position: relative;
+  overflow: hidden;
+}
+
+/* 15s Speed Timer Bar */
+.timer-bar-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.timer-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #a855f7, #ec4899);
+  transition: width 1s linear;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+}
+
+.timer-bar.warning {
+  background: linear-gradient(90deg, #f43f5e, #fb7185) !important;
+  box-shadow: 0 0 15px rgba(244, 63, 94, 0.8) !important;
+  animation: pulseWarning 0.5s infinite alternate;
+}
+
+@keyframes pulseWarning {
+  from { opacity: 0.7; }
+  to { opacity: 1; }
 }
 
 .hud-top {
@@ -91,6 +121,22 @@
 .score-group {
   display: flex;
   gap: 0.6rem;
+}
+
+.timer-pill {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #a855f7;
+  background: rgba(168, 85, 247, 0.12);
+  padding: 0.25rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.timer-pill.warning {
+  color: #f43f5e !important;
+  background: rgba(244, 63, 94, 0.2) !important;
+  border-color: #f43f5e !important;
 }
 
 .score-pill {
@@ -136,6 +182,9 @@
 }
 
 .opt-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
   background: rgba(15, 23, 42, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
@@ -145,6 +194,24 @@
   font-weight: 700;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.hotkey-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: #fbbf24;
+}
+
+.opt-label {
+  flex: 1;
 }
 
 .opt-btn:hover:not(:disabled) {
@@ -246,6 +313,7 @@ path:hover {
   border-radius: 24px;
   padding: 2.5rem 3.5rem;
   text-align: center;
+  max-width: 480px;
   box-shadow: 0 25px 60px rgba(0, 0, 0, 0.8);
 }
 
@@ -255,28 +323,64 @@ path:hover {
 }
 
 .summary-card h2 {
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 900;
   color: #fbbf24;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.5rem;
 }
 
 .score-badge {
-  font-size: 1.3rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: #38bdf8;
   background: rgba(56, 189, 248, 0.12);
-  padding: 0.5rem 1.2rem;
+  padding: 0.4rem 1.2rem;
   border-radius: 12px;
   display: inline-block;
   margin-bottom: 0.75rem;
+  border: 1px solid rgba(56, 189, 248, 0.3);
 }
 
-.rank {
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #a5b4fc;
+.rank-title {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #a855f7;
+  margin-bottom: 0.2rem;
+}
+
+.rank-sub {
+  font-size: 0.88rem;
+  color: #94a3b8;
+  margin-bottom: 1.25rem;
+}
+
+.stats-grid {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
   margin-bottom: 1.5rem;
+}
+
+.stat-box {
+  background: rgba(30, 41, 59, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 0.6rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-val {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #f8fafc;
+}
+
+.stat-lbl {
+  font-size: 0.72rem;
+  color: #64748b;
+  text-transform: uppercase;
+  font-weight: 700;
 }
 
 .play-again-btn {
@@ -288,4 +392,11 @@ path:hover {
   font-size: 0.95rem;
   font-weight: 700;
   cursor: pointer;
+  transition: all 0.2s ease;
 }
+
+.play-again-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+}
+

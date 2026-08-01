@@ -2,7 +2,7 @@
   <div class="quiz-header">
     <div class="header-left">
       <h1>🎯 Global Explorer Quiz</h1>
-      <p class="subtitle">Test your general knowledge of world landmarks, culture, natural wonders & geography!</p>
+      <p class="subtitle">⚡ 15s Speed-Run Geography • Earn Aura Points • Speed Bonuses • Hotkeys [1-4]</p>
     </div>
     <div class="header-right">
       <button (click)="toggleAudio()" class="audio-btn">
@@ -19,11 +19,19 @@
     <div class="map-column">
       <!-- HUD Question Bar -->
       <div *ngIf="currentQuestion && !quizCompleted" class="quiz-hud-bar">
+        <!-- 15s Progress Timer Bar -->
+        <div class="timer-bar-container">
+          <div class="timer-bar" 
+               [style.width.%]="(timerSeconds / maxTimerSeconds) * 100" 
+               [class.warning]="timerSeconds <= 5"></div>
+        </div>
+
         <div class="hud-top">
           <span class="q-badge">QUESTION {{ quizCurrentIndex }} / {{ quizTotalQuestions }}</span>
           <div class="score-group">
-            <span class="score-pill">⭐ Score: {{ quizScore }}</span>
-            <span *ngIf="quizStreak > 1" class="streak-pill">🔥 {{ quizStreak }} Streak!</span>
+            <span class="timer-pill" [class.warning]="timerSeconds <= 5">⏱️ {{ timerSeconds }}s</span>
+            <span class="score-pill">✨ Aura: {{ quizScore }}</span>
+            <span *ngIf="quizStreak > 1" class="streak-pill">🔥 {{ quizStreak }} Multiplier!</span>
           </div>
         </div>
 
@@ -32,23 +40,24 @@
         </div>
 
         <div class="q-hint">
-          💡 Click an answer button below or click the country directly on the map!
+          💡 Tip: Use keyboard keys <strong>[1], [2], [3], [4]</strong> or <strong>[A-D]</strong> for instant speed bonus!
         </div>
 
         <div class="options-grid">
-          <button *ngFor="let opt of currentQuestion.options"
+          <button *ngFor="let opt of currentQuestion.options; let i = index"
                   (click)="submitQuizAnswer(opt)"
                   [disabled]="quizAnswered"
                   [class.correct]="quizAnswered && (opt.toLowerCase() === currentQuestion.correctAnswer.toLowerCase())"
                   class="opt-btn">
-            {{ opt }}
+            <span class="hotkey-badge">{{ i + 1 }}</span>
+            <span class="opt-label">{{ opt }}</span>
           </button>
         </div>
 
         <div *ngIf="quizFeedback" class="feedback-banner" [class.is-correct]="quizIsCorrect">
           <span class="fb-text">{{ quizFeedback }}</span>
           <button (click)="nextQuizQuestion()" class="next-btn">
-            {{ quizCurrentIndex >= quizTotalQuestions ? '🏆 Finish Round' : 'Next Question ➔' }}
+            {{ quizCurrentIndex >= quizTotalQuestions ? '🏆 View Aura Results [Enter]' : 'Next Question [Enter] ➔' }}
           </button>
         </div>
       </div>
@@ -390,13 +399,24 @@
   <!-- Round Completed Modal -->
   <div *ngIf="quizCompleted" class="summary-modal">
     <div class="summary-card">
-      <div class="summary-icon">🏆</div>
-      <h2>QUIZ ROUND COMPLETED!</h2>
-      <div class="score-badge">Final Score: {{ quizScore }} PTS</div>
-      <p class="rank">
-        {{ quizScore >= 800 ? '🥇 Master Cartographer' : quizScore >= 500 ? '🥈 Senior Explorer' : '🥉 Geography Trainee' }}
-      </p>
-      <button (click)="startQuiz()" class="play-again-btn">🔄 Play Again</button>
+      <div class="summary-icon">{{ genZRankBadge.icon }}</div>
+      <h2>ROUND FINISHED, NO CAP!</h2>
+      <div class="score-badge">✨ Final Aura: {{ quizScore }} PTS</div>
+      <div class="rank-title">{{ genZRankBadge.title }}</div>
+      <p class="rank-sub">{{ genZRankBadge.subtitle }}</p>
+
+      <div class="stats-grid">
+        <div class="stat-box">
+          <span class="stat-val">{{ correctCount }} / {{ quizTotalQuestions }}</span>
+          <span class="stat-lbl">Accuracy</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-val">🔥 {{ maxStreak }}</span>
+          <span class="stat-lbl">Max Streak</span>
+        </div>
+      </div>
+
+      <button (click)="startQuiz()" class="play-again-btn">🚀 Go Again & Boost Aura</button>
     </div>
   </div>
 </div>
