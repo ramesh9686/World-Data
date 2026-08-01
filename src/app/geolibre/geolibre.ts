@@ -75,10 +75,10 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Vector Layer Toggles
   showCountriesLayer: boolean = true;
-  showMaritimeLayer: boolean = true;
+  showMaritimeLayer: boolean = false;
   showFxNodesLayer: boolean = true;
   showEmpiresLayer: boolean = true;
-  showShippingLanes: boolean = true;
+  showShippingLanes: boolean = false;
 
   // Camera & Vector Map state
   currentLat: number = 30.5;
@@ -350,7 +350,6 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.runSpatialQuery();
-    this.startVesselFleetAnimation();
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -377,8 +376,8 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     if (mode === 'quiz') {
       this.startQuiz();
     } else if (mode === 'maritime') {
-      this.showMaritimeLayer = true;
-      this.showShippingLanes = true;
+      this.showMaritimeLayer = false;
+      this.showShippingLanes = false;
       this.jumpToPreset('suez');
     } else if (mode === 'forex') {
       this.showFxNodesLayer = true;
@@ -506,7 +505,8 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         source: 'shipping-lanes',
         layout: {
           'line-join': 'round',
-          'line-cap': 'round'
+          'line-cap': 'round',
+          'visibility': this.showShippingLanes ? 'visible' : 'none'
         },
         paint: {
           'line-color': ['get', 'color'],
@@ -1347,6 +1347,18 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedYear = parseInt((event.target as HTMLInputElement).value, 10);
     this.renderAllVectorLayers();
     this.cdr.markForCheck();
+  }
+
+  setYear(year: number): void {
+    this.selectedYear = year;
+    this.renderAllVectorLayers();
+    this.cdr.markForCheck();
+  }
+
+  focusSelectedCountry(): void {
+    if (this.selectedDetailCard) {
+      this.flyToTarget(this.selectedDetailCard.lng, this.selectedDetailCard.lat, 6, 50, 15);
+    }
   }
 
   setExtrusionMetric(metric: 'none' | 'gdp' | 'population' | 'area'): void {

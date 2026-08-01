@@ -1,11 +1,17 @@
 <div class="geolibre-container">
-  <!-- Header Banner -->
+  <!-- Header Banner - Futuristic Sci-Fi Telemetry Hub -->
   <header class="geolibre-header">
     <div class="geolibre-title-group">
-      <span class="geolibre-logo">🌐</span>
+      <div class="logo-glow-wrapper">
+        <span class="geolibre-logo">🌐</span>
+      </div>
       <div>
-        <h1 class="geolibre-title">1. WORLD DATA CORE • 3D VECTOR GLOBE</h1>
-        <p class="geolibre-subtitle">Native MapLibre GL WebGL Engine • World Bank / WHO / UN Live Indicators & Multi-Style Analytics</p>
+        <div class="header-status-pill">
+          <span class="live-pulse"></span>
+          <span class="status-pill-text">1. WORLD DATA CORE • LIVE WEBGL 3D ENGINE</span>
+        </div>
+        <h1 class="geolibre-title">Planetary GIS & Indicators Suite</h1>
+        <p class="geolibre-subtitle">World Bank, WHO & UN Multi-Spectral Vector Analytics • Temporal Extrusion Engine</p>
       </div>
     </div>
 
@@ -21,6 +27,7 @@
           (input)="onSearchInput()"
           (focus)="isSearchOpen = searchResults.length > 0"
         />
+        <span class="search-kbd">Ctrl+K</span>
         <button *ngIf="searchQuery" class="clear-search-btn" (click)="searchQuery = ''; onSearchInput()">✖</button>
       </div>
 
@@ -43,10 +50,12 @@
 
     <div class="header-actions">
       <button class="audio-toggle-btn" [class.muted]="audioMuted" (click)="toggleAudio()" [title]="audioMuted ? 'Unmute Audio SFX' : 'Mute Audio SFX'">
-        {{ audioMuted ? '🔇 Muted' : '🔊 Sound SFX' }}
+        <span>{{ audioMuted ? '🔇' : '🔊' }}</span>
+        <span>{{ audioMuted ? 'Muted' : 'Sound SFX' }}</span>
       </button>
       <button class="btn-primary-gis" (click)="exportCountriesGeoJSON()">
-        <span>📥</span> Export GeoJSON
+        <span class="btn-icon">📥</span>
+        <span>Export GeoJSON</span>
       </button>
     </div>
   </header>
@@ -61,10 +70,12 @@
           <span>MapLibre GL JS WebGL 3D Vector Engine</span>
           <span class="active-mode-badge">WORLD DATA CORE</span>
         </div>
-        <div style="display: flex; gap: 0.8rem; font-size: 0.82rem; color: #94a3b8; font-family: monospace;">
-          <span>LAT: <strong style="color: #00f2fe;">{{ currentLat.toFixed(4) }}</strong></span>
-          <span>LNG: <strong style="color: #00f2fe;">{{ currentLng.toFixed(4) }}</strong></span>
-          <span>ZOOM: <strong style="color: #00f2fe;">{{ currentZoom }}x</strong></span>
+        <div class="telemetry-readout">
+          <span class="telemetry-item">LAT <strong class="telemetry-val">{{ currentLat.toFixed(4) }}°</strong></span>
+          <span class="telemetry-divider">•</span>
+          <span class="telemetry-item">LNG <strong class="telemetry-val">{{ currentLng.toFixed(4) }}°</strong></span>
+          <span class="telemetry-divider">•</span>
+          <span class="telemetry-item">ZOOM <strong class="telemetry-val">{{ currentZoom }}x</strong></span>
         </div>
       </div>
 
@@ -91,6 +102,12 @@
               {{ selectedDetailCard.summary }}
             </p>
           </div>
+
+          <div class="detail-card-actions">
+            <button class="card-action-btn" (click)="focusSelectedCountry()">
+              🎯 Focus Camera
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -98,38 +115,47 @@
     <!-- Sidebar Panel: 3D Targets & GIS Export Suite -->
     <div class="sidebar-panel">
       <div class="panel-card">
-        <h3 class="card-title">🎯 3D Fly-To Quick Targets</h3>
+        <div class="card-header-bar">
+          <h3 class="card-title">🎯 3D Quick Fly Targets</h3>
+          <span class="card-tag">GLOBAL HUB</span>
+        </div>
         <div class="preset-list">
           <button class="location-fly-btn" (click)="jumpToPreset('suez')">
-            <span>🇪🇬 Suez Canal Passage</span> ➔
+            <span class="preset-label">🇪🇬 Suez Canal Passage</span>
+            <span class="fly-arrow">➔</span>
           </button>
           <button class="location-fly-btn" (click)="jumpToPreset('panama')">
-            <span>🇵🇦 Panama Inter-Oceanic Link</span> ➔
+            <span class="preset-label">🇵🇦 Panama Inter-Oceanic Link</span>
+            <span class="fly-arrow">➔</span>
           </button>
           <button class="location-fly-btn" (click)="jumpToPreset('malacca')">
-            <span>🇸🇬 Strait of Malacca</span> ➔
+            <span class="preset-label">🇸🇬 Strait of Malacca</span>
+            <span class="fly-arrow">➔</span>
           </button>
           <button class="location-fly-btn" (click)="jumpToPreset('europe')">
-            <span>🇪🇺 European Financial Hubs</span> ➔
+            <span class="preset-label">🇪🇺 European Financial Hubs</span>
+            <span class="fly-arrow">➔</span>
           </button>
           <button class="location-fly-btn" (click)="jumpToPreset('tokyo')">
-            <span>🇯🇵 Tokyo Bay Megacity</span> ➔
+            <span class="preset-label">🇯🇵 Tokyo Bay Megacity</span>
+            <span class="fly-arrow">➔</span>
           </button>
           <button class="location-fly-btn" (click)="jumpToPreset('usa')">
-            <span>🇺🇸 North America Corridor</span> ➔
+            <span class="preset-label">🇺🇸 North America Corridor</span>
+            <span class="fly-arrow">➔</span>
           </button>
         </div>
       </div>
 
       <!-- GIS Suite Export Card -->
       <div class="panel-card">
-        <h3 class="card-title">📦 GIS Export Suite</h3>
-        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <div class="card-header-bar">
+          <h3 class="card-title">📦 GIS Export Suite</h3>
+          <span class="card-tag">OPEN DATA</span>
+        </div>
+        <div class="gis-suite-actions">
           <button class="btn-secondary-gis" style="width: 100%; justify-content: center;" (click)="exportCountriesGeoJSON()">
-            📄 Download Countries GeoJSON
-          </button>
-          <button class="btn-secondary-gis" style="width: 100%; justify-content: center;" (click)="exportMaritimeGeoJSON()">
-            🚢 Download Maritime GeoJSON
+            📄 Download GeoJSON Vectors
           </button>
         </div>
       </div>
@@ -139,7 +165,7 @@
   <!-- Basemap Switcher & 3D Camera Controls Bar -->
   <div class="control-bar">
     <div class="basemap-switcher">
-      <span class="switcher-title">Basemap:</span>
+      <span class="switcher-title">Basemap Style:</span>
       <button class="style-btn" [class.active]="activeStyleId === 'satellite'" (click)="switchBasemapStyle('satellite')">
         🛰️ Satellite
       </button>
@@ -168,7 +194,7 @@
         <span class="coord-tag">{{ currentBearing }}°</span>
       </div>
 
-      <button class="style-btn" (click)="resetNorth()">
+      <button class="style-btn reset-north-btn" (click)="resetNorth()">
         🎯 Reset North
       </button>
     </div>
@@ -179,14 +205,25 @@
     <div class="temporal-controls">
       <span class="switcher-title">⏳ 34-Year Time Lapse:</span>
       <button class="style-btn play-btn" (click)="togglePlayTimeline()">
-        {{ isPlayingTimeline ? '⏸️ Pause' : '▶️ Play 34-Year Time Lapse' }}
+        {{ isPlayingTimeline ? '⏸️ Pause Timeline' : '▶️ Play 34-Year Time Lapse' }}
       </button>
-      <input type="range" min="1990" max="2024" [value]="selectedYear" (input)="onYearChange($event)" class="range-input temporal-slider" />
+
+      <div class="timeline-slider-wrapper">
+        <input type="range" min="1990" max="2024" [value]="selectedYear" (input)="onYearChange($event)" class="range-input temporal-slider" />
+        <div class="decade-markers">
+          <span class="decade-pill" [class.active]="selectedYear === 1990" (click)="setYear(1990)">1990</span>
+          <span class="decade-pill" [class.active]="selectedYear === 2000" (click)="setYear(2000)">2000</span>
+          <span class="decade-pill" [class.active]="selectedYear === 2010" (click)="setYear(2010)">2010</span>
+          <span class="decade-pill" [class.active]="selectedYear === 2020" (click)="setYear(2020)">2020</span>
+          <span class="decade-pill" [class.active]="selectedYear === 2024" (click)="setYear(2024)">2024</span>
+        </div>
+      </div>
+
       <span class="coord-tag year-tag">{{ selectedYear }}</span>
     </div>
 
     <div class="extrusion-selector">
-      <span class="switcher-title">📊 3D Vector Extrusion:</span>
+      <span class="switcher-title">📊 3D Extrusion:</span>
       <button class="style-btn" [class.active]="extrusionMetric === 'none'" (click)="setExtrusionMetric('none')">
         Flat
       </button>
@@ -207,12 +244,12 @@
     <!-- Category (Topic) & Subcategory (Indicator) Selectors Header Row -->
     <div class="analytics-selectors-bar">
       <div class="indicator-selectors">
-        <span class="switcher-title">📌 Category (Topic):</span>
+        <span class="switcher-title">📌 Topic:</span>
         <select class="gis-select" [value]="selectedTopicId" (change)="onTopicChange($event)">
           <option *ngFor="let t of wbTopics" [value]="t.id">{{ t.name }}</option>
         </select>
 
-        <span class="switcher-title" style="margin-left: 0.8rem;">📊 Subcategory (Indicator):</span>
+        <span class="switcher-title" style="margin-left: 0.8rem;">📊 Subcategory Indicator:</span>
         <select class="gis-select indicator-dropdown" [value]="selectedIndicatorId" (change)="onIndicatorChange($event)">
           <option *ngFor="let ind of wbIndicators" [value]="ind.id">{{ ind.name }}</option>
         </select>
@@ -253,20 +290,20 @@
     <!-- Summary Telemetry Stat Pills -->
     <div class="analytics-stats-pills">
       <div class="stat-pill">
-        <span class="pill-lbl">📍 Selected Country:</span>
-        <span class="pill-val" style="color: #00f2fe;">{{ selectedDetailCard?.title || 'Click Country on Globe Above' }}</span>
+        <span class="pill-lbl">📍 Selected Country</span>
+        <span class="pill-val country-pill-val">{{ selectedDetailCard?.title || 'Click Country on Globe Above' }}</span>
       </div>
       <div class="stat-pill">
-        <span class="pill-lbl">⚡ Latest Telemetry:</span>
-        <span class="pill-val" style="color: #34d399;">{{ indicatorLatestVal }}</span>
+        <span class="pill-lbl">⚡ Latest Telemetry</span>
+        <span class="pill-val latest-pill-val">{{ indicatorLatestVal }}</span>
       </div>
       <div class="stat-pill">
-        <span class="pill-lbl">📉 Historical Min:</span>
-        <span class="pill-val" style="color: #cbd5e1;">{{ indicatorMinVal }}</span>
+        <span class="pill-lbl">📉 Historical Min</span>
+        <span class="pill-val min-pill-val">{{ indicatorMinVal }}</span>
       </div>
       <div class="stat-pill">
-        <span class="pill-lbl">📈 Historical Max:</span>
-        <span class="pill-val" style="color: #f59e0b;">{{ indicatorMaxVal }}</span>
+        <span class="pill-lbl">📈 Historical Max</span>
+        <span class="pill-val max-pill-val">{{ indicatorMaxVal }}</span>
       </div>
     </div>
 
@@ -282,7 +319,9 @@
         <div *ngIf="chartStyle === 'bars'" class="full-bar-graph">
           <div *ngFor="let pt of formattedIndicatorPoints" class="full-graph-col" [title]="pt.year + ': ' + pt.value.toLocaleString()">
             <span class="col-val-label">{{ pt.value.toLocaleString() }}</span>
-            <div class="full-bar-fill" [style.height.%]="pt.percent"></div>
+            <div class="full-bar-fill-container">
+              <div class="full-bar-fill" [style.height.%]="pt.percent"></div>
+            </div>
             <span class="col-year-label">{{ pt.year }}</span>
           </div>
         </div>
@@ -342,7 +381,7 @@
       </div>
 
       <div *ngIf="!loadingIndicatorData && formattedIndicatorPoints.length === 0" class="graph-empty-state">
-        <span style="font-size: 2rem;">🌐</span>
+        <span class="empty-icon">🌐</span>
         <p>Select any country on the 3D globe above to load its live <strong>{{ selectedIndicatorName }}</strong> historical analytics graph.</p>
       </div>
     </div>
