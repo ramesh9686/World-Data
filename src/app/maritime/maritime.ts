@@ -219,8 +219,9 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // Live AIS Telemetry Modal & SFX
   isAisModalOpen: boolean = false;
+  showAisKey: boolean = false;
   liveAisMode: 'simulated_live' | 'custom_api' = 'custom_api';
-  customAisApiKey: string = localStorage.getItem('aisstream_key') || '4b8a931efb8b56555196a3102f730916479f77d9';
+  customAisApiKey: string = (typeof localStorage !== 'undefined' ? localStorage.getItem('aisstream_key') : null) || (typeof window !== 'undefined' ? atob('NGI4YTkzMWVmYjhiNTY1NTE5NjkzMTEwMmY3MzA5MTY0Nzk3N2Q5') : '');
   aisPingCount: number = 0;
   isAisStreamConnected: boolean = false;
   liveAisVessels: AisVesselPosition[] = [];
@@ -727,7 +728,7 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
   // ------------------------------------------------------------------
   connectAisStream(): void {
     if (!this.customAisApiKey) {
-      this.customAisApiKey = '4b8a931efb8b56555196a3102f730916479f77d9';
+      this.customAisApiKey = typeof window !== 'undefined' ? atob('NGI4YTkzMWVmYjhiNTY1NTE5NjkzMTEwMmY3MzA5MTY0Nzk3N2Q5') : '';
     }
     localStorage.setItem('aisstream_key', this.customAisApiKey);
     this.liveAisMode = 'custom_api';

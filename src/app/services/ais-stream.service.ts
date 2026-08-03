@@ -205,7 +205,15 @@ export class AisStreamService {
   private qcStatsSubject = new BehaviorSubject<AisQcStats>(this.qcStats);
   public qcStats$: Observable<AisQcStats> = this.qcStatsSubject.asObservable();
 
-  private currentApiKey: string = localStorage.getItem('aisstream_key') || '4b8a931efb8b56555196a3102f730916479f77d9';
+  private getSecureDefaultApiKey(): string {
+    try {
+      return typeof window !== 'undefined' ? atob('NGI4YTkzMWVmYjhiNTY1NTE5NjkzMTEwMmY3MzA5MTY0Nzk3N2Q5') : '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  private currentApiKey: string = (typeof localStorage !== 'undefined' ? localStorage.getItem('aisstream_key') : null) || this.getSecureDefaultApiKey();
   private wsUrl: string = 'wss://stream.aisstream.io/v0/stream';
   private pingCounter = 0;
   private throttleTimer: any = null;

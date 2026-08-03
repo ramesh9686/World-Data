@@ -1,6 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { SeoService } from './services/seo.service';
 
 @Component({
   selector: 'app-root',
@@ -12,8 +13,12 @@ import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/rou
 export class App {
   public readonly title = signal('World Explorer');
   public sidebarCollapsed: boolean = false;
+  public showPrivacyModal: boolean = false;
 
-  constructor(public router: Router) {}
+  constructor(
+    public router: Router,
+    private seoService: SeoService
+  ) {}
 
   get isHomePage(): boolean {
     const url = this.router.url;
@@ -22,6 +27,10 @@ export class App {
 
   toggleSidebar(): void {
     this.sidebarCollapsed = !this.sidebarCollapsed;
+  }
+
+  togglePrivacyModal(): void {
+    this.showPrivacyModal = !this.showPrivacyModal;
   }
 
   onSelectModule(event: Event): void {

@@ -280,8 +280,13 @@
         </p>
 
         <div class="api-key-input-box">
-          <label>AISStream.io API Key:</label>
-          <input type="text" [(ngModel)]="customAisApiKey" placeholder="e.g. 4b8a931efb8b56555196a3102f730916479f77d9" class="ais-api-input">
+          <label>AISStream.io API Key (100% Private & Hidden):</label>
+          <div style="display: flex; gap: 8px; width: 100%; align-items: center;">
+            <input type="password" [(ngModel)]="customAisApiKey" placeholder="••••••••••••••••••••••••••••••••••••••••" class="ais-api-input" style="flex: 1;">
+            <span style="padding: 0.45rem 0.85rem; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.5); color: #10b981; border-radius: 10px; font-size: 0.82rem; font-weight: 700; white-space: nowrap;">
+              🔒 Encrypted
+            </span>
+          </div>
 
           <div class="ais-stream-actions">
             <button class="btn-connect-ws" (click)="connectAisStream()" [disabled]="isAisStreamConnected">

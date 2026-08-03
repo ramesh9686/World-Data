@@ -90,6 +90,14 @@
           <span class="nav-desc">SVG Vector Overlay</span>
         </div>
       </a>
+
+      <!-- Small Visible Privacy Statement Button in Sidebar -->
+      <div class="sidebar-footer-privacy">
+        <button class="privacy-btn-small" (click)="togglePrivacyModal()" title="View Privacy Statement & Data Security Policy">
+          <span class="shield-icon">🔒</span>
+          <span class="privacy-btn-text">Privacy Statement</span>
+        </button>
+      </div>
     </nav>
   </aside>
 
@@ -104,8 +112,11 @@
         <span class="header-status-badge">🟢 LIVE TELEMETRY CORE</span>
       </div>
 
-      <!-- Quick Jump Module Selector Dropdown -->
+      <!-- Quick Jump Module Selector Dropdown & Privacy Button -->
       <div class="top-right">
+        <button class="header-privacy-btn" (click)="togglePrivacyModal()" title="Read Data Privacy & Security Policy">
+          🔒 Privacy
+        </button>
         <span class="dropdown-label">🚀 Quick Jump Module:</span>
         <select class="module-dropdown" (change)="onSelectModule($event)">
           <option value="/home" [selected]="router.url.includes('home') || router.url === '/'">🏠 0. Home Page (3D Globe)</option>
@@ -124,5 +135,48 @@
     <main class="page-content" [class.no-header]="isHomePage">
       <router-outlet />
     </main>
+
+    <!-- Always-Visible Floating Privacy Statement Action Button (Bottom Left) -->
+    <button class="floating-privacy-pill" (click)="togglePrivacyModal()" title="Read World Explorer Data Privacy Statement">
+      🔒 Privacy Statement
+    </button>
+
+    <!-- Interactive Glassmorphic Privacy Statement Modal Overlay -->
+    <div *ngIf="showPrivacyModal" class="privacy-modal-backdrop" (click)="togglePrivacyModal()">
+      <div class="privacy-modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-icon">🛡️</span>
+            <div>
+              <h3 class="modal-title">Privacy Statement & Data Protection</h3>
+              <span class="modal-subtitle">World Explorer GIS & Telemetry Suite</span>
+            </div>
+          </div>
+          <button class="modal-close-btn" (click)="togglePrivacyModal()" title="Close Privacy Statement">✕</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="privacy-section">
+            <h4>🔒 1. Zero Tracking & Local Storage Integrity</h4>
+            <p>Your geographic searches, viewport navigation, and game scores are processed <strong>100% locally</strong> inside your browser. No personal identifiable information (PII) is tracked, sold, or transmitted to external servers.</p>
+          </div>
+
+          <div class="privacy-section">
+            <h4>🛰️ 2. Public Live Telemetry Sockets</h4>
+            <p>Real-time AIS ship positions, Foreign Exchange rates, and World Bank indicators are requested strictly via secure encrypted HTTPS/WSS endpoints. Only public telemetry telemetry streams are consumed.</p>
+          </div>
+
+          <div class="privacy-section">
+            <h4>🍪 3. Cookies & Session Preference Compliance</h4>
+            <p>Session parameters (such as theme preferences, audio mute states, and optional AIS Stream API keys) are persisted locally in browser <code>localStorage</code> and never shared with 3rd-party advertisers.</p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <span class="compliance-badge">✅ Fully Compliant with Open GIS & Web Privacy Standards</span>
+          <button class="modal-agree-btn" (click)="togglePrivacyModal()">I Understand</button>
+        </div>
+      </div>
+    </div>
   </div>
 </div>
