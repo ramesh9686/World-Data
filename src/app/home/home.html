@@ -1,4 +1,15 @@
 <div class="pure-3d-model-container">
+  <!-- Full-Screen Container Overlay with Launch Badge -->
+  <div class="globe-click-overlay">
+    <!-- Bottom Floating Launch Hint Badge -->
+    <div class="globe-launch-hint-badge" (click)="enterWorldData()" title="Click to launch World Data 3D Explorer">
+      <span class="pulse-dot"></span>
+      <span class="hint-icon">🌐</span>
+      <span class="hint-text">Drag & Rotate 3D Globe | Click Here to Open World Data</span>
+      <span class="hint-arrow">➔</span>
+    </div>
+  </div>
+
   <!-- Right Side & Middle Ultra-Compact Icon Dock with AM/PM Time Badge -->
   <aside class="right-icon-dock">
     <div class="time-badge" [title]="'Auto-detected client time: ' + detectedTimeString">
@@ -8,7 +19,7 @@
     <button
       class="icon-dock-btn"
       [class.active]="activeModelId === 'model1'"
-      (click)="selectModel('model1')"
+      (click)="selectModel('model1'); $event.stopPropagation()"
       title="Day Mode 3D Model 1 (Active for AM/Day hours)"
     >
       ☀️
@@ -16,7 +27,7 @@
     <button
       class="icon-dock-btn"
       [class.active]="activeModelId === 'model2'"
-      (click)="selectModel('model2')"
+      (click)="selectModel('model2'); $event.stopPropagation()"
       title="Night Mode 3D Model 2 (Active for PM/Night hours)"
     >
       🌙
@@ -24,7 +35,7 @@
     <button
       class="icon-dock-btn"
       [class.active]="activeModelId === 'model3'"
-      (click)="selectModel('model3')"
+      (click)="selectModel('model3'); $event.stopPropagation()"
       title="Planet Globe 3D Model 3"
     >
       🪐

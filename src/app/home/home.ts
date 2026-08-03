@@ -65,6 +65,10 @@ export class HomeComponent implements OnInit {
     this.activeModelId = model;
   }
 
+  navigateTo(route: string): void {
+    this.router.navigate([route]);
+  }
+
   enterWorldData(): void {
     this.router.navigate(['/world-data']);
   }

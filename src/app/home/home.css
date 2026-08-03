@@ -96,3 +96,83 @@
     0 0 28px rgba(0, 242, 254, 0.8);
   transform: scale(1.18);
 }
+
+/* --------------------------------------------------------------------------
+   Full-Screen Globe Click Trigger & Launch Hint Badge
+   -------------------------------------------------------------------------- */
+.globe-click-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 10;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 42px;
+}
+
+.globe-launch-hint-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: rgba(13, 17, 28, 0.88);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  padding: 0.85rem 1.8rem;
+  border-radius: 9999px;
+  backdrop-filter: blur(24px) saturate(190%);
+  box-shadow: 
+    0 12px 36px rgba(0, 0, 0, 0.8),
+    0 0 24px rgba(0, 242, 254, 0.3);
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.globe-click-overlay:hover .globe-launch-hint-badge {
+  transform: translateY(-6px) scale(1.05);
+  background: rgba(0, 242, 254, 0.22);
+  border-color: #00f2fe;
+  box-shadow: 
+    0 16px 48px rgba(0, 0, 0, 0.9),
+    0 0 36px rgba(0, 242, 254, 0.6);
+}
+
+.pulse-dot {
+  width: 10px;
+  height: 10px;
+  background: #00f2fe;
+  border-radius: 50%;
+  box-shadow: 0 0 12px #00f2fe;
+  animation: pulse-glow 1.5s infinite ease-in-out;
+}
+
+@keyframes pulse-glow {
+  0% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.6); opacity: 0.4; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.hint-icon {
+  font-size: 1.4rem;
+}
+
+.hint-text {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #f8fafc;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: -0.01em;
+}
+
+.hint-arrow {
+  font-size: 1.1rem;
+  color: #00f2fe;
+  transition: transform 0.25s ease;
+}
+
+.globe-click-overlay:hover .hint-arrow {
+  transform: translateX(4px);
+}

@@ -160,6 +160,15 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.submitQuizAnswer('__TIMEOUT__');
   }
 
+  private isCleanCountryName(name: string): boolean {
+    if (!name) return false;
+    const lower = name.toLowerCase();
+    if (lower.includes('(') || lower.includes('income') || lower.includes('total') || lower.includes('world') || lower.includes('eligible') || lower.includes('&')) {
+      return false;
+    }
+    return true;
+  }
+
   generateQuizQuestion(): void {
     this.stopTimer();
     this.quizAnswered = false;
@@ -177,12 +186,15 @@ export class QuizComponent implements OnInit, OnDestroy {
       const qItem = availableTrivia[Math.floor(Math.random() * availableTrivia.length)];
       this.visitedQuestionIds.add(qItem.id);
 
+      // QC Rule: Pick 3 clean, real country distractors + 1 correct answer, shuffle all 4 randomly
       const distractors = new Set<string>();
-      while (distractors.size < 3) {
+      let attempts = 0;
+      while (distractors.size < 3 && attempts < 100) {
+        attempts++;
         const rKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
-        const rName = COUNTRIES_DATA[rKey].name;
-        if (rName && rName.toLowerCase() !== qItem.correctAnswer.toLowerCase()) {
-          distractors.add(rName);
+        const rData = COUNTRIES_DATA[rKey];
+        if (rData && this.isCleanCountryName(rData.name) && rData.name.toLowerCase() !== qItem.correctAnswer.toLowerCase()) {
+          distractors.add(rData.name);
         }
       }
 
@@ -204,19 +216,22 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Find unvisited capital target
       let targetKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
       let attempts = 0;
-      while (this.visitedQuestionIds.has(`CAP_${targetKey}`) && attempts < 20) {
+      while ((!this.isCleanCountryName(COUNTRIES_DATA[targetKey]?.name) || this.visitedQuestionIds.has(`CAP_${targetKey}`)) && attempts < 30) {
         targetKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
         attempts++;
       }
       this.visitedQuestionIds.add(`CAP_${targetKey}`);
       const target = COUNTRIES_DATA[targetKey];
 
+      // QC Rule: Pick 3 clean, real capital distractors + 1 correct answer, shuffle all 4 randomly
       const distractors = new Set<string>();
-      while (distractors.size < 3) {
+      let capAttempts = 0;
+      while (distractors.size < 3 && capAttempts < 100) {
+        capAttempts++;
         const rKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
-        const rCap = COUNTRIES_DATA[rKey].capitalCity;
-        if (rCap && rCap.trim() && rCap.toLowerCase() !== target.capitalCity.toLowerCase()) {
-          distractors.add(rCap);
+        const rData = COUNTRIES_DATA[rKey];
+        if (rData && this.isCleanCountryName(rData.name) && rData.capitalCity && rData.capitalCity.trim() && rData.capitalCity.toLowerCase() !== target.capitalCity.toLowerCase()) {
+          distractors.add(rData.capitalCity);
         }
       }
 

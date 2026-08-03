@@ -1,44 +1,32 @@
 <div class="maritime-page-container">
-  <!-- Live Global Maritime Telemetry Ticker Marquee -->
+  <!-- Top Telemetry Status Bar -->
   <div class="maritime-ticker-bar">
     <div class="ticker-label">
       <span class="radar-dot"></span>
-      <span>LIVE MARITIME TELEMETRY & AIS SATELLITE RADAR:</span>
+      <span>REAL-TIME AISSTREAM.IO SATELLITE FLEET RADAR:</span>
     </div>
     <div class="ticker-scroll">
       <div class="ticker-item">
-        <span class="lbl">BALTIC DRY INDEX:</span>
-        <span class="val">1,942 pts</span>
-        <span class="trend pos">+2.4%</span>
+        <span class="lbl">FEED STATUS:</span>
+        <span class="val" [style.color]="isAisStreamConnected ? '#10b981' : '#f59e0b'">
+          {{ isAisStreamConnected ? '🟢 LIVE WEBSOCKET ACTIVE (wss://stream.aisstream.io)' : '🟡 CONNECTING TO STREAM...' }}
+        </span>
       </div>
       <div class="ticker-item">
-        <span class="lbl">SCFI FREIGHT INDEX:</span>
-        <span class="val">$3,480 / TEU</span>
-        <span class="trend pos">+1.8%</span>
+        <span class="lbl">LIVE TRACKED AIS SHIPS:</span>
+        <span class="val cyan-txt" style="font-size: 0.92rem;">📡 {{ totalActiveVesselsCount | number }} Vessels</span>
       </div>
       <div class="ticker-item">
-        <span class="lbl">SUEZ CANAL:</span>
-        <span class="val">193.3 km • 1.27B Cargo Tons/Yr</span>
-        <span class="trend pos">100% Operational</span>
+        <span class="lbl">PINGS STREAMED:</span>
+        <span class="val green-txt">{{ aisPingCount | number }} Pings</span>
       </div>
       <div class="ticker-item">
-        <span class="lbl">PANAMA CANAL:</span>
-        <span class="val">82 km • 5 Lock Complexes</span>
-        <span class="trend warn">Draft 15.2m</span>
-      </div>
-      <div class="ticker-item">
-        <span class="lbl">STRAIT OF HORMUZ:</span>
-        <span class="val">20.5M bpd Crude • 21% Global Oil</span>
-        <span class="trend alert">Security Alert</span>
-      </div>
-      <div class="ticker-item">
-        <span class="lbl">STRAIT OF MALACCA:</span>
-        <span class="val">16.0M bpd Oil • 240 Ships/Day</span>
-        <span class="trend pos">Operational</span>
+        <span class="lbl">DATA INTEGRITY:</span>
+        <span class="val green-txt" style="font-weight: 700; color: #10b981;">🛡️ {{ qcStats.dataIntegrityPct }} QC VERIFIED</span>
       </div>
     </div>
-    <button (click)="openAisModal()" class="ais-badge-btn" title="Inspect AIS Satellite Network Settings">
-      📡 AIS Feed: {{ liveAisMode === 'simulated_live' ? 'Live Telemetry' : 'External API' }}
+    <button (click)="openAisModal()" class="ais-badge-btn" title="Inspect AIS Settings">
+      ⚙️ AISStream Key Settings
     </button>
     <button (click)="toggleAudio()" class="audio-toggle-btn" [class.muted]="audioMuted">
       {{ audioMuted ? '🔇 Audio Muted' : '🔊 SFX On' }}
@@ -50,138 +38,59 @@
     <div class="hero-title-group">
       <div class="header-status-pill">
         <span class="live-pulse"></span>
-        <span class="status-pill-text">PAGE 3 • 3D OCEANIC GIS & SEAROUTE-TS ENGINE</span>
+        <span class="status-pill-text">LIVE OCEANIC AIS SATELLITE TELEMETRY • REAL-TIME WEBSOCKET STREAM</span>
       </div>
-      <h1 class="hero-title">🚢 Interactive Maritime Routes & AIS Fleet Engine</h1>
-      <p class="hero-subtitle">Production-grade sea route calculations with land-avoidance routing, nautical mile distance analytics, World Canals, Strategic Bottlenecks, and IMO Fleet Radar.</p>
+      <h1 class="hero-title">🛰️ Real-Time Global Fleet Radar & Vessel Tracker</h1>
+      <p class="hero-subtitle">High-precision 3D WebGL map tracking real-world ocean ships and maritime fleet movement live from AISStream.io.</p>
     </div>
 
     <div class="hero-stats-box">
       <div class="stat-badge">
-        <span class="b-lbl">WORLD CANALS</span>
-        <span class="b-val highlight">{{ canals.length }} Major Canals</span>
+        <span class="b-lbl">LIVE SHIPS ON MAP</span>
+        <span class="b-val highlight" style="color: #34d399; font-size: 1.15rem;">📡 {{ totalActiveVesselsCount | number }} Vessels</span>
       </div>
       <div class="stat-badge">
-        <span class="b-lbl">STRATEGIC CHOKEPOINTS</span>
-        <span class="b-val">{{ chokepoints.length }} Bottlenecks</span>
+        <span class="b-lbl">SATELLITE PINGS</span>
+        <span class="b-val highlight">{{ aisPingCount | number }}</span>
       </div>
-      <div class="stat-badge">
-        <span class="b-lbl">TRACKED IMO FLEET</span>
-        <span class="b-val highlight">{{ vessels.length }} Vessels</span>
-      </div>
-      <button (click)="exportMaritimeGeoJson()" class="btn-primary-gis">
-        <span>📥 Export GeoJSON</span>
-      </button>
     </div>
   </header>
 
-  <!-- Interactive Real-World Sea Route Calculator Widget -->
-  <section class="route-calculator-card">
-    <div class="calculator-header">
-      <div class="calc-title-group">
-        <span class="calc-icon">⚡</span>
-        <div>
-          <h3 class="calc-title">Real Maritime Sea Route Planner (`searoute-ts`)</h3>
-          <p class="calc-sub">Select Origin & Destination ports to compute exact ocean shipping routes around landmasses and straits.</p>
-        </div>
-      </div>
-      <span class="engine-badge">SEAROUTE-TS ENGINE v2.2</span>
+  <!-- Symbol Guide & Quick Camera Fly-To Toolbar -->
+  <div class="maritime-symbol-toolbar">
+    <div class="symbol-guide-group">
+      <span class="guide-title">Map Symbols Guide:</span>
+      <span class="symbol-tag live"><span class="icon">📡</span> Live AIS Vessel (AISStream.io)</span>
+      <span class="symbol-tag ship"><span class="icon">🚢</span> Fleet Carrier</span>
+      <span class="symbol-tag port"><span class="icon">🏗️</span> Container Megaport</span>
+      <span class="symbol-tag chokepoint"><span class="icon">🚨</span> Strategic Bottleneck</span>
+      <span class="symbol-tag canal"><span class="icon">🏞️</span> World Canal</span>
     </div>
 
-    <div class="calculator-controls">
-      <div class="port-select-wrapper">
-        <label class="port-lbl">🚩 Origin Port:</label>
-        <select class="gis-select port-dropdown" [(ngModel)]="selectedOriginId" (change)="calculateSeaRoute()">
-          <option *ngFor="let p of availablePorts" [value]="p.id">{{ p.flag }} {{ p.name }} ({{ p.country }})</option>
-        </select>
-      </div>
-
-      <button class="swap-ports-btn" (click)="swapRoutePorts()" title="Swap Origin and Destination Ports">
-        ⇄
-      </button>
-
-      <div class="port-select-wrapper">
-        <label class="port-lbl">🏁 Destination Port:</label>
-        <select class="gis-select port-dropdown" [(ngModel)]="selectedDestinationId" (change)="calculateSeaRoute()">
-          <option *ngFor="let p of availablePorts" [value]="p.id">{{ p.flag }} {{ p.name }} ({{ p.country }})</option>
-        </select>
-      </div>
-
-      <button class="btn-calc-route" (click)="calculateSeaRoute()" [disabled]="isCalculatingRoute">
-        <span>{{ isCalculatingRoute ? '⌛ Calculating...' : '🗺️ Compute Sea Route' }}</span>
-      </button>
-    </div>
-
-    <!-- Calculated Route Telemetry Readout Pill Cards -->
-    <div *ngIf="calculatedDistanceNmi > 0" class="route-telemetry-grid">
-      <div class="route-stat-card">
-        <span class="r-lbl">SEA DISTANCE (NAUTICAL MILES)</span>
-        <span class="r-val cyan-txt">⚓ {{ calculatedDistanceNmi | number }} nmi</span>
-        <span class="r-sub">~{{ calculatedDistanceKm | number }} km</span>
-      </div>
-
-      <div class="route-stat-card">
-        <span class="r-lbl">ESTIMATED TRANSIT ETA</span>
-        <span class="r-val green-txt">⏱️ {{ calculatedEtaDays }} Days</span>
-        <span class="r-sub">Cruising at 18.0 Knots</span>
-      </div>
-
-      <div class="route-stat-card">
-        <span class="r-lbl">DETOUR RATIO VS GREAT CIRCLE</span>
-        <span class="r-val amber-txt">📐 {{ calculatedDetourRatio }}x</span>
-        <span class="r-sub">Land & Strait Avoidance</span>
-      </div>
-
-      <div class="route-stat-card">
-        <span class="r-lbl">ESTIMATED FUEL CO₂ FOOTPRINT</span>
-        <span class="r-val rose-txt">🌿 {{ calculatedCo2Tons | number }} Tons CO₂</span>
-        <span class="r-sub">Standard Container Carrier</span>
-      </div>
-    </div>
-  </section>
-
-  <!-- Cargo Fleet Filter & Quick Fly-To Bar -->
-  <div class="maritime-filter-bar">
-    <div class="cargo-filter-group">
-      <span class="filter-lbl">Vessel Fleet Filter:</span>
-      <button (click)="setCargoFilter('All')" [class.active]="selectedCargoFilter === 'All'" class="filter-pill">
-        🌐 All Fleet
-      </button>
-      <button (click)="setCargoFilter('Container')" [class.active]="selectedCargoFilter === 'Container'" class="filter-pill">
-        📦 Container Ships
-      </button>
-      <button (click)="setCargoFilter('Tanker')" [class.active]="selectedCargoFilter === 'Tanker'" class="filter-pill">
-        🛢️ Crude Tankers
-      </button>
-      <button (click)="setCargoFilter('LNG')" [class.active]="selectedCargoFilter === 'LNG'" class="filter-pill">
-        ⛽ LNG Carriers
-      </button>
-      <button (click)="setCargoFilter('Bulk')" [class.active]="selectedCargoFilter === 'Bulk'" class="filter-pill">
-        🌾 Dry Bulk
-      </button>
-    </div>
-
-    <!-- Quick Canal & Chokepoint Fly-To Pills -->
-    <div class="flyto-pills-group">
-      <span class="filter-lbl">Quick 3D Fly-To:</span>
-      <button (click)="selectCanal(canals[0])" class="fly-pill gold">🇪🇬 Suez Canal</button>
-      <button (click)="selectCanal(canals[1])" class="fly-pill gold">🇵🇦 Panama Canal</button>
-      <button (click)="selectChokepoint(chokepoints[0])" class="fly-pill cyan">🇸🇬 Malacca</button>
-      <button (click)="selectChokepoint(chokepoints[1])" class="fly-pill alert">🇦🇪 Hormuz</button>
-      <button (click)="selectChokepoint(chokepoints[3])" class="fly-pill cyan">🇬🇮 Gibraltar</button>
+    <div class="quick-flyto-group">
+      <span class="guide-title">Quick 3D Fly-To Hubs:</span>
+      <button (click)="flyToTarget(103.82, 1.35, 8, 45, 0)" class="fly-pill cyan">🇸🇬 Singapore</button>
+      <button (click)="flyToTarget(1.5, 51.0, 7.5, 45, 0)" class="fly-pill cyan">🇬🇮 English Channel</button>
+      <button (click)="flyToTarget(32.3, 30.5, 7.5, 45, 0)" class="fly-pill gold">🇪🇬 Suez Canal</button>
+      <button (click)="flyToTarget(101.5, 2.5, 7.5, 45, 0)" class="fly-pill alert">🇲🇾 Malacca</button>
+      <button (click)="flyToTarget(-118.24, 33.74, 7.5, 45, 0)" class="fly-pill cyan">🇺🇸 US Coast</button>
     </div>
   </div>
 
   <!-- 3D WEBGL MAP VIEWPORT CARD -->
-  <div class="map-viewport-card">
+  <div class="map-viewport-card main-radar-viewport">
     <div class="viewport-toolbar">
       <div class="viewport-title">
         <span class="live-indicator"></span>
         <span>MapLibre GL JS 3D WebGL Engine</span>
-        <span class="active-mode-badge">MARITIME ROUTES 3D</span>
+        <span class="active-mode-badge" style="background: rgba(16, 185, 129, 0.2); color: #10b981; border-color: #10b981;">
+          {{ isAisStreamConnected ? '🟢 REAL-TIME AIS STREAMING' : '🟡 WEBSOCKET STANDBY' }}
+        </span>
       </div>
 
       <div class="telemetry-readout">
+        <span>TRACKED <strong class="telemetry-val" style="color: #34d399;">📡 {{ trackedLiveVesselCount | number }}</strong></span>
+        <span class="telemetry-divider">•</span>
         <span>LAT <strong class="telemetry-val">{{ currentLat.toFixed(4) }}°</strong></span>
         <span class="telemetry-divider">•</span>
         <span>LNG <strong class="telemetry-val">{{ currentLng.toFixed(4) }}°</strong></span>
@@ -195,84 +104,61 @@
       <div #mapCanvas id="maplibre-canvas"></div>
 
       <!-- Floating Telemetry Inspector Dock Card -->
-      <div *ngIf="selectedCanal || selectedChokepoint || selectedVessel || selectedPort" class="selected-detail-card">
+      <div *ngIf="selectedLiveAisVessel || selectedVessel || selectedCanal || selectedChokepoint || selectedPort" class="selected-detail-card">
         
-        <!-- 1. CANAL DOCK -->
-        <div *ngIf="selectedCanal" class="dock-content">
+        <!-- 1. LIVE AISSTREAM VESSEL DOCK -->
+        <div *ngIf="selectedLiveAisVessel" class="dock-content">
           <div class="detail-card-header">
             <div class="detail-card-title">
-              <h3>{{ selectedCanal.flag }} {{ selectedCanal.name }}</h3>
-              <span class="detail-card-badge">{{ selectedCanal.waterwayType }}</span>
+              <h3>{{ selectedLiveAisVessel.vesselIcon || '🚢' }} {{ selectedLiveAisVessel.shipName }}</h3>
+              <span class="detail-card-badge" style="color: #34d399; border-color: #34d399;">🛡️ 100% QC VERIFIED</span>
             </div>
-            <button class="close-card-btn" (click)="selectedCanal = null">✖</button>
+            <button class="close-card-btn" (click)="selectedLiveAisVessel = null">✖</button>
           </div>
 
           <div class="detail-card-body">
             <div class="detail-card-row">
-              <span class="detail-card-lbl">Host Nation:</span>
-              <span class="detail-card-val">{{ selectedCanal.country }}</span>
+              <span class="detail-card-lbl">Vessel Classification:</span>
+              <span class="detail-card-val" style="color: #38bdf8; font-weight: 700;">{{ selectedLiveAisVessel.vesselIcon || '🚢' }} {{ selectedLiveAisVessel.vesselTypeName || 'Cargo Fleet Carrier' }}</span>
             </div>
             <div class="detail-card-row">
-              <span class="detail-card-lbl">Length / Locks:</span>
-              <span class="detail-card-val">{{ selectedCanal.lengthKm }} • {{ selectedCanal.lockCount }} Locks</span>
+              <span class="detail-card-lbl">Flag State Nation:</span>
+              <span class="detail-card-val" style="color: #60a5fa; font-weight: 600;">{{ selectedLiveAisVessel.countryFlag || '🌐' }} {{ selectedLiveAisVessel.country || 'International' }}</span>
             </div>
             <div class="detail-card-row">
-              <span class="detail-card-lbl">Annual Transits:</span>
-              <span class="detail-card-val">{{ selectedCanal.annualVessels }} Ships</span>
+              <span class="detail-card-lbl">MMSI Identification:</span>
+              <span class="detail-card-val" style="color: #00f2fe; font-family: 'JetBrains Mono', monospace;">{{ selectedLiveAisVessel.mmsi }}</span>
             </div>
             <div class="detail-card-row">
-              <span class="detail-card-lbl">Max Permissible Draft:</span>
-              <span class="detail-card-val">{{ selectedCanal.maxDraftMeters }}m Draft</span>
+              <span class="detail-card-lbl">Speed Over Ground (SOG):</span>
+              <span class="detail-card-val">{{ selectedLiveAisVessel.speedKnots }} Knots</span>
             </div>
-            <p class="detail-card-summary">{{ selectedCanal.summary }}</p>
+            <div class="detail-card-row">
+              <span class="detail-card-lbl">Course & Heading:</span>
+              <span class="detail-card-val">{{ selectedLiveAisVessel.courseDeg }}° Course / {{ selectedLiveAisVessel.headingDeg }}° Heading</span>
+            </div>
+            <div class="detail-card-row">
+              <span class="detail-card-lbl">Real-Time Coordinates:</span>
+              <span class="detail-card-val" style="color: #34d399;">📍 {{ selectedLiveAisVessel.latitude }}°, {{ selectedLiveAisVessel.longitude }}°</span>
+            </div>
+            <div class="detail-card-row">
+              <span class="detail-card-lbl">Timestamp (UTC):</span>
+              <span class="detail-card-val" style="font-size: 0.75rem;">{{ selectedLiveAisVessel.timeUtc }}</span>
+            </div>
           </div>
 
-          <div class="detail-card-actions">
-            <button class="card-action-btn" (click)="openLocationInGeoLibre(selectedCanal.coordinates.lat, selectedCanal.coordinates.lng, 8)">
-              🌐 View in 3D GeoLibre Map
+          <div class="detail-card-actions" style="display: flex; flex-direction: column; gap: 8px;">
+            <button class="card-action-btn" (click)="openLocationInGeoLibre(selectedLiveAisVessel.latitude, selectedLiveAisVessel.longitude, 8)">
+              🌐 Track in 3D GeoLibre Map
+            </button>
+            <button class="card-action-btn" (click)="openVesselCrossVerification(selectedLiveAisVessel)" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); border-color: #38bdf8;">
+              🔗 Cross-Verify on VesselFinder
             </button>
           </div>
         </div>
 
-        <!-- 2. CHOKEPOINT DOCK -->
-        <div *ngIf="selectedChokepoint" class="dock-content">
-          <div class="detail-card-header">
-            <div class="detail-card-title">
-              <h3>⚓ {{ selectedChokepoint.name }}</h3>
-              <span class="detail-card-badge" [style.color]="selectedChokepoint.statusColor">{{ selectedChokepoint.status }}</span>
-            </div>
-            <button class="close-card-btn" (click)="selectedChokepoint = null">✖</button>
-          </div>
-
-          <div class="detail-card-body">
-            <div class="detail-card-row">
-              <span class="detail-card-lbl">Territorial Waters:</span>
-              <span class="detail-card-val">{{ selectedChokepoint.country }}</span>
-            </div>
-            <div class="detail-card-row">
-              <span class="detail-card-lbl">Daily Transits:</span>
-              <span class="detail-card-val">{{ selectedChokepoint.dailyVessels }} Ships / Day</span>
-            </div>
-            <div class="detail-card-row">
-              <span class="detail-card-lbl">Oil Throughput:</span>
-              <span class="detail-card-val" style="color: #f59e0b; font-weight: 800;">{{ selectedChokepoint.dailyOilBarrels }}</span>
-            </div>
-            <div class="detail-card-row">
-              <span class="detail-card-lbl">Trade Volume:</span>
-              <span class="detail-card-val">{{ selectedChokepoint.cargoVolume }}</span>
-            </div>
-            <p class="detail-card-summary">{{ selectedChokepoint.summary }}</p>
-          </div>
-
-          <div class="detail-card-actions">
-            <button class="card-action-btn" (click)="openLocationInGeoLibre(selectedChokepoint.coordinates.lat, selectedChokepoint.coordinates.lng, 8)">
-              🌐 View in 3D GeoLibre Map
-            </button>
-          </div>
-        </div>
-
-        <!-- 3. VESSEL DOCK -->
-        <div *ngIf="selectedVessel" class="dock-content">
+        <!-- 2. SIMULATED FLEET VESSEL DOCK -->
+        <div *ngIf="selectedVessel && !selectedLiveAisVessel" class="dock-content">
           <div class="detail-card-header">
             <div class="detail-card-title">
               <h3>🚢 {{ selectedVessel.name }}</h3>
@@ -295,49 +181,45 @@
               <span class="detail-card-val">{{ selectedVessel.flagEmoji }} {{ selectedVessel.flagName }}</span>
             </div>
             <div class="detail-card-row">
-              <span class="detail-card-lbl">Capacity / Tonnage:</span>
-              <span class="detail-card-val">{{ selectedVessel.capacityTEU }} ({{ selectedVessel.dwtTons ? selectedVessel.dwtTons.toLocaleString() + ' DWT' : '' }})</span>
-            </div>
-            <div class="detail-card-row">
               <span class="detail-card-lbl">Telemetry Speed:</span>
               <span class="detail-card-val">{{ selectedVessel.speedKnots }} Knots @ {{ selectedVessel.headingDeg.toFixed(0) }}°</span>
             </div>
-            <div class="detail-card-row" *ngIf="selectedVessel.currentLat">
-              <span class="detail-card-lbl">GPS Coordinates:</span>
-              <span class="detail-card-val" style="color: #34d399;">📍 {{ selectedVessel.currentLat }}°N, {{ selectedVessel.currentLng }}°E</span>
-            </div>
-          </div>
-
-          <div class="detail-card-actions" *ngIf="selectedVessel.currentLat">
-            <button class="card-action-btn" (click)="openLocationInGeoLibre(selectedVessel.currentLat, selectedVessel.currentLng, 7)">
-              🌐 Track in 3D GeoLibre Map
-            </button>
           </div>
         </div>
 
-        <!-- 4. PORT DOCK -->
-        <div *ngIf="selectedPort" class="dock-content">
+        <!-- 3. CANAL DOCK -->
+        <div *ngIf="selectedCanal && !selectedLiveAisVessel && !selectedVessel" class="dock-content">
           <div class="detail-card-header">
             <div class="detail-card-title">
-              <h3>🏗️ {{ selectedPort.flag }} {{ selectedPort.name }}</h3>
-              <span class="detail-card-badge">{{ selectedPort.status }}</span>
+              <h3>{{ selectedCanal.flag }} {{ selectedCanal.name }}</h3>
+              <span class="detail-card-badge">{{ selectedCanal.waterwayType }}</span>
             </div>
-            <button class="close-card-btn" (click)="selectedPort = null">✖</button>
+            <button class="close-card-btn" (click)="selectedCanal = null">✖</button>
           </div>
-
           <div class="detail-card-body">
             <div class="detail-card-row">
-              <span class="detail-card-lbl">Country:</span>
-              <span class="detail-card-val">{{ selectedPort.country }}</span>
+              <span class="detail-card-lbl">Host Nation:</span>
+              <span class="detail-card-val">{{ selectedCanal.country }}</span>
             </div>
+            <p class="detail-card-summary">{{ selectedCanal.summary }}</p>
+          </div>
+        </div>
+
+        <!-- 4. CHOKEPOINT DOCK -->
+        <div *ngIf="selectedChokepoint && !selectedLiveAisVessel && !selectedVessel" class="dock-content">
+          <div class="detail-card-header">
+            <div class="detail-card-title">
+              <h3>⚓ {{ selectedChokepoint.name }}</h3>
+              <span class="detail-card-badge" [style.color]="selectedChokepoint.statusColor">{{ selectedChokepoint.status }}</span>
+            </div>
+            <button class="close-card-btn" (click)="selectedChokepoint = null">✖</button>
+          </div>
+          <div class="detail-card-body">
             <div class="detail-card-row">
-              <span class="detail-card-lbl">Annual Throughput:</span>
-              <span class="detail-card-val" style="color: #00f2fe;">{{ selectedPort.annualTEU }}</span>
+              <span class="detail-card-lbl">Territorial Waters:</span>
+              <span class="detail-card-val">{{ selectedChokepoint.country }}</span>
             </div>
-            <div class="detail-card-row">
-              <span class="detail-card-lbl">Congestion Index:</span>
-              <span class="detail-card-val">{{ selectedPort.congestionIndex }} / 100</span>
-            </div>
+            <p class="detail-card-summary">{{ selectedChokepoint.summary }}</p>
           </div>
         </div>
       </div>
@@ -348,11 +230,14 @@
   <div class="control-bar">
     <div class="basemap-switcher">
       <span class="switcher-title">Basemap Style:</span>
+      <button class="style-btn" [class.active]="activeStyleId === 'satellite'" (click)="switchBasemapStyle('satellite')">
+        🛰️ Satellite
+      </button>
       <button class="style-btn" [class.active]="activeStyleId === 'dark'" (click)="switchBasemapStyle('dark')">
         🌙 Dark
       </button>
-      <button class="style-btn" [class.active]="activeStyleId === 'satellite'" (click)="switchBasemapStyle('satellite')">
-        🛰️ Satellite
+      <button class="style-btn" [class.active]="activeStyleId === 'vector'" (click)="switchBasemapStyle('vector')">
+        🗺️ OSM Vector
       </button>
       <button class="style-btn" [class.active]="activeStyleId === 'topo'" (click)="switchBasemapStyle('topo')">
         ⛰️ Topo
@@ -386,40 +271,39 @@
   <div *ngIf="isAisModalOpen" class="ais-modal-overlay" (click)="closeAisModal()">
     <div class="ais-modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>📡 Live Satellite AIS Telemetry Feed Settings</h3>
+        <h3>📡 AISStream.io WebSocket Telemetry Stream Settings</h3>
         <button (click)="closeAisModal()" class="close-modal-btn">✖</button>
       </div>
       <div class="modal-body">
         <p class="modal-desc">
-          Real-time global vessel tracking relies on <strong>AIS (Automatic Identification System)</strong> satellite & VHF receiver networks.
+          Real-time global vessel tracking powered by your active <strong>AISStream.io</strong> WebSocket connection.
         </p>
 
-        <div class="ais-mode-selector">
-          <label class="mode-radio-card" [class.active]="liveAisMode === 'simulated_live'">
-            <input type="radio" name="aisMode" value="simulated_live" [(ngModel)]="liveAisMode">
-            <div class="radio-text">
-              <strong>🛰️ High-Precision Satellite AIS Telemetry Engine</strong>
-              <span>Real-time GPS coordinate calculation, verified IMO/MMSI lookup codes, and live knot speed telemetry.</span>
-            </div>
-          </label>
+        <div class="api-key-input-box">
+          <label>AISStream.io API Key:</label>
+          <input type="text" [(ngModel)]="customAisApiKey" placeholder="e.g. 4b8a931efb8b56555196a3102f730916479f77d9" class="ais-api-input">
 
-          <label class="mode-radio-card" [class.active]="liveAisMode === 'custom_api'">
-            <input type="radio" name="aisMode" value="custom_api" [(ngModel)]="liveAisMode">
-            <div class="radio-text">
-              <strong>🔌 External Live Commercial AIS API Endpoint</strong>
-              <span>Connect your own paid API key for live raw satellite AIS WebSocket data streams.</span>
-            </div>
-          </label>
+          <div class="ais-stream-actions">
+            <button class="btn-connect-ws" (click)="connectAisStream()" [disabled]="isAisStreamConnected">
+              {{ isAisStreamConnected ? '🟢 WebSocket Stream Connected' : '🔌 Re-Connect AISStream.io WebSocket' }}
+            </button>
+            <button *ngIf="isAisStreamConnected" class="btn-disconnect-ws" (click)="disconnectAisStream()">
+              🔴 Disconnect
+            </button>
+          </div>
         </div>
 
-        <div *ngIf="liveAisMode === 'custom_api'" class="api-key-input-box">
-          <label>Enter AISHub / MarineTraffic / Spire API Key:</label>
-          <input type="text" [(ngModel)]="customAisApiKey" placeholder="e.g. ais_live_key_9847294..." class="ais-api-input">
-        </div>
-
-        <div class="modal-footer-stats">
-          <span>Active Telemetry Pings: <strong>{{ aisPingCount | number }}</strong></span>
-          <span>Sync Status: <strong style="color: #10b981;">100% Operational</strong></span>
+        <div class="modal-footer-stats" style="display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; font-size: 0.88rem;">
+            <span>Telemetry Pings Streamed: <strong>{{ aisPingCount | number }}</strong></span>
+            <span>Data Integrity Score: <strong style="color: #10b981;">🛡️ {{ qcStats.dataIntegrityPct }} QC VERIFIED</strong></span>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; background: rgba(15, 23, 42, 0.6); padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.1); font-size: 0.8rem;">
+            <div>Unique Live Fleets: <strong style="color: #38bdf8;">📡 {{ qcStats.uniqueVessels | number }}</strong></div>
+            <div>Valid Telemetry Packets: <strong style="color: #34d399;">{{ qcStats.validPackets | number }}</strong></div>
+            <div>Null Island (0,0) Rejections: <strong style="color: #ef4444;">{{ qcStats.nullIslandErrors }}</strong></div>
+            <div>Speed Anomaly Spikes (>50kts): <strong style="color: #f59e0b;">{{ qcStats.speedErrors }}</strong></div>
+          </div>
         </div>
       </div>
     </div>

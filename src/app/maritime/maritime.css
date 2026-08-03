@@ -1,3 +1,5 @@
+@import 'maplibre-gl/dist/maplibre-gl.css';
+
 /* ==========================================================================
    Page 3: Maritime Routes - 3D GIS & Searoute-TS Telemetry Engine CSS
    ========================================================================== */
@@ -458,7 +460,7 @@
 /* --------------------------------------------------------------------------
    3D Map Viewport Frame & MapLibre Canvas
    -------------------------------------------------------------------------- */
-.map-viewport-card {
+.map-viewport-card, .main-radar-viewport {
   position: relative;
   background: rgba(4, 8, 16, 0.88);
   border: 1px solid rgba(0, 242, 254, 0.22);
@@ -467,9 +469,34 @@
   box-shadow: 
     inset 0 1px 1px rgba(255, 255, 255, 0.15),
     0 18px 50px rgba(0, 0, 0, 0.75);
-  min-height: 600px;
+  min-height: 640px;
   display: flex;
   flex-direction: column;
+}
+
+.maplibre-canvas-container {
+  position: relative;
+  width: 100%;
+  height: 600px;
+  min-height: 600px;
+  background: #030712;
+}
+
+#maplibre-canvas {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.maplibre-canvas-container .maplibregl-map,
+.maplibre-canvas-container .maplibregl-canvas-container,
+.maplibre-canvas-container canvas {
+  width: 100% !important;
+  height: 100% !important;
 }
 
 .viewport-toolbar {
@@ -531,10 +558,9 @@
 
 .maplibre-canvas-container {
   position: relative;
-  flex: 1;
   width: 100%;
-  height: 100%;
-  min-height: 540px;
+  height: 640px;
+  min-height: 640px;
   background: #030712;
 }
 
@@ -546,9 +572,11 @@
   right: 0;
   width: 100%;
   height: 100%;
+  min-height: 640px;
+  display: block;
 }
 
-/* Custom 3D Map Markers */
+/* Custom 3D Map Markers & Ship Logos */
 .custom-3d-marker {
   font-size: 1.4rem;
   cursor: pointer;
@@ -558,6 +586,38 @@
 
 .custom-3d-marker:hover {
   transform: scale(1.3);
+}
+
+.ship-marker-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(6, 11, 25, 0.9);
+  border: 1.5px solid #00f2fe;
+  border-radius: 9999px;
+  padding: 3px 8px;
+  box-shadow: 0 0 14px rgba(0, 242, 254, 0.65), 0 4px 12px rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(10px);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.ship-marker-badge:hover {
+  transform: scale(1.35) translateY(-3px);
+  border-color: #34d399;
+  background: rgba(16, 185, 129, 0.25);
+  box-shadow: 0 0 22px #34d399, 0 6px 16px rgba(0, 0, 0, 0.9);
+}
+
+.ship-icon {
+  font-size: 1.15rem;
+  line-height: 1;
+  filter: drop-shadow(0 0 6px rgba(0, 242, 254, 0.8));
+}
+
+.flag-tag {
+  font-size: 0.85rem;
+  line-height: 1;
 }
 
 /* Selected Detail Telemetry Dock Card */
@@ -905,3 +965,169 @@
   padding-top: 0.85rem;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
+
+/* --------------------------------------------------------------------------
+   Live AISStream.io Marker & WebSocket Action Buttons
+   -------------------------------------------------------------------------- */
+.custom-3d-marker.live-ais-marker {
+  font-size: 1.5rem;
+  filter: drop-shadow(0 0 12px #34d399);
+  animation: aisPulse 2s infinite alternate;
+}
+
+@keyframes aisPulse {
+  0% { transform: scale(1.0); }
+  100% { transform: scale(1.25); }
+}
+
+.ais-stream-actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.6rem;
+}
+
+.btn-connect-ws {
+  flex: 1;
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  padding: 0.65rem 1.2rem;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+}
+
+.btn-connect-ws:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 0 22px rgba(16, 185, 129, 0.7);
+}
+
+.btn-connect-ws:disabled {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: #10b981;
+  color: #34d399;
+  cursor: default;
+}
+
+.btn-disconnect-ws {
+  background: rgba(239, 68, 68, 0.2);
+  border: 1px solid #ef4444;
+  color: #f87171;
+  padding: 0.65rem 1.2rem;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-disconnect-ws:hover {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   Symbol Guide & Quick Fly-To Toolbar CSS
+   -------------------------------------------------------------------------- */
+.maritime-symbol-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  background: rgba(11, 15, 26, 0.85);
+  border: 1px solid rgba(0, 242, 254, 0.25);
+  border-radius: 20px;
+  padding: 0.9rem 1.4rem;
+  backdrop-filter: blur(20px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+}
+
+.symbol-guide-group, .quick-flyto-group {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.guide-title {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-right: 0.3rem;
+}
+
+.symbol-tag {
+  background: rgba(22, 30, 48, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  padding: 0.35rem 0.8rem;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.symbol-tag.live {
+  border-color: rgba(52, 211, 153, 0.4);
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+}
+
+.symbol-tag .icon { font-size: 0.95rem; }
+
+/* --------------------------------------------------------------------------
+   MarineTraffic Style Directional Vessel Arrow Markers
+   -------------------------------------------------------------------------- */
+.marinetraffic-vessel-marker {
+  cursor: pointer;
+  z-index: 100;
+  transition: transform 0.2s ease, z-index 0.2s ease;
+}
+
+.marinetraffic-vessel-marker:hover {
+  z-index: 9999 !important;
+}
+
+.marinetraffic-badge {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: rgba(11, 15, 26, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 9999px;
+  padding: 2px 6px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+  transition: all 0.2s ease;
+}
+
+.marinetraffic-badge:hover {
+  transform: scale(1.4);
+  border-color: #00f2fe;
+  background: rgba(11, 15, 26, 0.95);
+  box-shadow: 0 0 16px rgba(0, 242, 254, 0.7);
+}
+
+.marinetraffic-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.3s ease;
+  filter: drop-shadow(0 1px 3px rgba(0,0,0,0.8));
+}
+
+.marinetraffic-flag {
+  font-size: 0.85rem;
+  line-height: 1;
+}
+
+
+
