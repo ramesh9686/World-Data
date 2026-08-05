@@ -272,18 +272,48 @@
       </div>
 
       <div class="oldmaps-grid">
-        <div *ngFor="let mapItem of historicalMapsList" class="oldmap-card">
+        <div *ngFor="let mapItem of historicalMapsList; let i = index" class="oldmap-card" (click)="openMapDetail(mapItem)">
           <div class="map-thumb-box">
-            <img [src]="mapItem.thumbnailUrl" [alt]="mapItem.title" class="map-thumb-img" />
+            <img [src]="mapItem.thumbnailUrl" (error)="handleMapImageError($event, i)" [alt]="mapItem.title" class="map-thumb-img" />
             <span class="map-year-tag">c. {{ mapItem.year }}</span>
+            <div class="map-hover-overlay">
+              <span>🔍 Click to Inspect Map</span>
+            </div>
           </div>
           <div class="map-card-info">
             <h4 class="map-title">{{ mapItem.title }}</h4>
             <span class="map-publisher">🏛️ {{ mapItem.publisher }}</span>
-            <a [href]="mapItem.recordUrl" target="_blank" rel="noopener" class="map-link-btn">
-              📖 View Archival Record ➔
-            </a>
+            <div class="map-actions-row">
+              <button class="map-inspect-btn" (click)="$event.stopPropagation(); openMapDetail(mapItem)">
+                🔎 Inspect High-Res JPG
+              </button>
+              <a [href]="mapItem.recordUrl" target="_blank" rel="noopener" (click)="$event.stopPropagation()" class="map-link-btn">
+                📖 Record ➔
+              </a>
+            </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- High-Resolution Archival Map Detail Modal -->
+    <div *ngIf="selectedArchivalMap" class="map-modal-backdrop" (click)="closeMapDetail()">
+      <div class="map-modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div>
+            <h3 class="modal-title">🗺️ {{ selectedArchivalMap.title }}</h3>
+            <p class="modal-subtitle">c. {{ selectedArchivalMap.year }} • {{ selectedArchivalMap.publisher }}</p>
+          </div>
+          <button class="modal-close-btn" (click)="closeMapDetail()">✖</button>
+        </div>
+        <div class="modal-body-image-wrap">
+          <img [src]="selectedArchivalMap.thumbnailUrl" (error)="handleMapImageError($event, 0)" [alt]="selectedArchivalMap.title" class="modal-highres-img" />
+        </div>
+        <div class="modal-footer">
+          <a [href]="selectedArchivalMap.recordUrl" target="_blank" rel="noopener" class="modal-external-link">
+            🌐 Open Archival Source Catalog Entry ➔
+          </a>
+          <button class="modal-done-btn" (click)="closeMapDetail()">Close Inspection</button>
         </div>
       </div>
     </div>

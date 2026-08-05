@@ -1,16 +1,77 @@
 <div class="pure-3d-model-container">
+  <!-- Top Floating World Data API Telemetry & Indicators Bar -->
+  <header class="home-indicators-top-bar">
+    <div class="indicators-brand">
+      <span class="pulse-indicator-dot"></span>
+      <div>
+        <h2 class="hub-title">🌐 WORLD DATA API INDICATORS HUB</h2>
+        <p class="hub-subtitle">29,500+ Real-Time Indicators • World Bank • WHO • UN SDG API</p>
+      </div>
+    </div>
+
+    <!-- Quick Preset Chips -->
+    <div class="preset-chips-scroll">
+      <button
+        *ngFor="let preset of featuredPresets"
+        class="preset-chip-pill"
+        [class.active]="selectedIndicatorId === preset.id"
+        (click)="selectFeaturedPreset(preset); $event.stopPropagation()"
+      >
+        <span class="chip-icon">{{ preset.icon }}</span>
+        <span class="chip-label">{{ preset.label }}</span>
+      </button>
+    </div>
+
+    <button class="open-drawer-btn" (click)="toggleIndicatorDrawer(); $event.stopPropagation()">
+      <span>🔍 29,500+ Indicators</span>
+    </button>
+  </header>
+
+  <!-- Floating Telemetry Sparkline Card (Top-Left Overlay) -->
+  <div class="floating-telemetry-card" (click)="$event.stopPropagation()">
+    <div class="card-country-header">
+      <div class="country-badge-row">
+        <span class="country-name-title">📊 {{ selectedCountryName }}</span>
+        <span class="indicator-year-tag">c. {{ latestYear }}</span>
+      </div>
+      <h4 class="indicator-name-txt">{{ selectedIndicatorName }}</h4>
+    </div>
+
+    <div class="card-metric-row">
+      <div *ngIf="isLoadingIndicator" class="loading-indicator-txt">
+        <span>🔄 Loading World Data API...</span>
+      </div>
+
+      <div *ngIf="!isLoadingIndicator" class="metric-value-box">
+        <span class="metric-num">{{ latestValueFormatted }}</span>
+        <span class="metric-sub">Latest Reported Telemetry</span>
+      </div>
+    </div>
+
+    <!-- Live SVG Sparkline Trend Graph -->
+    <div *ngIf="!isLoadingIndicator && sparklineSvgPath" class="sparkline-wrapper">
+      <svg width="280" height="50" class="sparkline-svg">
+        <path [attr.d]="sparklineSvgPath" fill="none" stroke="#f59e0b" stroke-width="2.5" stroke-linecap="round" />
+      </svg>
+      <div class="sparkline-labels">
+        <span>{{ indicatorDataPoints[0]?.year }}</span>
+        <span>{{ indicatorDataPoints[indicatorDataPoints.length - 1]?.year }}</span>
+      </div>
+    </div>
+  </div>
+
   <!-- Full-Screen Container Overlay with Launch Badge -->
   <div class="globe-click-overlay">
     <!-- Bottom Floating Launch Hint Badge -->
     <div class="globe-launch-hint-badge" (click)="enterWorldData()" title="Click to launch World Data 3D Explorer">
       <span class="pulse-dot"></span>
       <span class="hint-icon">🌐</span>
-      <span class="hint-text">Drag & Rotate 3D Globe | Click Here to Open World Data</span>
+      <span class="hint-text">Drag & Rotate 3D Globe | Click Here to Open Full World Data Explorer</span>
       <span class="hint-arrow">➔</span>
     </div>
   </div>
 
-  <!-- Right Side & Middle Ultra-Compact Icon Dock with AM/PM Time Badge -->
+  <!-- Right Side Icon Dock -->
   <aside class="right-icon-dock">
     <div class="time-badge" [title]="'Auto-detected client time: ' + detectedTimeString">
       <span class="time-badge-text">{{ detectedTimeString }}</span>
@@ -20,7 +81,7 @@
       class="icon-dock-btn"
       [class.active]="activeModelId === 'model1'"
       (click)="selectModel('model1'); $event.stopPropagation()"
-      title="Day Mode 3D Model 1 (Active for AM/Day hours)"
+      title="Day Mode 3D Model 1"
     >
       ☀️
     </button>
@@ -28,7 +89,7 @@
       class="icon-dock-btn"
       [class.active]="activeModelId === 'model2'"
       (click)="selectModel('model2'); $event.stopPropagation()"
-      title="Night Mode 3D Model 2 (Active for PM/Night hours)"
+      title="Night Mode 3D Model 2"
     >
       🌙
     </button>
@@ -41,6 +102,84 @@
       🪐
     </button>
   </aside>
+
+  <!-- Interactive Indicator Drawer Overlay -->
+  <div *ngIf="isIndicatorDrawerOpen" class="indicator-drawer-backdrop" (click)="toggleIndicatorDrawer()">
+    <div class="indicator-drawer-content" (click)="$event.stopPropagation()">
+      <div class="drawer-header">
+        <div>
+          <h3 class="drawer-title">📊 World Data API • 29,500+ Global Indicators Explorer</h3>
+          <p class="drawer-subtitle">Direct access to World Bank, World Health Organization (WHO), and UN SDG Datasets</p>
+        </div>
+        <button class="drawer-close-btn" (click)="toggleIndicatorDrawer()">✖</button>
+      </div>
+
+      <!-- Topic Selector Pills -->
+      <div class="topics-pills-bar">
+        <button
+          *ngFor="let topic of wbTopics"
+          class="topic-pill"
+          [class.active]="selectedTopicId === topic.id"
+          (click)="selectTopic(topic.id)"
+        >
+          <span>{{ topic.icon }} {{ topic.name }}</span>
+        </button>
+      </div>
+
+      <!-- Indicator & Country Selectors -->
+      <div class="drawer-controls-row">
+        <div class="control-box">
+          <label>Select Indicator:</label>
+          <select [ngModel]="selectedIndicatorId" (change)="selectIndicatorFromDropdown($event)" class="drawer-select">
+            <option *ngFor="let ind of activeIndicatorsList" [value]="ind.id">
+              {{ ind.name }} ({{ ind.id }})
+            </option>
+          </select>
+        </div>
+
+        <div class="control-box">
+          <label>Select Country:</label>
+          <div class="country-chips-row">
+            <button
+              *ngFor="let c of popularCountries"
+              class="c-chip"
+              [class.active]="selectedCountryCode === c.code"
+              (click)="selectCountry(c.code)"
+            >
+              <span>{{ c.flag }} {{ c.name }}</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data Points Table & Summary -->
+      <div class="drawer-body-data">
+        <div class="data-summary-bar">
+          <span>Active: <strong>{{ selectedCountryName }}</strong> • <strong>{{ selectedIndicatorName }}</strong></span>
+          <button class="btn-launch-map" (click)="enterWorldData()">🌍 Launch Full 3D Map View ➔</button>
+        </div>
+
+        <div class="data-points-table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Year</th>
+                <th>Reported Value</th>
+                <th>Indicator Source Code</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let pt of indicatorDataPoints">
+                <td class="year-td">{{ pt.year }}</td>
+                <td class="value-td">{{ pt.value !== null ? pt.value.toLocaleString() : 'N/A' }}</td>
+                <td class="code-td">{{ selectedIndicatorId }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <!-- 3D Earth Model 1 Iframe (Day Mode Photorealistic) -->
   <iframe

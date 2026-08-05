@@ -13,7 +13,7 @@ describe('GeoJsonExportService', () => {
     const firstFeature = geojson.features[0];
     expect(firstFeature.type).toBe('Feature');
     expect(firstFeature.geometry.type).toBe('Point');
-    expect(firstFeature.properties.name).toBeDefined();
+    expect(firstFeature.properties['name']).toBeDefined();
   });
 
   it('should export maritime dataset as valid GeoJSON FeatureCollection', () => {

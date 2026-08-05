@@ -230,6 +230,24 @@ export class EmpiresComponent implements OnInit {
     }
   }
 
+  handleMapImageError(event: Event, index: number = 0): void {
+    const imgElement = event.target as HTMLImageElement;
+    if (imgElement) {
+      const fallbackIdx = (index % 6) + 1;
+      imgElement.src = `/assets/vintage-maps/vintage-map-${fallbackIdx}.jpg`;
+    }
+  }
+
+  openMapDetail(mapItem: HistoricalMapItem): void {
+    this.selectedArchivalMap = mapItem;
+    this.cdr.markForCheck();
+  }
+
+  closeMapDetail(): void {
+    this.selectedArchivalMap = null;
+    this.cdr.markForCheck();
+  }
+
   onYearInputChange(event: Event): void {
     const val = parseInt((event.target as HTMLInputElement).value, 10);
     if (!isNaN(val)) {
