@@ -1,307 +1,375 @@
-<div class="spatial-sql-page">
-  <!-- Header Banner -->
-  <header class="sql-header-banner">
-    <div class="header-brand">
-      <span class="header-icon">⚡</span>
-      <div>
-        <h1 class="header-title">DUCKDB WASM SPATIAL ENGINE</h1>
-        <p class="header-subtitle">Visual SQL Builder • Step-by-Step Iterations • No Coding Required • Integrated GIS Map Canvas</p>
+<div class="spatial-sql-container">
+  <!-- Page Header Hero Section -->
+  <header class="spatial-header">
+    <div class="spatial-title-group">
+      <div class="spatial-badge">
+        <span class="pulse-dot"></span>
+        <span>PAGE 7 • DUCKDB WASM & WORLD DATA API ENGINE</span>
       </div>
-    </div>
-    <div class="header-telemetry-badge">
-      <span class="duckdb-badge">DUCKDB WASM v1.28</span>
-      <span class="query-time-chip">⚡ Execution: <strong>{{ queryExecutionTime }}</strong></span>
+      <h1 class="header-h1">⚡ World Data API & Spatial SQL Query Workbench</h1>
+      <p class="header-sub">Iterative World Data API Feed, Visual Query Builder, and Spatial DuckDB Analytics.</p>
     </div>
   </header>
 
-  <!-- Workbench Navigation Mode Bar -->
-  <div class="workbench-mode-tabs">
+  <!-- Workbench Mode Tabs Bar -->
+  <div class="workbench-tabs-bar">
     <button
-      class="mode-tab-btn"
+      class="tab-btn"
+      [class.active]="activeWorkbenchTab === 'world_data_api'"
+      (click)="setWorkbenchTab('world_data_api')"
+    >
+      <span>🌐 World Data API Feed (29,500+ Indicators)</span>
+    </button>
+
+    <button
+      class="tab-btn"
       [class.active]="activeWorkbenchTab === 'builder'"
       (click)="setWorkbenchTab('builder')"
     >
-      🎛️ Visual Builder (No Code Needed)
+      <span>🎛️ Visual Query Builder</span>
     </button>
 
     <button
-      class="mode-tab-btn"
+      class="tab-btn"
       [class.active]="activeWorkbenchTab === 'iterations'"
       (click)="setWorkbenchTab('iterations')"
     >
-      ⚡ Iteration Wizard (Step-by-Step)
+      <span>▶️ Step-by-Step Iterations Wizard</span>
     </button>
 
     <button
-      class="mode-tab-btn"
+      class="tab-btn"
       [class.active]="activeWorkbenchTab === 'presets'"
       (click)="setWorkbenchTab('presets')"
     >
-      🚀 Quick Presets Catalog
+      <span>📚 Presets Catalog</span>
     </button>
 
     <button
-      class="mode-tab-btn"
+      class="tab-btn"
       [class.active]="activeWorkbenchTab === 'code'"
       (click)="setWorkbenchTab('code')"
     >
-      💻 Custom SQL Editor
+      <span>💻 Custom SQL Code</span>
     </button>
   </div>
 
-  <!-- TAB 1: VISUAL QUERY BUILDER (No SQL Coding Required!) -->
-  <ng-container *ngIf="activeWorkbenchTab === 'builder'">
-    <section class="sql-workbench-card visual-builder-card">
-      <div class="builder-step-section">
-        <div class="step-label">
-          <span class="step-num">Step 1</span>
-          <span class="step-title">Select Target Spatial Dataset:</span>
-        </div>
-        <div class="btn-group-wrap">
-          <button
-            class="builder-chip-btn"
-            [class.selected]="builderDataset === 'countries'"
-            (click)="setBuilderDataset('countries')"
-          >
-            🌍 World Sovereign Nations
-          </button>
-          <button
-            class="builder-chip-btn"
-            [class.selected]="builderDataset === 'canals'"
-            (click)="setBuilderDataset('canals')"
-          >
-            🚢 Inter-Oceanic Shipping Canals
-          </button>
-          <button
-            class="builder-chip-btn"
-            [class.selected]="builderDataset === 'chokepoints'"
-            (click)="setBuilderDataset('chokepoints')"
-          >
-            ⚠️ Strategic Maritime Chokepoints
-          </button>
-          <button
-            class="builder-chip-btn"
-            [class.selected]="builderDataset === 'ports'"
-            (click)="setBuilderDataset('ports')"
-          >
-            ⚓ Global Container Ports
-          </button>
+  <!-- TAB 1: WORLD DATA API INDICATORS HUB & ITERATIVE BUTTON FEED -->
+  <div *ngIf="activeWorkbenchTab === 'world_data_api'" class="wb-api-feed-panel">
+    <div class="wb-feed-header-card">
+      <div class="wb-header-brand">
+        <span class="wb-icon">🌐</span>
+        <div>
+          <h2 class="wb-title">World Data API Live Telemetry Feed</h2>
+          <p class="wb-sub">29,500+ Global Indicators • World Bank • WHO • UN SDG Datasets</p>
         </div>
       </div>
 
-      <!-- Filters (Only applicable for countries) -->
-      <ng-container *ngIf="builderDataset === 'countries'">
-        <div class="builder-step-section">
-          <div class="step-label">
-            <span class="step-num">Step 2</span>
-            <span class="step-title">Filter Region:</span>
-          </div>
-          <div class="btn-group-wrap">
-            <button class="filter-pill-btn" [class.active]="builderRegion === 'All'" (click)="setBuilderRegion('All')">🌐 All Regions</button>
-            <button class="filter-pill-btn" [class.active]="builderRegion === 'Asia'" (click)="setBuilderRegion('Asia')">🏮 Asia</button>
-            <button class="filter-pill-btn" [class.active]="builderRegion === 'Africa'" (click)="setBuilderRegion('Africa')">🌍 Africa</button>
-            <button class="filter-pill-btn" [class.active]="builderRegion === 'Europe'" (click)="setBuilderRegion('Europe')">🏰 Europe</button>
-            <button class="filter-pill-btn" [class.active]="builderRegion === 'Americas'" (click)="setBuilderRegion('Americas')">🗽 Americas</button>
-          </div>
-        </div>
-
-        <div class="builder-step-section">
-          <div class="step-label">
-            <span class="step-num">Step 3</span>
-            <span class="step-title">Filter Economic Income Level:</span>
-          </div>
-          <div class="btn-group-wrap">
-            <button class="filter-pill-btn" [class.active]="builderIncome === 'All'" (click)="setBuilderIncome('All')">💎 Any Income</button>
-            <button class="filter-pill-btn" [class.active]="builderIncome === 'High income'" (click)="setBuilderIncome('High income')">💰 High Income</button>
-            <button class="filter-pill-btn" [class.active]="builderIncome === 'Upper middle income'" (click)="setBuilderIncome('Upper middle income')">📈 Upper Middle</button>
-            <button class="filter-pill-btn" [class.active]="builderIncome === 'Lower middle income'" (click)="setBuilderIncome('Lower middle income')">📊 Lower Middle</button>
-            <button class="filter-pill-btn" [class.active]="builderIncome === 'Low income'" (click)="setBuilderIncome('Low income')">🌾 Low Income</button>
-          </div>
-        </div>
-      </ng-container>
-
-      <!-- Sorting & Limit Section -->
-      <div class="builder-step-section">
-        <div class="step-label">
-          <span class="step-num">Step {{ builderDataset === 'countries' ? '4' : '2' }}</span>
-          <span class="step-title">Sort & Row Limit:</span>
-        </div>
-        <div class="btn-group-wrap">
-          <span class="ctrl-lbl">Order By:</span>
-          <button class="sort-chip-btn" [class.selected]="builderSortBy === 'population'" (click)="setBuilderSortBy('population')">👥 Population (High to Low)</button>
-          <button class="sort-chip-btn" [class.selected]="builderSortBy === 'name'" (click)="setBuilderSortBy('name')">🔤 Name (A-Z)</button>
-          <button class="sort-chip-btn" [class.selected]="builderSortBy === 'latitude'" (click)="setBuilderSortBy('latitude')">📍 Latitude (North to South)</button>
-
-          <span class="ctrl-lbl" style="margin-left: 1rem;">Show Top N:</span>
-          <button class="limit-chip-btn" [class.selected]="builderLimit === 5" (click)="setBuilderLimit(5)">5 Rows</button>
-          <button class="limit-chip-btn" [class.selected]="builderLimit === 10" (click)="setBuilderLimit(10)">10 Rows</button>
-          <button class="limit-chip-btn" [class.selected]="builderLimit === 20" (click)="setBuilderLimit(20)">20 Rows</button>
-        </div>
-      </div>
-
-      <!-- Generated SQL Output Preview Pill & Execute Button -->
-      <div class="builder-footer-row">
-        <div class="generated-sql-pill">
-          <span class="sql-code-label">⚡ Auto-Generated SQL Code:</span>
-          <code class="sql-code-snippet">{{ sqlQuery }}</code>
-        </div>
-        <button class="btn-execute-sql" [class.executing]="isExecuting" (click)="runSpatialQuery()">
-          <span>{{ isExecuting ? '⏳ Executing...' : '▶️ Run Spatial Query' }}</span>
-        </button>
-      </div>
-    </section>
-  </ng-container>
-
-  <!-- TAB 2: STEP-BY-STEP ITERATION WIZARD TOUR -->
-  <ng-container *ngIf="activeWorkbenchTab === 'iterations'">
-    <section class="sql-workbench-card iteration-wizard-card">
-      <div class="wizard-header">
-        <div class="wizard-title-group">
-          <span class="iteration-step-badge">Step {{ currentIterationIndex + 1 }} of {{ queryIterations.length }}</span>
-          <h2 class="iteration-title">{{ queryIterations[currentIterationIndex].title }}</h2>
-          <span class="iteration-category-badge">{{ queryIterations[currentIterationIndex].badge }}</span>
-        </div>
-
-        <div class="wizard-nav-controls">
-          <button class="wizard-nav-btn" (click)="prevIteration()">◀ Previous</button>
-          <button class="wizard-nav-btn" (click)="nextIteration()">Next Step ▶</button>
-          <button
-            class="wizard-autoplay-btn"
-            [class.playing]="isAutoPlayingIterations"
-            (click)="toggleAutoPlayIterations()"
-          >
-            {{ isAutoPlayingIterations ? '⏸️ Pause Auto Tour' : '▶️ Auto-Play Iterations (4s)' }}
-          </button>
-        </div>
-      </div>
-
-      <p class="iteration-description">{{ queryIterations[currentIterationIndex].description }}</p>
-
-      <!-- Step Chips Strip -->
-      <div class="iteration-steps-strip">
+      <!-- Quick Preset Buttons -->
+      <div class="wb-preset-chips-row">
         <button
-          *ngFor="let iter of queryIterations; let idx = index"
-          class="step-chip"
-          [class.active]="currentIterationIndex === idx"
-          (click)="setIterationStep(idx)"
+          *ngFor="let preset of featuredPresets"
+          class="wb-preset-chip"
+          [class.active]="selectedIndicatorId === preset.id"
+          (click)="selectedTopicId = preset.topicId; selectWbTopic(preset.topicId); selectedIndicatorId = preset.id; fetchWbIndicatorTelemetry(preset.id, selectedCountryCode)"
         >
-          <span class="chip-step-num">Step {{ iter.stepNumber }}</span>
-          <span class="chip-step-title">{{ iter.title.split(':')[1] || iter.title }}</span>
+          <span>{{ preset.icon }} {{ preset.label }}</span>
         </button>
-      </div>
-
-      <div class="generated-sql-pill" style="margin-top: 0.75rem;">
-        <span class="sql-code-label">⚡ Active Iteration SQL Statement:</span>
-        <code class="sql-code-snippet">{{ queryIterations[currentIterationIndex].sql }}</code>
-      </div>
-    </section>
-  </ng-container>
-
-  <!-- TAB 3: QUICK PRESETS CATALOG -->
-  <ng-container *ngIf="activeWorkbenchTab === 'presets'">
-    <section class="sql-workbench-card presets-catalog-card">
-      <div *ngFor="let group of presetCategories" class="preset-category-group">
-        <h3 class="preset-group-title">{{ group.category }}</h3>
-        <div class="preset-cards-grid">
-          <div
-            *ngFor="let item of group.items"
-            class="preset-item-card"
-            (click)="setPresetItem(item)"
-          >
-            <div class="preset-card-head">
-              <span class="preset-icon">{{ item.icon }}</span>
-              <h4 class="preset-name">{{ item.label }}</h4>
-            </div>
-            <p class="preset-desc">{{ item.desc }}</p>
-            <button class="preset-run-btn">▶️ Run & Fly Camera</button>
-          </div>
-        </div>
-      </div>
-    </section>
-  </ng-container>
-
-  <!-- TAB 4: RAW CUSTOM SQL EDITOR (For Advanced Users) -->
-  <ng-container *ngIf="activeWorkbenchTab === 'code'">
-    <section class="sql-workbench-card">
-      <div class="workbench-top">
-        <div class="presets-group">
-          <span class="presets-lbl">🚀 Custom SQL Console</span>
-        </div>
-        <div class="telemetry-group">
-          <span>ANSI SQL Engine • Spatial Distance Functions Enabled</span>
-        </div>
-      </div>
-
-      <textarea
-        class="sql-editor-textarea"
-        [(ngModel)]="sqlQuery"
-        placeholder="Type custom SQL statement..."
-      ></textarea>
-
-      <div class="workbench-actions">
-        <button class="btn-execute-sql" [class.executing]="isExecuting" (click)="runSpatialQuery()">
-          <span>{{ isExecuting ? '⏳ Executing...' : '▶️ Execute Custom Query' }}</span>
-        </button>
-      </div>
-    </section>
-  </ng-container>
-
-  <!-- SPLIT WORKSPACE: RESULTS TABLE + INTERACTIVE GIS MAP PREVIEW -->
-  <div class="workbench-workspace-grid">
-    <!-- Left Results Table Card -->
-    <div class="results-card">
-      <div class="card-toolbar">
-        <div class="toolbar-title-box">
-          <span class="toolbar-title">📊 Query Results Table ({{ queryResultCount }} Rows)</span>
-          <span class="exec-time-tag">Time: {{ queryExecutionTime }}</span>
-        </div>
-
-        <button class="btn-export-csv" (click)="exportResultsCsv()" title="Download CSV">
-          📥 Export CSV
-        </button>
-      </div>
-
-      <div class="results-table-wrapper">
-        <table class="spatial-table">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Name</th>
-              <th>Category</th>
-              <th>Metric 1</th>
-              <th>Metric 2</th>
-              <th>Coordinates</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let row of queryResults; let i = index">
-              <td style="font-weight: 800; color: #f59e0b;">{{ i + 1 }}</td>
-              <td style="font-weight: 800; color: #ffffff;">{{ row.name }}</td>
-              <td><span class="category-badge">{{ row.category }}</span></td>
-              <td style="color: #cbd5e1; font-weight: 600;">{{ row.metric1 }}</td>
-              <td style="color: #94a3b8;">{{ row.metric2 }}</td>
-              <td><code style="color: #38bdf8;">{{ row.lat.toFixed(2) }}°, {{ row.lng.toFixed(2) }}°</code></td>
-              <td>
-                <button class="fly-btn" (click)="flyToTarget(row.lng, row.lat, 6.5, 45, 0)">
-                  Fly Camera ➔
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
       </div>
     </div>
 
-    <!-- Right GIS Map Preview Card -->
-    <div class="map-preview-card">
-      <div class="card-toolbar">
-        <span class="toolbar-title">🗺️ Interactive GIS Preview Map</span>
-        <span class="map-hint">Click markers or table rows to fly camera</span>
+    <!-- Topic Selector Pills -->
+    <div class="wb-topics-bar">
+      <button
+        *ngFor="let topic of wbTopics"
+        class="wb-topic-pill"
+        [class.active]="selectedTopicId === topic.id"
+        (click)="selectWbTopic(topic.id)"
+      >
+        <span>{{ topic.icon }} {{ topic.name }}</span>
+      </button>
+    </div>
+
+    <!-- Country Selector Buttons Bar -->
+    <div class="wb-country-selector-bar">
+      <span class="c-bar-lbl">Target Nation:</span>
+      <div class="c-buttons-grid">
+        <button
+          *ngFor="let c of popularCountries"
+          class="wb-c-btn"
+          [class.active]="selectedCountryCode === c.code"
+          (click)="selectWbCountry(c.code)"
+        >
+          <span>{{ c.flag }} {{ c.name }}</span>
+        </button>
       </div>
-      <div class="preview-map-container">
-        <div #previewMapCanvas id="spatial-preview-canvas"></div>
+    </div>
+
+    <!-- Iterative Step & Live Telemetry Sparkline Card -->
+    <div class="wb-telemetry-hero-card">
+      <div class="hero-left-telemetry">
+        <div class="telemetry-head-row">
+          <div class="c-title-box">
+            <span class="c-flag-title">📊 {{ selectedCountryName }}</span>
+            <span class="c-year-tag">c. {{ latestWbYear }}</span>
+          </div>
+
+          <!-- Iteration Step Controls -->
+          <div class="wb-iterative-controls">
+            <button class="wb-step-btn" (click)="prevWbIndicator()" title="Previous Indicator in Topic">
+              ◀ Prev
+            </button>
+            <button
+              class="wb-step-btn wb-tour-btn"
+              [class.active]="isWbAutoPlayActive"
+              (click)="toggleWbAutoPlay()"
+              title="Auto-Play Live Feed Tour (Iterates every 4s)"
+            >
+              {{ isWbAutoPlayActive ? '⏸️ Auto-Playing' : '▶️ Auto-Tour' }}
+            </button>
+            <button class="wb-step-btn" (click)="nextWbIndicator()" title="Next Indicator in Topic">
+              Next ▶
+            </button>
+          </div>
+        </div>
+
+        <h3 class="telemetry-ind-name">{{ selectedIndicatorName }}</h3>
+
+        <div class="telemetry-value-display">
+          <div *ngIf="isLoadingIndicator" class="wb-loading-txt">
+            <span>🔄 Loading World Data API Telemetry...</span>
+          </div>
+
+          <div *ngIf="!isLoadingIndicator" class="wb-val-box">
+            <span class="wb-big-val">{{ latestWbValueFormatted }}</span>
+            <span class="wb-val-sub">Reported World Bank / WHO Telemetry</span>
+          </div>
+        </div>
+
+        <!-- SVG Sparkline Trend Graph -->
+        <div *ngIf="!isLoadingIndicator && sparklineSvgPath" class="wb-sparkline-box">
+          <svg width="340" height="60" class="wb-sparkline-svg">
+            <path [attr.d]="sparklineSvgPath" fill="none" stroke="#f59e0b" stroke-width="3" stroke-linecap="round" />
+          </svg>
+          <div class="wb-sparkline-years">
+            <span>{{ indicatorDataPoints[0]?.year }}</span>
+            <span>{{ indicatorDataPoints[indicatorDataPoints.length - 1]?.year }}</span>
+          </div>
+        </div>
       </div>
+    </div>
+
+    <!-- All Indicators 1-Click Button Matrix -->
+    <div class="wb-indicators-matrix-section">
+      <h3 class="matrix-section-title">
+        <span>🔘 All Indicators in Active Topic ({{ activeIndicatorIndex + 1 }}/{{ activeIndicatorsList.length }})</span>
+      </h3>
+
+      <div class="wb-matrix-grid">
+        <button
+          *ngFor="let ind of activeIndicatorsList; let i = index"
+          class="wb-matrix-card-btn"
+          [class.active]="selectedIndicatorId === ind.id"
+          (click)="selectWbIndicatorDirect(ind, i)"
+        >
+          <span class="m-icon">📈</span>
+          <span class="m-name">{{ ind.name }}</span>
+          <span class="m-code">{{ ind.id }}</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: VISUAL QUERY BUILDER -->
+  <div *ngIf="activeWorkbenchTab === 'builder'" class="visual-builder-card">
+    <div class="builder-header">
+      <h3>🎛️ Visual Query Builder (No Code Required)</h3>
+      <p>Select buttons below to construct and execute Spatial SQL queries instantly.</p>
+    </div>
+
+    <div class="builder-steps-grid">
+      <!-- Step 1: Target Dataset -->
+      <div class="builder-step-box">
+        <span class="step-num">STEP 1</span>
+        <label class="step-label">Select Dataset:</label>
+        <div class="builder-btn-group">
+          <button class="b-btn" [class.active]="builderDataset === 'countries'" (click)="builderDataset = 'countries'; runVisualBuilderQuery()">
+            🌐 Sovereign Nations
+          </button>
+          <button class="b-btn" [class.active]="builderDataset === 'canals'" (click)="builderDataset = 'canals'; runVisualBuilderQuery()">
+            🚢 Shipping Canals
+          </button>
+          <button class="b-btn" [class.active]="builderDataset === 'chokepoints'" (click)="builderDataset = 'chokepoints'; runVisualBuilderQuery()">
+            ⚠️ Chokepoints
+          </button>
+          <button class="b-btn" [class.active]="builderDataset === 'ports'" (click)="builderDataset = 'ports'; runVisualBuilderQuery()">
+            ⚓ Mega Ports
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Region Filter -->
+      <div class="builder-step-box">
+        <span class="step-num">STEP 2</span>
+        <label class="step-label">Filter by Region:</label>
+        <div class="builder-btn-group">
+          <button class="b-btn" [class.active]="builderRegion === 'All'" (click)="builderRegion = 'All'; runVisualBuilderQuery()">All Regions</button>
+          <button class="b-btn" [class.active]="builderRegion === 'Asia'" (click)="builderRegion = 'Asia'; runVisualBuilderQuery()">Asia</button>
+          <button class="b-btn" [class.active]="builderRegion === 'Europe'" (click)="builderRegion = 'Europe'; runVisualBuilderQuery()">Europe</button>
+          <button class="b-btn" [class.active]="builderRegion === 'America'" (click)="builderRegion = 'America'; runVisualBuilderQuery()">Americas</button>
+          <button class="b-btn" [class.active]="builderRegion === 'Africa'" (click)="builderRegion = 'Africa'; runVisualBuilderQuery()">Africa</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Income Level Filter -->
+      <div class="builder-step-box">
+        <span class="step-num">STEP 3</span>
+        <label class="step-label">Filter Income Level:</label>
+        <div class="builder-btn-group">
+          <button class="b-btn" [class.active]="builderIncome === 'All'" (click)="builderIncome = 'All'; runVisualBuilderQuery()">All Levels</button>
+          <button class="b-btn" [class.active]="builderIncome === 'High income'" (click)="builderIncome = 'High income'; runVisualBuilderQuery()">High Income</button>
+          <button class="b-btn" [class.active]="builderIncome === 'Upper middle income'" (click)="builderIncome = 'Upper middle income'; runVisualBuilderQuery()">Upper Middle</button>
+          <button class="b-btn" [class.active]="builderIncome === 'Lower middle income'" (click)="builderIncome = 'Lower middle income'; runVisualBuilderQuery()">Lower Middle</button>
+        </div>
+      </div>
+
+      <!-- Step 4: Sorting & Result Limit -->
+      <div class="builder-step-box">
+        <span class="step-num">STEP 4</span>
+        <label class="step-label">Order & Limit:</label>
+        <div class="builder-btn-group">
+          <button class="b-btn" [class.active]="builderSortBy === 'population'" (click)="builderSortBy = 'population'; runVisualBuilderQuery()">By Population</button>
+          <button class="b-btn" [class.active]="builderSortBy === 'name'" (click)="builderSortBy = 'name'; runVisualBuilderQuery()">By Name</button>
+          <button class="b-btn" [class.active]="builderSortBy === 'latitude'" (click)="builderSortBy = 'latitude'; runVisualBuilderQuery()">By Latitude</button>
+          <button class="b-btn limit-btn" (click)="builderLimit = builderLimit === 10 ? 25 : 10; runVisualBuilderQuery()">
+            Limit: {{ builderLimit }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: STEP-BY-STEP ITERATIONS WIZARD -->
+  <div *ngIf="activeWorkbenchTab === 'iterations'" class="iterations-wizard-card">
+    <div class="wizard-header">
+      <div class="wizard-title-group">
+        <h3>▶️ Step-by-Step Spatial Query Iterations</h3>
+        <p>Iterate through structured spatial queries with 1-click buttons or auto-play tour.</p>
+      </div>
+
+      <div class="wizard-controls">
+        <button class="wizard-nav-btn" (click)="prevIteration()">◀ Previous</button>
+        <button class="wizard-nav-btn autoplay-btn" [class.active]="isAutoPlayingIterations" (click)="toggleAutoPlayIterations()">
+          {{ isAutoPlayingIterations ? '⏸️ Pause Auto-Tour' : '▶️ Auto-Play Tour' }}
+        </button>
+        <button class="wizard-nav-btn" (click)="nextIteration()">Next ▶</button>
+      </div>
+    </div>
+
+    <!-- Step Progress Chips -->
+    <div class="iteration-steps-pills">
+      <button
+        *ngFor="let step of queryIterations; let i = index"
+        class="step-pill-btn"
+        [class.active]="currentIterationIndex === i"
+        (click)="selectIterationStep(i)"
+      >
+        <span class="step-num-tag">#{{ step.stepNumber }}</span>
+        <span class="step-title-txt">{{ step.title }}</span>
+      </button>
+    </div>
+
+    <!-- Active Step Description Banner -->
+    <div class="active-step-banner">
+      <span class="step-badge">{{ queryIterations[currentIterationIndex]?.badge }}</span>
+      <h4>{{ queryIterations[currentIterationIndex]?.title }}</h4>
+      <p>{{ queryIterations[currentIterationIndex]?.description }}</p>
+    </div>
+  </div>
+
+  <!-- TAB 4: PRESETS CATALOG -->
+  <div *ngIf="activeWorkbenchTab === 'presets'" class="presets-catalog-card">
+    <div class="catalog-header">
+      <h3>📚 Categorized Spatial Query Presets</h3>
+      <p>1-click SQL templates for demographics, maritime corridors, and ST_DWithin radius scans.</p>
+    </div>
+
+    <div class="catalog-grid">
+      <div *ngFor="let cat of presetCategories" class="preset-category-box">
+        <h4 class="cat-title">{{ cat.category }}</h4>
+        <div class="preset-buttons-column">
+          <button
+            *ngFor="let item of cat.items"
+            class="preset-item-btn"
+            (click)="selectPreset(item)"
+          >
+            <span class="item-icon">{{ item.icon }}</span>
+            <div class="item-info">
+              <strong>{{ item.label }}</strong>
+              <small>{{ item.desc }}</small>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 5: CUSTOM SQL CODE -->
+  <div *ngIf="activeWorkbenchTab === 'code'" class="custom-sql-card">
+    <div class="sql-editor-header">
+      <label>Custom SQL Query Editor:</label>
+      <button class="btn-execute-sql" (click)="runCustomSql()">⚡ Run Spatial SQL Query</button>
+    </div>
+    <textarea [(ngModel)]="customSql" class="sql-textarea" rows="4"></textarea>
+  </div>
+
+  <!-- ACTIVE EXECUTED SQL CODE READOUT BAR -->
+  <div class="executed-sql-bar">
+    <div class="sql-code-snippet">
+      <span class="sql-lbl">GENERATED SPATIAL SQL:</span>
+      <code>{{ activeQuerySql }}</code>
+    </div>
+    <div class="sql-stats-readout">
+      <span class="stat-tag green">⚡ {{ executionTimeMs }} ms (DuckDB WASM)</span>
+      <span class="stat-tag cyan">📊 {{ activeResults.length }} Rows Returned</span>
+      <button class="btn-export-csv" (click)="exportCsv()" [disabled]="activeResults.length === 0">
+        📥 Export CSV
+      </button>
+    </div>
+  </div>
+
+  <!-- RESULTS split GRID: 3D MAP PREVIEW & DATA TABLE -->
+  <div class="results-split-container">
+    <!-- Left: Data Results Table -->
+    <div class="results-table-box">
+      <table class="results-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Category / Region</th>
+            <th>Metric #1</th>
+            <th>Metric #2</th>
+            <th>Coordinates</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let row of activeResults">
+            <td class="name-td"><strong>{{ row.name }}</strong></td>
+            <td class="cat-td">{{ row.category }}</td>
+            <td class="m1-td">{{ row.metric1 }}</td>
+            <td class="m2-td">{{ row.metric2 }}</td>
+            <td class="coords-td">📍 {{ row.lat.toFixed(2) }}°, {{ row.lng.toFixed(2) }}°</td>
+          </tr>
+          <tr *ngIf="activeResults.length === 0">
+            <td colspan="5" class="empty-td">No spatial records returned. Select a button above to run query.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Right: MapLibre GL 3D Map Preview -->
+    <div class="map-preview-box">
+      <div #previewMapCanvas id="preview-map-canvas"></div>
     </div>
   </div>
 </div>

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { GeoJsonExportService } from '../services/geojson-export.service';
 import { AisStreamService, AisVesselPosition, AisQcStats } from '../services/ais-stream.service';
+import { ArcNauticalService, ArcNauticalAssessmentResponse } from '../services/arc-nautical.service';
 import { seaRoute } from 'searoute-ts';
 
 import {
@@ -241,6 +242,15 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
   audioMuted: boolean = false;
   private audioCtx: AudioContext | null = null;
 
+  // Arc Nautical API State
+  arcNauticalToken: string = (typeof localStorage !== 'undefined' ? localStorage.getItem('arcnautical_token') : null) || 'arc_test_live_key';
+  isArcNauticalModalOpen: boolean = false;
+  arcVesselType: string = 'container';
+  arcLoadCondition: 'laden' | 'ballast' = 'laden';
+  arcSpeedKnots: number = 16;
+  arcAssessmentResult: ArcNauticalAssessmentResponse | null = null;
+  isLoadingArcNautical: boolean = false;
+
   get totalActiveVesselsCount(): number {
     return (this.trackedLiveVesselCount > 0 ? this.trackedLiveVesselCount : 0) + this.vessels.length;
   }
@@ -249,7 +259,8 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
     private cdr: ChangeDetectorRef,
     private geoJsonService: GeoJsonExportService,
     private router: Router,
-    public aisStreamService: AisStreamService
+    public aisStreamService: AisStreamService,
+    public arcNauticalService: ArcNauticalService
   ) {}
 
   ngOnInit(): void {
@@ -425,6 +436,7 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.isCalculatingRoute = true;
+    this.isLoadingArcNautical = true;
     this.playUiSound('sonar');
 
     try {
@@ -437,12 +449,11 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
       if (routeFeature && routeFeature.geometry) {
         this.calculatedRouteGeoJson = routeFeature;
         const props = routeFeature.properties || {};
-        
+
         this.calculatedDistanceNmi = Math.round(props.length || 0);
         this.calculatedDistanceKm = Math.round(this.calculatedDistanceNmi * 1.852);
-        // Estimated transit days at 18 knots average container vessel speed
-        this.calculatedEtaDays = parseFloat((this.calculatedDistanceNmi / (18 * 24)).toFixed(1));
-        // Estimated fuel CO2 footprint (approx 0.015 tons CO2 per nautical mile)
+        // Estimated transit days at selected speed
+        this.calculatedEtaDays = parseFloat((this.calculatedDistanceNmi / (this.arcSpeedKnots * 24)).toFixed(1));
         this.calculatedCo2Tons = Math.round(this.calculatedDistanceNmi * 0.015 * 28);
         this.calculatedDetourRatio = parseFloat((props.detourRatio || 1.0).toFixed(2));
 
@@ -457,13 +468,57 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
             this.flyToTarget(midPoint[0], midPoint[1], 3.5, 40, 0);
           }
         }
+
+        // Call Arc Nautical API for official Voyage Assessment telemetry
+        this.arcNauticalService.setBearerToken(this.arcNauticalToken);
+        this.arcNauticalService.assessVoyage(
+          originPort.locode,
+          destPort.locode,
+          this.arcVesselType,
+          this.arcLoadCondition,
+          this.arcSpeedKnots,
+          `voyage-${originPort.locode}-${destPort.locode}`,
+          this.calculatedDistanceNmi
+        ).subscribe({
+          next: (assessment) => {
+            this.arcAssessmentResult = assessment;
+            this.isLoadingArcNautical = false;
+            this.cdr.markForCheck();
+          },
+          error: (err) => {
+            console.warn('Arc Nautical API call failed:', err);
+            this.isLoadingArcNautical = false;
+            this.cdr.markForCheck();
+          }
+        });
       }
     } catch (err) {
       console.error('searoute-ts calculation failed:', err);
+      this.isLoadingArcNautical = false;
     } finally {
       this.isCalculatingRoute = false;
       this.cdr.markForCheck();
     }
+  }
+
+  openArcNauticalModal(): void {
+    this.isArcNauticalModalOpen = true;
+    this.cdr.markForCheck();
+  }
+
+  closeArcNauticalModal(): void {
+    this.isArcNauticalModalOpen = false;
+    this.cdr.markForCheck();
+  }
+
+  saveArcNauticalToken(): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem('arcnautical_token', this.arcNauticalToken);
+    }
+    this.arcNauticalService.setBearerToken(this.arcNauticalToken);
+    this.calculateSeaRoute();
+    this.isArcNauticalModalOpen = false;
+    this.cdr.markForCheck();
   }
 
   swapRoutePorts(): void {

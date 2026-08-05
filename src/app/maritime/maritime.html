@@ -267,6 +267,152 @@
     </div>
   </div>
 
+  <!-- ARC NAUTICAL API VOYAGE ASSESSMENT & SEA ROUTE CALCULATOR -->
+  <section class="arc-nautical-calculator-card">
+    <div class="arc-card-header">
+      <div class="arc-header-title">
+        <span class="arc-icon">⚓</span>
+        <div>
+          <h3>Arc Nautical API • Maritime Voyage Assessment Engine</h3>
+          <p>Real-Time Oceanic Routing • IMO CII Carbon Rating • Bunker Fuel Costs • Maritime Risk Telemetry</p>
+        </div>
+      </div>
+
+      <div class="arc-header-actions">
+        <span class="arc-api-status-badge">
+          {{ arcAssessmentResult?.api_source === 'live_api' ? '🟢 LIVE ARC NAUTICAL API ACTIVE' : '⚡ ARC NAUTICAL ENGINE READY' }}
+        </span>
+        <button class="arc-token-btn" (click)="openArcNauticalModal()">
+          🔑 Arc Nautical API Token
+        </button>
+      </div>
+    </div>
+
+    <!-- Route Selector Controls -->
+    <div class="arc-route-controls-grid">
+      <div class="ctrl-group">
+        <label>Origin Port:</label>
+        <select [(ngModel)]="selectedOriginId" (change)="calculateSeaRoute()" class="arc-select">
+          <option *ngFor="let port of availablePorts" [value]="port.id">
+            {{ port.flag }} {{ port.name }} ({{ port.locode }})
+          </option>
+        </select>
+      </div>
+
+      <button class="swap-ports-btn" (click)="swapRoutePorts()" title="Swap Origin & Destination">
+        ⇄
+      </button>
+
+      <div class="ctrl-group">
+        <label>Destination Port:</label>
+        <select [(ngModel)]="selectedDestinationId" (change)="calculateSeaRoute()" class="arc-select">
+          <option *ngFor="let port of availablePorts" [value]="port.id">
+            {{ port.flag }} {{ port.name }} ({{ port.locode }})
+          </option>
+        </select>
+      </div>
+
+      <div class="ctrl-group">
+        <label>Vessel Type:</label>
+        <select [(ngModel)]="arcVesselType" (change)="calculateSeaRoute()" class="arc-select">
+          <option value="container">🚢 Container Ship (18,000 TEU)</option>
+          <option value="tanker">🛢️ Crude/Chemical Tanker</option>
+          <option value="bulk">📦 Dry Bulk Carrier</option>
+          <option value="lng">⚓ LNG Gas Carrier</option>
+        </select>
+      </div>
+
+      <div class="ctrl-group">
+        <label>Load Condition:</label>
+        <select [(ngModel)]="arcLoadCondition" (change)="calculateSeaRoute()" class="arc-select">
+          <option value="laden">⚓ Laden (100% Full Capacity)</option>
+          <option value="ballast">🌊 Ballast (Unladen)</option>
+        </select>
+      </div>
+
+      <div class="ctrl-group">
+        <label>Speed (Knots): {{ arcSpeedKnots }} kts</label>
+        <input type="range" min="10" max="24" [value]="arcSpeedKnots" [(ngModel)]="arcSpeedKnots" (input)="calculateSeaRoute()" class="arc-range-slider" />
+      </div>
+    </div>
+
+    <!-- Telemetry Assessment Results Panel -->
+    <div *ngIf="calculatedRouteGeoJson" class="arc-assessment-results">
+      <!-- 1. Route Distance & ETA -->
+      <div class="arc-result-card">
+        <div class="card-head"><span class="icon">📐</span> Transit Metrics</div>
+        <div class="card-metric-val highlight-nmi">{{ calculatedDistanceNmi | number }} NMi</div>
+        <div class="card-sub-txt">{{ calculatedDistanceKm | number }} km • {{ calculatedEtaDays }} Transit Days ({{ arcSpeedKnots }} kts)</div>
+      </div>
+
+      <!-- 2. Environmental & CII Carbon Rating -->
+      <div class="arc-result-card">
+        <div class="card-head"><span class="icon">🌱</span> Environmental & CII Rating</div>
+        <div class="cii-rating-row">
+          <span class="cii-badge" [class]="'cii-' + (arcAssessmentResult?.environmental?.cii_rating || 'A')">
+            CII Rating: {{ arcAssessmentResult?.environmental?.cii_rating || 'A' }}
+          </span>
+          <span class="eexi-badge">🛡️ EEXI Compliant</span>
+        </div>
+        <div class="card-sub-txt">CO2 Footprint: <strong>{{ arcAssessmentResult?.environmental?.co2_emissions_tons || calculatedCo2Tons | number }} Tons</strong></div>
+        <div class="card-sub-txt">Fuel: {{ arcAssessmentResult?.environmental?.fuel_consumption_tons || '285' }} Tons VLSFO</div>
+      </div>
+
+      <!-- 3. Financial Voyage Costs -->
+      <div class="arc-result-card">
+        <div class="card-head"><span class="icon">💰</span> Financial Voyage Cost</div>
+        <div class="card-metric-val highlight-gold">
+          ${{ (arcAssessmentResult?.financial?.total_voyage_cost_usd || 450000) | number }} USD
+        </div>
+        <div class="financial-breakdown-list">
+          <span>Bunker Fuel: ${{ (arcAssessmentResult?.financial?.bunker_fuel_cost_usd || 320000) | number }}</span>
+          <span>Canal Tolls: ${{ (arcAssessmentResult?.financial?.canal_tolls_usd || 120000) | number }}</span>
+          <span>EU ETS Tax: ${{ (arcAssessmentResult?.financial?.carbon_tax_eu_ets_usd || 10000) | number }}</span>
+        </div>
+      </div>
+
+      <!-- 4. Security & Risk Assessment -->
+      <div class="arc-result-card">
+        <div class="card-head"><span class="icon">⚠️</span> Security & Risk Assessment</div>
+        <div class="risk-score-row">
+          <span class="risk-score-badge">Risk Score: {{ arcAssessmentResult?.risk_assessment?.overall_risk_score || 15 }}/100</span>
+          <span class="risk-level-tag">Weather: {{ arcAssessmentResult?.risk_assessment?.weather_risk_level || 'Low' }}</span>
+        </div>
+        <p class="security-advisory-txt">
+          {{ arcAssessmentResult?.risk_assessment?.security_advisory || 'Standard international voyage corridor. No heightened security advisories.' }}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Arc Nautical API Token Settings Modal -->
+  <div *ngIf="isArcNauticalModalOpen" class="ais-modal-overlay" (click)="closeArcNauticalModal()">
+    <div class="ais-modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>🔑 Arc Nautical API Bearer Token Credentials</h3>
+        <button (click)="closeArcNauticalModal()" class="close-modal-btn">✖</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-desc">
+          Enter your official <strong>Arc Nautical API Bearer Token</strong> received in your confirmation email (https://arcnautical.com).
+        </p>
+
+        <div class="api-key-input-box">
+          <label>Arc Nautical Authorization Bearer Token:</label>
+          <div style="display: flex; gap: 8px; width: 100%; align-items: center;">
+            <input type="password" [(ngModel)]="arcNauticalToken" placeholder="arc_live_••••••••••••••••••••••••" class="ais-api-input" style="flex: 1;">
+          </div>
+
+          <div class="ais-stream-actions">
+            <button class="btn-connect-ws" (click)="saveArcNauticalToken()">
+              💾 Save Token & Run Voyage Assessment
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- AIS Telemetry Stream Settings Modal -->
   <div *ngIf="isAisModalOpen" class="ais-modal-overlay" (click)="closeAisModal()">
     <div class="ais-modal-card" (click)="$event.stopPropagation()">

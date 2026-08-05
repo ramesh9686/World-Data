@@ -2,6 +2,7 @@ import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, Element
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { COUNTRIES_DATA } from '../countries-data';
+import { WorldBankService, WorldBankTopic, WorldBankIndicator, WorldBankDataPoint } from '../world-bank.service';
 
 export interface SqlQueryResultRow {
   id?: string;
@@ -41,6 +42,13 @@ export interface PresetCategory {
   items: PresetItem[];
 }
 
+export interface FeaturedIndicatorPill {
+  id: string;
+  icon: string;
+  label: string;
+  topicId: number;
+}
+
 @Component({
   selector: 'app-spatial-sql',
   standalone: true,
@@ -56,8 +64,49 @@ export class SpatialSqlComponent implements OnInit, AfterViewInit, OnDestroy {
   private activeMarkers: any[] = [];
   private autoIterateTimer: any = null;
 
-  // Active Mode Tab: 'builder' | 'iterations' | 'presets' | 'code'
-  activeWorkbenchTab: 'builder' | 'iterations' | 'presets' | 'code' = 'builder';
+  // Active Mode Tab: 'world_data_api' | 'builder' | 'iterations' | 'presets' | 'code'
+  activeWorkbenchTab: 'world_data_api' | 'builder' | 'iterations' | 'presets' | 'code' = 'world_data_api';
+
+  // World Data API Indicators Hub State
+  wbTopics: WorldBankTopic[] = [];
+  selectedTopicId: number = 3; // Economy & Growth
+  activeIndicatorsList: WorldBankIndicator[] = [];
+  activeIndicatorIndex: number = 0;
+  selectedIndicatorId: string = 'NY.GDP.MKTP.CD';
+  selectedIndicatorName: string = 'GDP (current US$)';
+  selectedCountryCode: string = 'us';
+  selectedCountryName: string = 'United States';
+  indicatorDataPoints: WorldBankDataPoint[] = [];
+  isLoadingIndicator: boolean = false;
+
+  isWbAutoPlayActive: boolean = false;
+  private wbAutoPlayTimer: any = null;
+
+  featuredPresets: FeaturedIndicatorPill[] = [
+    { id: 'NY.GDP.MKTP.CD', icon: '💰', label: 'GDP Growth', topicId: 3 },
+    { id: 'SP.POP.TOTL', icon: '👥', label: 'Population', topicId: 21 },
+    { id: 'WHO:WHOSIS_000001', icon: '🩺', label: 'Life Expectancy', topicId: 8 },
+    { id: 'EN.ATM.CO2E.KT', icon: '🌱', label: 'CO2 Emissions', topicId: 19 },
+    { id: 'EG.ELC.ACCS.ZS', icon: '⚡', label: 'Electricity Access', topicId: 5 },
+    { id: 'IT.NET.USER.ZS', icon: '💻', label: 'Internet Access', topicId: 10 },
+    { id: 'SL.UEM.TOTL.ZS', icon: '📊', label: 'Unemployment Rate', topicId: 3 },
+    { id: 'UN:1.1.1', icon: '🌾', label: 'Poverty Ratio', topicId: 11 }
+  ];
+
+  popularCountries = [
+    { code: 'us', name: 'United States', flag: '🇺🇸' },
+    { code: 'in', name: 'India', flag: '🇮🇳' },
+    { code: 'cn', name: 'China', flag: '🇨🇳' },
+    { code: 'de', name: 'Germany', flag: '🇩🇪' },
+    { code: 'jp', name: 'Japan', flag: '🇯🇵' },
+    { code: 'gb', name: 'United Kingdom', flag: '🇬🇧' },
+    { code: 'fr', name: 'France', flag: '🇫🇷' },
+    { code: 'br', name: 'Brazil', flag: '🇧🇷' },
+    { code: 'au', name: 'Australia', flag: '🇦🇺' },
+    { code: 'ng', name: 'Nigeria', flag: '🇳🇬' },
+    { code: 'za', name: 'South Africa', flag: '🇿🇦' },
+    { code: 'ca', name: 'Canada', flag: '🇨🇦' }
+  ];
 
   // Visual Builder State (No SQL typing required)
   builderDataset: 'countries' | 'canals' | 'chokepoints' | 'ports' = 'countries';
@@ -197,402 +246,330 @@ export class SpatialSqlComponent implements OnInit, AfterViewInit, OnDestroy {
           flyLng: 105, flyLat: 22, zoom: 3.5
         }
       ]
-    },
-    {
-      category: '🌍 Regional Distributions',
-      items: [
-        {
-          id: 'preset_asia',
-          icon: '🏮',
-          label: 'Asia Economies',
-          desc: 'East, South & Southeast Asia',
-          sql: `SELECT name, region AS category, capital AS metric1, population AS metric2, latitude AS lat, longitude AS lng FROM world_countries WHERE region LIKE '%Asia%' ORDER BY population DESC LIMIT 12;`,
-          flyLng: 105, flyLat: 20, zoom: 3
-        },
-        {
-          id: 'preset_africa',
-          icon: '🌍',
-          label: 'African Continent',
-          desc: 'Sovereign African nations',
-          sql: `SELECT name, region AS category, capital AS metric1, population AS metric2, latitude AS lat, longitude AS lng FROM world_countries WHERE region LIKE '%Africa%' ORDER BY population DESC LIMIT 12;`,
-          flyLng: 20, flyLat: 5, zoom: 3.2
-        },
-        {
-          id: 'preset_europe',
-          icon: '🏰',
-          label: 'European Union & Region',
-          desc: 'European nations & capitals',
-          sql: `SELECT name, region AS category, capital AS metric1, population AS metric2, latitude AS lat, longitude AS lng FROM world_countries WHERE region LIKE '%Europe%' ORDER BY population DESC LIMIT 12;`,
-          flyLng: 15, flyLat: 50, zoom: 4
-        }
-      ]
-    },
-    {
-      category: '📍 Spatial Buffer & Radius Search',
-      items: [
-        {
-          id: 'preset_suez_radius',
-          icon: '📍',
-          label: 'Suez 2,500 km Radius',
-          desc: 'Countries within 2,500 km of Suez',
-          sql: `SELECT name, 'Suez Proximity Radius' AS category, capital AS metric1, 'Within 2,500 km' AS metric2, latitude AS lat, longitude AS lng FROM world_countries WHERE ST_DWithin(ST_Point(longitude, latitude), ST_Point(32.3, 30.5), 2500000) ORDER BY name ASC LIMIT 10;`,
-          flyLng: 32.3, flyLat: 30.5, zoom: 4.5
-        },
-        {
-          id: 'preset_malacca_radius',
-          icon: '📍',
-          label: 'Malacca 2,000 km Radius',
-          desc: 'Countries near Malacca Strait',
-          sql: `SELECT name, 'Malacca Proximity Radius' AS category, capital AS metric1, 'Within 2,000 km' AS metric2, latitude AS lat, longitude AS lng FROM world_countries WHERE ST_DWithin(ST_Point(longitude, latitude), ST_Point(101.5, 2.5), 2000000) ORDER BY name ASC LIMIT 10;`,
-          flyLng: 101.5, flyLat: 2.5, zoom: 4.5
-        }
-      ]
     }
   ];
 
-  sqlQuery: string = '';
-  queryResults: SqlQueryResultRow[] = [];
-  queryExecutionTime: string = '0 ms';
-  queryResultCount: number = 0;
+  // Custom SQL input state
+  customSql: string = `SELECT name, region AS category, income_level AS metric1, population AS metric2, latitude AS lat, longitude AS lng FROM world_countries ORDER BY population DESC LIMIT 10;`;
+  activeQuerySql: string = '';
   isExecuting: boolean = false;
+  executionTimeMs: number = 0;
+  activeResults: SqlQueryResultRow[] = [];
 
-  currentLat: number = 20;
-  currentLng: number = 0;
-  currentZoom: number = 2;
-
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cdr: ChangeDetectorRef,
+    private wbService: WorldBankService
+  ) {}
 
   ngOnInit(): void {
-    this.updateSqlFromBuilder();
-  }
-
-  async ngAfterViewInit(): Promise<void> {
-    await this.initPreviewMap();
+    this.initWorldDataHub();
+    this.runVisualBuilderQuery();
   }
 
   ngOnDestroy(): void {
-    this.stopAutoPlayIterations();
-    this.clearMarkers();
+    if (this.autoIterateTimer) {
+      clearInterval(this.autoIterateTimer);
+    }
+    if (this.wbAutoPlayTimer) {
+      clearInterval(this.wbAutoPlayTimer);
+    }
+    this.clearActiveMarkers();
     if (this.map) {
       this.map.remove();
       this.map = null;
     }
   }
 
-  setWorkbenchTab(tab: 'builder' | 'iterations' | 'presets' | 'code'): void {
-    this.activeWorkbenchTab = tab;
-    if (tab === 'iterations') {
-      this.setIterationStep(this.currentIterationIndex);
-    } else if (tab === 'builder') {
-      this.updateSqlFromBuilder();
+  initWorldDataHub(): void {
+    this.wbTopics = this.wbService.getTopics();
+    if (this.wbTopics.length > 0) {
+      this.selectWbTopic(3);
+    }
+    this.fetchWbIndicatorTelemetry(this.selectedIndicatorId, this.selectedCountryCode);
+  }
+
+  selectWbTopic(topicId: number): void {
+    this.selectedTopicId = topicId;
+    this.activeIndicatorsList = this.wbService.getIndicatorsByTopic(topicId);
+    this.activeIndicatorIndex = 0;
+    if (this.activeIndicatorsList.length > 0) {
+      const first = this.activeIndicatorsList[0];
+      this.selectedIndicatorId = first.id;
+      this.selectedIndicatorName = first.name;
+      this.fetchWbIndicatorTelemetry(first.id, this.selectedCountryCode);
     }
     this.cdr.markForCheck();
   }
 
-  // Visual Builder Methods (No SQL writing required!)
-  setBuilderDataset(dataset: 'countries' | 'canals' | 'chokepoints' | 'ports'): void {
-    this.builderDataset = dataset;
-    this.updateSqlFromBuilder();
-  }
-
-  setBuilderRegion(region: string): void {
-    this.builderRegion = region;
-    this.updateSqlFromBuilder();
-  }
-
-  setBuilderIncome(income: string): void {
-    this.builderIncome = income;
-    this.updateSqlFromBuilder();
-  }
-
-  setBuilderSortBy(sort: 'population' | 'name' | 'latitude'): void {
-    this.builderSortBy = sort;
-    this.updateSqlFromBuilder();
-  }
-
-  setBuilderLimit(limit: number): void {
-    this.builderLimit = limit;
-    this.updateSqlFromBuilder();
-  }
-
-  updateSqlFromBuilder(): void {
-    if (this.builderDataset === 'canals') {
-      this.sqlQuery = `SELECT name, category, vessel_capacity AS metric1, annual_traffic AS metric2, lat, lng FROM world_canals LIMIT ${this.builderLimit};`;
-    } else if (this.builderDataset === 'chokepoints') {
-      this.sqlQuery = `SELECT name, category, risk_level AS metric1, daily_flow AS metric2, lat, lng FROM strategic_chokepoints LIMIT ${this.builderLimit};`;
-    } else if (this.builderDataset === 'ports') {
-      this.sqlQuery = `SELECT name, category, container_volume AS metric1, country AS metric2, lat, lng FROM global_seaports LIMIT ${this.builderLimit};`;
+  selectWbIndicatorDirect(ind: WorldBankIndicator, index?: number): void {
+    if (index !== undefined) {
+      this.activeIndicatorIndex = index;
     } else {
-      let whereClauses: string[] = [];
-      if (this.builderRegion !== 'All') {
-        whereClauses.push(`region LIKE '%${this.builderRegion}%'`);
-      }
-      if (this.builderIncome !== 'All') {
-        whereClauses.push(`income_level = '${this.builderIncome}'`);
-      }
-
-      let whereStr = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')} ` : '';
-      let sortCol = this.builderSortBy === 'population' ? 'population DESC' : this.builderSortBy === 'name' ? 'name ASC' : 'latitude DESC';
-
-      this.sqlQuery = `SELECT name, region AS category, income_level AS metric1, population AS metric2, latitude AS lat, longitude AS lng\nFROM world_countries\n${whereStr}ORDER BY ${sortCol}\nLIMIT ${this.builderLimit};`;
+      const idx = this.activeIndicatorsList.findIndex(i => i.id === ind.id);
+      if (idx !== -1) this.activeIndicatorIndex = idx;
     }
-
-    this.runSpatialQuery();
+    this.selectedIndicatorId = ind.id;
+    this.selectedIndicatorName = ind.name;
+    this.fetchWbIndicatorTelemetry(ind.id, this.selectedCountryCode);
+    this.cdr.markForCheck();
   }
 
-  // Iteration Wizard Methods
-  setIterationStep(index: number): void {
-    if (index < 0) index = this.queryIterations.length - 1;
-    if (index >= this.queryIterations.length) index = 0;
-
-    this.currentIterationIndex = index;
-    const iter = this.queryIterations[index];
-    this.sqlQuery = iter.sql;
-    this.runSpatialQuery();
-
-    if (iter.targetFlyLng !== undefined && iter.targetFlyLat !== undefined) {
-      this.flyToTarget(iter.targetFlyLng, iter.targetFlyLat, iter.targetZoom || 3.5, 40, 0);
-    }
+  nextWbIndicator(): void {
+    if (this.activeIndicatorsList.length === 0) return;
+    this.activeIndicatorIndex = (this.activeIndicatorIndex + 1) % this.activeIndicatorsList.length;
+    const nextInd = this.activeIndicatorsList[this.activeIndicatorIndex];
+    this.selectWbIndicatorDirect(nextInd, this.activeIndicatorIndex);
   }
 
-  nextIteration(): void {
-    this.setIterationStep(this.currentIterationIndex + 1);
+  prevWbIndicator(): void {
+    if (this.activeIndicatorsList.length === 0) return;
+    this.activeIndicatorIndex = (this.activeIndicatorIndex - 1 + this.activeIndicatorsList.length) % this.activeIndicatorsList.length;
+    const prevInd = this.activeIndicatorsList[this.activeIndicatorIndex];
+    this.selectWbIndicatorDirect(prevInd, this.activeIndicatorIndex);
   }
 
-  prevIteration(): void {
-    this.setIterationStep(this.currentIterationIndex - 1);
-  }
-
-  toggleAutoPlayIterations(): void {
-    if (this.isAutoPlayingIterations) {
-      this.stopAutoPlayIterations();
-    } else {
-      this.isAutoPlayingIterations = true;
-      this.autoIterateTimer = setInterval(() => {
-        this.nextIteration();
+  toggleWbAutoPlay(): void {
+    this.isWbAutoPlayActive = !this.isWbAutoPlayActive;
+    if (this.isWbAutoPlayActive) {
+      this.wbAutoPlayTimer = setInterval(() => {
+        this.nextWbIndicator();
       }, 4000);
+    } else {
+      if (this.wbAutoPlayTimer) {
+        clearInterval(this.wbAutoPlayTimer);
+        this.wbAutoPlayTimer = null;
+      }
     }
+    this.cdr.markForCheck();
   }
 
-  stopAutoPlayIterations(): void {
-    if (this.autoIterateTimer) {
-      clearInterval(this.autoIterateTimer);
-      this.autoIterateTimer = null;
+  selectWbCountry(code: string): void {
+    this.selectedCountryCode = code;
+    const cObj = this.popularCountries.find(c => c.code === code);
+    if (cObj) {
+      this.selectedCountryName = cObj.name;
     }
-    this.isAutoPlayingIterations = false;
+    this.fetchWbIndicatorTelemetry(this.selectedIndicatorId, code);
   }
 
-  setPresetItem(item: PresetItem): void {
-    this.sqlQuery = item.sql;
-    this.runSpatialQuery();
-    if (item.flyLng !== undefined && item.flyLat !== undefined) {
-      this.flyToTarget(item.flyLng, item.flyLat, item.zoom || 3.5, 40, 0);
-    }
-  }
+  fetchWbIndicatorTelemetry(indicatorId: string, countryCode: string): void {
+    this.isLoadingIndicator = true;
+    this.cdr.markForCheck();
 
-  private async initPreviewMap(): Promise<void> {
-    if (!this.previewMapRef) return;
-    try {
-      const maplibreModule = await import('maplibre-gl');
-      this.maplibregl = (maplibreModule as any).default || maplibreModule;
-
-      const styleObj = {
-        version: 8,
-        sources: {
-          'carto-dark': {
-            type: 'raster',
-            tiles: ['https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'],
-            tileSize: 256,
-            attribution: 'CartoDB Dark'
-          }
-        },
-        layers: [
-          {
-            id: 'carto-dark-layer',
-            type: 'raster',
-            source: 'carto-dark',
-            minzoom: 0,
-            maxzoom: 19
-          }
-        ]
-      };
-
-      this.map = new this.maplibregl.Map({
-        container: this.previewMapRef.nativeElement,
-        style: styleObj as any,
-        center: [this.currentLng, this.currentLat],
-        zoom: this.currentZoom,
-        pitch: 35,
-        bearing: 0
-      });
-
-      this.map.addControl(new this.maplibregl.NavigationControl(), 'top-right');
-
-      this.map.on('load', () => {
-        this.map.resize();
-        this.renderResultMarkers();
-      });
-    } catch (e) {
-      console.warn('Failed initializing Spatial SQL preview map:', e);
-    }
-  }
-
-  private clearMarkers(): void {
-    this.activeMarkers.forEach(m => m.remove());
-    this.activeMarkers = [];
-  }
-
-  private renderResultMarkers(): void {
-    if (!this.map || !this.maplibregl) return;
-    this.clearMarkers();
-
-    this.queryResults.forEach((row, idx) => {
-      const el = document.createElement('div');
-      el.className = 'sql-result-marker';
-      el.innerHTML = `<span>${idx + 1}</span>`;
-      el.title = `${row.name} (${row.category}) - ${row.metric1}`;
-
-      el.addEventListener('click', (ev: Event) => {
-        ev.stopPropagation();
-        this.flyToTarget(row.lng, row.lat, 6, 45, 0);
-      });
-
-      const marker = new this.maplibregl.Marker({ element: el })
-        .setLngLat([row.lng, row.lat])
-        .addTo(this.map!);
-
-      this.activeMarkers.push(marker);
+    this.wbService.getIndicatorData(countryCode, indicatorId).subscribe({
+      next: (points) => {
+        this.indicatorDataPoints = points;
+        this.isLoadingIndicator = false;
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.indicatorDataPoints = this.wbService.generateFallbackDataPoints(countryCode, indicatorId);
+        this.isLoadingIndicator = false;
+        this.cdr.markForCheck();
+      }
     });
   }
 
-  runSpatialQuery(): void {
+  get latestWbValueFormatted(): string {
+    if (this.indicatorDataPoints.length === 0) return 'N/A';
+    const last = this.indicatorDataPoints[this.indicatorDataPoints.length - 1];
+    if (!last || last.value === null) return 'N/A';
+
+    const val = last.value;
+    if (val >= 1e12) return `$${(val / 1e12).toFixed(2)} Trillion`;
+    if (val >= 1e9) return `$${(val / 1e9).toFixed(2)} Billion`;
+    if (val >= 1e6) return `${(val / 1e6).toFixed(2)} Million`;
+    return val.toLocaleString();
+  }
+
+  get latestWbYear(): number {
+    if (this.indicatorDataPoints.length === 0) return 2024;
+    return this.indicatorDataPoints[this.indicatorDataPoints.length - 1].year;
+  }
+
+  get sparklineSvgPath(): string {
+    if (this.indicatorDataPoints.length < 2) return '';
+    const width = 340;
+    const height = 60;
+    const values = this.indicatorDataPoints.map(p => p.value || 0);
+    const min = Math.min(...values);
+    const max = Math.max(...values);
+    const range = max - min || 1;
+
+    const points = this.indicatorDataPoints.map((pt, i) => {
+      const x = (i / (this.indicatorDataPoints.length - 1)) * width;
+      const y = height - (((pt.value || 0) - min) / range) * (height - 10) - 5;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    });
+
+    return `M ${points.join(' L ')}`;
+  }
+
+  async ngAfterViewInit(): Promise<void> {
+    setTimeout(async () => {
+      await this.initPreviewMapEngine();
+    }, 100);
+  }
+
+  setWorkbenchTab(tab: 'world_data_api' | 'builder' | 'iterations' | 'presets' | 'code'): void {
+    this.activeWorkbenchTab = tab;
+    if (tab === 'builder') this.runVisualBuilderQuery();
+    if (tab === 'iterations') this.selectIterationStep(this.currentIterationIndex);
+    this.cdr.markForCheck();
+  }
+
+  runVisualBuilderQuery(): void {
     this.isExecuting = true;
-    const startTime = performance.now();
+    const start = performance.now();
 
-    setTimeout(() => {
-      const results: SqlQueryResultRow[] = [];
-      const countriesList = Object.values(COUNTRIES_DATA);
+    let sql = `SELECT name, region AS category, income_level AS metric1, population AS metric2, latitude AS lat, longitude AS lng FROM world_countries`;
+    let filtered = Object.values(COUNTRIES_DATA) as any[];
 
-      // Check query keywords
-      if (this.sqlQuery.includes('world_canals')) {
-        results.push(
-          { name: 'Suez Canal', category: 'Artificial Inter-Oceanic Link', metric1: '20,000 ships/yr', metric2: 'Passage', lat: 30.5, lng: 32.3 },
-          { name: 'Panama Canal', category: 'Inter-Oceanic Link', metric1: '14,000 ships/yr', metric2: 'Passage', lat: 9.0, lng: -79.5 },
-          { name: 'Kiel Canal', category: 'Baltic Link', metric1: '30,000 ships/yr', metric2: 'Passage', lat: 54.3, lng: 9.6 },
-          { name: 'Corinth Canal', category: 'Ionian Link', metric1: '2,500 ships/yr', metric2: 'Passage', lat: 37.9, lng: 22.9 },
-          { name: 'Houston Ship Channel', category: 'Gulf Port Channel', metric1: '8,200 vessels/yr', metric2: 'Channel', lat: 29.7, lng: -95.0 },
-          { name: 'St. Lawrence Seaway', category: 'Great Lakes Seaway', metric1: '4,000 ships/yr', metric2: 'Seaway', lat: 45.0, lng: -74.7 }
-        );
-      } else if (this.sqlQuery.includes('strategic_chokepoints')) {
-        results.push(
-          { name: 'Strait of Malacca', category: 'Strategic Chokepoint', metric1: 'CRITICAL', metric2: '100,000 vessels/yr', lat: 2.5, lng: 101.5 },
-          { name: 'Strait of Hormuz', category: 'Strategic Chokepoint', metric1: 'HIGH RISK', metric2: '21M bpd Oil', lat: 26.5, lng: 56.25 },
-          { name: 'Bab-el-Mandeb', category: 'Strategic Chokepoint', metric1: 'HIGH RISK', metric2: 'Red Sea Gate', lat: 12.5, lng: 43.3 },
-          { name: 'Turkish Straits', category: 'Strategic Chokepoint', metric1: 'MEDIUM RISK', metric2: 'Bosphorus Corridor', lat: 41.1, lng: 29.1 },
-          { name: 'Strait of Gibraltar', category: 'Strategic Chokepoint', metric1: 'LOW RISK', metric2: 'Atlantic Entry', lat: 35.9, lng: -5.5 },
-          { name: 'Taiwan Strait', category: 'Strategic Chokepoint', metric1: 'HIGH RISK', metric2: 'East Asia Route', lat: 24.0, lng: 119.5 }
-        );
-      } else if (this.sqlQuery.includes('global_seaports')) {
-        results.push(
-          { name: 'Port of Shanghai', category: 'Container Hub', metric1: '47.3M TEU', metric2: 'China', lat: 30.6, lng: 122.0 },
-          { name: 'Port of Singapore', category: 'Transshipment Hub', metric1: '37.5M TEU', metric2: 'Singapore', lat: 1.26, lng: 103.8 },
-          { name: 'Port of Ningbo-Zhoushan', category: 'Bulk Cargo Hub', metric1: '33.3M TEU', metric2: 'China', lat: 29.8, lng: 121.5 },
-          { name: 'Port of Shenzhen', category: 'Container Hub', metric1: '28.8M TEU', metric2: 'China', lat: 22.5, lng: 113.9 },
-          { name: 'Port of Busan', category: 'East Asia Hub', metric1: '22.7M TEU', metric2: 'South Korea', lat: 35.1, lng: 129.0 },
-          { name: 'Port of Rotterdam', category: 'European Gateway', metric1: '14.5M TEU', metric2: 'Netherlands', lat: 51.9, lng: 4.28 },
-          { name: 'Port of Los Angeles', category: 'Pacific Gateway', metric1: '10.7M TEU', metric2: 'USA', lat: 33.7, lng: -118.2 }
-        );
-      } else if (this.sqlQuery.includes('ST_DWithin')) {
-        // Radius calculation
-        let targetLat = 30.5;
-        let targetLng = 32.3;
-        let radiusKm = 2500;
+    if (this.builderRegion !== 'All') {
+      filtered = filtered.filter(c => c.region?.value?.includes(this.builderRegion));
+    }
+    if (this.builderIncome !== 'All') {
+      filtered = filtered.filter(c => c.incomeLevel?.value === this.builderIncome);
+    }
 
-        if (this.sqlQuery.includes('101.5')) {
-          targetLng = 101.5;
-          targetLat = 2.5;
-          radiusKm = 2000;
-        }
+    if (this.builderSortBy === 'population') {
+      filtered.sort((a, b) => (b.population || b.area || 0) - (a.population || a.area || 0));
+    } else if (this.builderSortBy === 'name') {
+      filtered.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (this.builderSortBy === 'latitude') {
+      filtered.sort((a, b) => (parseFloat(b.latitude) || 0) - (parseFloat(a.latitude) || 0));
+    }
 
-        countriesList.forEach(c => {
-          const lat = parseFloat(c.latitude);
-          const lng = parseFloat(c.longitude);
-          if (!isNaN(lat) && !isNaN(lng)) {
-            const dist = this.haversineDistanceKm(targetLat, targetLng, lat, lng);
-            if (dist <= radiusKm) {
-              results.push({
-                name: c.name,
-                category: `Within ${radiusKm} km`,
-                metric1: `Distance: ${Math.round(dist)} km`,
-                metric2: c.capitalCity || 'Capital',
-                lat,
-                lng
-              });
-            }
-          }
-        });
-        results.sort((a, b) => parseInt(a.metric1.replace(/\D/g, ''), 10) - parseInt(b.metric1.replace(/\D/g, ''), 10));
-      } else {
-        // Standard country filter matching
-        let filtered = countriesList;
+    filtered = filtered.slice(0, this.builderLimit);
 
-        if (this.sqlQuery.includes("High income")) {
-          filtered = filtered.filter(c => c.incomeLevel?.value?.toLowerCase().includes('high'));
-        } else if (this.sqlQuery.includes("Low income") || this.sqlQuery.includes("Lower")) {
-          filtered = filtered.filter(c => c.incomeLevel?.value?.toLowerCase().includes('low'));
-        }
+    this.activeResults = filtered.map(c => ({
+      id: c.id,
+      name: c.name,
+      category: c.region?.value || 'Global',
+      metric1: c.incomeLevel?.value || 'N/A',
+      metric2: (c.population || c.area || 100000).toLocaleString(),
+      lat: parseFloat(c.latitude) || 0,
+      lng: parseFloat(c.longitude) || 0
+    }));
 
-        if (this.sqlQuery.includes("region LIKE '%Asia%'")) {
-          filtered = filtered.filter(c => c.region?.value?.toLowerCase().includes('asia'));
-        } else if (this.sqlQuery.includes("region LIKE '%Africa%'")) {
-          filtered = filtered.filter(c => c.region?.value?.toLowerCase().includes('africa'));
-        } else if (this.sqlQuery.includes("region LIKE '%Europe%'")) {
-          filtered = filtered.filter(c => c.region?.value?.toLowerCase().includes('europe'));
-        } else if (this.sqlQuery.includes("region LIKE '%Americas%'")) {
-          filtered = filtered.filter(c => c.region?.value?.toLowerCase().includes('america'));
-        }
+    this.activeQuerySql = `SELECT name, region AS category, income_level AS metric1, population AS metric2, latitude AS lat, longitude AS lng FROM world_countries ${this.builderRegion !== 'All' ? "WHERE region = '" + this.builderRegion + "'" : ''} ORDER BY ${this.builderSortBy} DESC LIMIT ${this.builderLimit};`;
 
-        filtered.slice(0, this.builderLimit).forEach(c => {
-          results.push({
-            name: c.name,
-            category: c.region?.value || 'Global',
-            metric1: c.incomeLevel?.value || 'Sovereign',
-            metric2: `ISO: ${c.id.toUpperCase()}`,
-            lat: parseFloat(c.latitude),
-            lng: parseFloat(c.longitude)
-          });
-        });
+    this.executionTimeMs = Math.round(performance.now() - start);
+    this.isExecuting = false;
+    this.renderResultMarkersOnMap();
+    this.cdr.markForCheck();
+  }
+
+  selectIterationStep(index: number): void {
+    this.currentIterationIndex = index;
+    const step = this.queryIterations[index];
+    if (!step) return;
+
+    this.activeQuerySql = step.sql;
+    this.executePresetSql(step.sql, step.targetFlyLng, step.targetFlyLat, step.targetZoom);
+  }
+
+  nextIteration(): void {
+    const nextIdx = (this.currentIterationIndex + 1) % this.queryIterations.length;
+    this.selectIterationStep(nextIdx);
+  }
+
+  prevIteration(): void {
+    const prevIdx = (this.currentIterationIndex - 1 + this.queryIterations.length) % this.queryIterations.length;
+    this.selectIterationStep(prevIdx);
+  }
+
+  toggleAutoPlayIterations(): void {
+    this.isAutoPlayingIterations = !this.isAutoPlayingIterations;
+    if (this.isAutoPlayingIterations) {
+      this.autoIterateTimer = setInterval(() => {
+        this.nextIteration();
+      }, 4000);
+    } else {
+      if (this.autoIterateTimer) {
+        clearInterval(this.autoIterateTimer);
+        this.autoIterateTimer = null;
       }
-
-      const finalLimit = Math.min(results.length, this.builderLimit > 0 ? this.builderLimit : 12);
-      this.queryResults = results.slice(0, finalLimit);
-      this.queryResultCount = this.queryResults.length;
-      const endTime = performance.now();
-      this.queryExecutionTime = `${(endTime - startTime).toFixed(1)} ms`;
-      this.isExecuting = false;
-
-      this.renderResultMarkers();
-      this.cdr.markForCheck();
-    }, 120);
+    }
+    this.cdr.markForCheck();
   }
 
-  private haversineDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
+  selectPreset(preset: PresetItem): void {
+    this.activeQuerySql = preset.sql;
+    this.executePresetSql(preset.sql, preset.flyLng, preset.flyLat, preset.zoom);
   }
 
-  exportResultsCsv(): void {
-    if (this.queryResults.length === 0) return;
-    const headers = ['#', 'Name', 'Category', 'Metric 1', 'Metric 2', 'Latitude', 'Longitude'];
-    const rows = this.queryResults.map((r, i) => [
-      i + 1,
+  runCustomSql(): void {
+    this.activeQuerySql = this.customSql;
+    this.executePresetSql(this.customSql);
+  }
+
+  private executePresetSql(sql: string, flyLng?: number, flyLat?: number, zoom?: number): void {
+    this.isExecuting = true;
+    const start = performance.now();
+
+    let results: SqlQueryResultRow[] = [];
+
+    if (sql.includes('world_canals')) {
+      results = [
+        { name: 'Suez Canal', category: 'Artificial Waterway', metric1: 'Suezmax (240k DWT)', metric2: '22,000 ships/yr', lat: 30.5, lng: 32.3 },
+        { name: 'Panama Canal', category: 'Lock System Canal', metric1: 'Neopanamax (120k DWT)', metric2: '14,000 ships/yr', lat: 8.95, lng: -79.55 },
+        { name: 'Kiel Canal', category: 'Baltic Connector', metric1: 'Handysize (40k DWT)', metric2: '30,000 ships/yr', lat: 54.3, lng: 9.6 }
+      ];
+    } else if (sql.includes('strategic_chokepoints')) {
+      results = [
+        { name: 'Strait of Malacca', category: 'High-Risk Corridor', metric1: 'High Risk (Piracy)', metric2: '16.0M bpd oil', lat: 2.5, lng: 101.5 },
+        { name: 'Bab-el-Mandeb', category: 'Active Escort Zone', metric1: 'Critical Risk', metric2: '6.2M bpd oil', lat: 12.5, lng: 43.3 },
+        { name: 'Strait of Hormuz', category: 'Energy Lifeline', metric1: 'High Security', metric2: '21.0M bpd oil', lat: 26.6, lng: 56.2 }
+      ];
+    } else if (sql.includes('global_seaports')) {
+      results = [
+        { name: 'Port of Shanghai', category: 'Container Megaport', metric1: '47.3M TEU/yr', metric2: 'China', lat: 31.23, lng: 121.47 },
+        { name: 'Port of Singapore', category: 'Transshipment Hub', metric1: '37.5M TEU/yr', metric2: 'Singapore', lat: 1.35, lng: 103.82 },
+        { name: 'Port of Rotterdam', category: 'European Gateway', metric1: '15.3M TEU/yr', metric2: 'Netherlands', lat: 51.92, lng: 4.48 }
+      ];
+    } else {
+      let filtered = Object.values(COUNTRIES_DATA) as any[];
+      if (sql.includes("High income")) {
+        filtered = filtered.filter(c => c.incomeLevel?.value === 'High income');
+      } else if (sql.includes("Asia")) {
+        filtered = filtered.filter(c => c.region?.value?.includes('Asia'));
+      }
+      filtered.sort((a, b) => (b.population || b.area || 0) - (a.population || a.area || 0));
+      results = filtered.slice(0, 10).map(c => ({
+        id: c.id,
+        name: c.name,
+        category: c.region?.value || 'Global',
+        metric1: c.incomeLevel?.value || c.capitalCity || 'N/A',
+        metric2: (c.population || c.area || 100000).toLocaleString(),
+        lat: parseFloat(c.latitude) || 0,
+        lng: parseFloat(c.longitude) || 0
+      }));
+    }
+
+    this.activeResults = results;
+    this.executionTimeMs = Math.round(performance.now() - start);
+    this.isExecuting = false;
+
+    this.renderResultMarkersOnMap();
+
+    if (flyLng !== undefined && flyLat !== undefined && this.map) {
+      this.map.flyTo({
+        center: [flyLng, flyLat],
+        zoom: zoom || 3.5,
+        duration: 1500,
+        essential: true
+      });
+    }
+
+    this.cdr.markForCheck();
+  }
+
+  exportCsv(): void {
+    if (this.activeResults.length === 0) return;
+
+    const headers = ['name', 'category', 'metric1', 'metric2', 'latitude', 'longitude'];
+    const rows = this.activeResults.map(r => [
       `"${r.name}"`,
       `"${r.category}"`,
       `"${r.metric1}"`,
@@ -601,27 +578,70 @@ export class SpatialSqlComponent implements OnInit, AfterViewInit, OnDestroy {
       r.lng
     ]);
 
-    const csvContent = [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+    const csvContent = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.setAttribute('href', url);
-    link.setAttribute('download', `duckdb_spatial_results_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `spatial-duckdb-query-export-${Date.now()}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
-  flyToTarget(lng: number, lat: number, zoom: number = 6, pitch: number = 45, bearing: number = 0): void {
-    if (this.map) {
-      this.map.flyTo({
-        center: [lng, lat],
-        zoom,
-        pitch,
-        bearing,
-        duration: 1800,
-        essential: true
+  private async initPreviewMapEngine(): Promise<void> {
+    if (!this.previewMapRef) return;
+    try {
+      const maplibreModule = await import('maplibre-gl');
+      this.maplibregl = (maplibreModule as any).default || maplibreModule;
+
+      const mapInstance = new this.maplibregl.Map({
+        container: this.previewMapRef.nativeElement,
+        style: {
+          version: 8,
+          sources: {
+            'carto-dark': {
+              type: 'raster',
+              tiles: ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'],
+              tileSize: 256
+            }
+          },
+          layers: [{ id: 'carto-dark-layer', type: 'raster', source: 'carto-dark' }]
+        },
+        center: [20.0, 20.0],
+        zoom: 2.0
       });
+
+      this.map = mapInstance;
+      mapInstance.on('load', () => {
+        this.renderResultMarkersOnMap();
+      });
+    } catch (err) {
+      console.warn('Spatial SQL preview map init warning:', err);
     }
+  }
+
+  private clearActiveMarkers(): void {
+    this.activeMarkers.forEach(m => m.remove());
+    this.activeMarkers = [];
+  }
+
+  private renderResultMarkersOnMap(): void {
+    if (!this.map || !this.maplibregl) return;
+    this.clearActiveMarkers();
+
+    this.activeResults.forEach(r => {
+      if (r.lat && r.lng) {
+        const el = document.createElement('div');
+        el.className = 'spatial-sql-marker';
+        el.innerHTML = `📍`;
+        el.title = `${r.name} (${r.category}) - ${r.metric1}`;
+
+        const marker = new this.maplibregl.Marker({ element: el })
+          .setLngLat([r.lng, r.lat])
+          .addTo(this.map);
+
+        this.activeMarkers.push(marker);
+      }
+    });
   }
 }

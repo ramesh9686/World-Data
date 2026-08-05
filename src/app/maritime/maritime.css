@@ -1129,5 +1129,243 @@
   line-height: 1;
 }
 
+/* --------------------------------------------------------------------------
+   Arc Nautical API Voyage Assessment & Calculator Card
+   -------------------------------------------------------------------------- */
+.arc-nautical-calculator-card {
+  margin-top: 1.5rem;
+  background: rgba(11, 15, 26, 0.9);
+  border: 1.5px solid rgba(245, 158, 11, 0.4);
+  border-radius: 24px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(20px);
+}
+
+.arc-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.85rem;
+}
+
+.arc-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.arc-icon {
+  font-size: 1.8rem;
+  filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.6));
+}
+
+.arc-header-title h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.arc-header-title p {
+  margin: 0.2rem 0 0 0;
+  font-size: 0.82rem;
+  color: #f59e0b;
+  font-weight: 700;
+}
+
+.arc-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.arc-api-status-badge {
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid #f59e0b;
+  color: #ffd700;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.3rem 0.75rem;
+  border-radius: 8px;
+}
+
+.arc-token-btn {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #f8fafc;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.arc-token-btn:hover {
+  background: rgba(245, 158, 11, 0.2);
+  border-color: #f59e0b;
+  color: #ffd700;
+}
+
+.arc-route-controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 40px 1fr 1fr 1fr 1fr;
+  gap: 0.85rem;
+  align-items: flex-end;
+}
+
+@media (max-width: 1100px) {
+  .arc-route-controls-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.ctrl-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.ctrl-group label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.arc-select {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  color: #ffffff;
+  padding: 0.55rem 0.85rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  outline: none;
+}
+
+.arc-range-slider {
+  width: 100%;
+  accent-color: #f59e0b;
+  cursor: pointer;
+}
+
+.arc-assessment-results {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  padding-top: 0.5rem;
+}
+
+.arc-result-card {
+  background: rgba(18, 25, 42, 0.85);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 0.9rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  box-shadow: inset 1px 1px 2px rgba(255, 255, 255, 0.08);
+}
+
+.card-head {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #94a3b8;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.card-metric-val {
+  font-size: 1.4rem;
+  font-weight: 900;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.highlight-nmi { color: #38bdf8; }
+.highlight-gold { color: #ffd700; }
+
+.card-sub-txt {
+  font-size: 0.78rem;
+  color: #cbd5e1;
+}
+
+.cii-rating-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.cii-badge {
+  background: #10b981;
+  color: #000;
+  font-weight: 900;
+  font-size: 0.82rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+}
+
+.cii-badge.cii-A { background: #10b981; color: #000; }
+.cii-badge.cii-B { background: #34d399; color: #000; }
+.cii-badge.cii-C { background: #f59e0b; color: #000; }
+.cii-badge.cii-D { background: #f97316; color: #000; }
+.cii-badge.cii-E { background: #ef4444; color: #fff; }
+
+.eexi-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #38bdf8;
+  background: rgba(56, 189, 248, 0.15);
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+}
+
+.financial-breakdown-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.risk-score-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.risk-score-badge {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  font-weight: 800;
+  font-size: 0.78rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.risk-level-tag {
+  font-size: 0.75rem;
+  color: #cbd5e1;
+}
+
+.security-advisory-txt {
+  margin: 0;
+  font-size: 0.75rem;
+  color: #94a3b8;
+  line-height: 1.35;
+  font-style: italic;
+}
+
 
 

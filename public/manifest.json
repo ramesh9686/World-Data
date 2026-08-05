@@ -1,0 +1,16 @@
+{
+  "name": "World Explorer - 3D Earth Globe & Telemetry",
+  "short_name": "World Explorer",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030712",
+  "theme_color": "#0f172a",
+  "description": "Interactive 3D WebGL Earth globe, live AIS vessel radar, forex rates matrix, historical empire cartography, and World Bank indicators.",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}
