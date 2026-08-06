@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <!-- Deep Space Background Gradient -->
+    <radialGradient id="spaceBg" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#1e293b"/>
+      <stop offset="100%" stop-color="#030712"/>
+    </radialGradient>
+
+    <!-- 3D Earth Globe Sphere Gradient -->
+    <radialGradient id="earthGlobe" cx="35%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="45%" stop-color="#0284c7"/>
+      <stop offset="85%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#030712"/>
+    </radialGradient>
+
+    <!-- Continent Landmass Gradient -->
+    <linearGradient id="continentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+
+    <!-- Telemetry Orbit Ring Glow -->
+    <linearGradient id="orbitGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="50%" stop-color="#fbbf24"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
+    </linearGradient>
+
+    <!-- Outer Atmospheric Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Background Base Container -->
+  <rect width="512" height="512" rx="110" fill="url(#spaceBg)"/>
+
+  <!-- Outer Atmospheric Aura Ring -->
+  <circle cx="256" cy="256" r="175" fill="none" stroke="#38bdf8" stroke-width="4" stroke-opacity="0.3" filter="url(#glow)"/>
+
+  <!-- Main 3D Earth Sphere -->
+  <circle cx="256" cy="256" r="160" fill="url(#earthGlobe)"/>
+
+  <!-- Continent Stylized Landmass Shapes -->
+  <g fill="url(#continentGrad)" opacity="0.95">
+    <!-- North America & Greenland -->
+    <path d="M165 140 c12-15 35-20 48-10 18 14 30-5 42 8 8 10-12 25-5 35 10 15-8 30-22 35-15 4-28-10-38 2-10 12-25 8-30-10-4-15 10-25 5-50z"/>
+    <!-- South America -->
+    <path d="M210 260 c15 5 25 20 22 38-4 22-18 45-28 60-8 12-18 5-20-10-2-18 8-32 12-48 4-15 2-30 14-40z"/>
+    <!-- Europe & Africa -->
+    <path d="M275 145 c15-8 32-2 40 12 8 14-5 25 5 35 8 8 22 2 28 15 8 18-5 35-12 52-8 18 5 32-5 48-10 15-28 18-35 0-8-18 4-35-5-50-8-12-20-8-22-25-2-18 10-28 15-42-2-12 4-30 11-45z"/>
+    <!-- Asia & Australia -->
+    <path d="M335 155 c20-10 40 5 45 22 5 18-12 28-2 42 10 12 25 15 18 30-8 15-28 10-35-5-8-15 8-28-5-40-12-12-5-35-21-49z"/>
+    <path d="M350 300 c12-5 22 8 25 18 4 12-8 22-18 20-10-2-15-15-12-25 2-8 2-10 5-13z"/>
+  </g>
+
+  <!-- Latitude and Longitude Grid Lines (3D Spatial Curves) -->
+  <g fill="none" stroke="#38bdf8" stroke-width="2.5" stroke-opacity="0.35">
+    <!-- Equator and Latitudes -->
+    <ellipse cx="256" cy="256" rx="160" ry="50"/>
+    <ellipse cx="256" cy="200" rx="142" ry="40"/>
+    <ellipse cx="256" cy="312" rx="142" ry="40"/>
+    <!-- Longitudes -->
+    <ellipse cx="256" cy="256" rx="60" ry="160"/>
+    <ellipse cx="256" cy="256" rx="115" ry="160"/>
+    <line x1="256" y1="96" x2="256" y2="416"/>
+  </g>
+
+  <!-- Telemetry Orbit Ring & Satellite Beacon -->
+  <ellipse cx="256" cy="256" rx="205" ry="75" fill="none" stroke="url(#orbitGlow)" stroke-width="4.5" stroke-dasharray="16 8" transform="rotate(-22 256 256)"/>
+  <circle cx="435" cy="205" r="9" fill="#f59e0b" filter="url(#glow)"/>
+  <circle cx="435" cy="205" r="5" fill="#ffffff"/>
+
+  <!-- Compass / Crosshair Spatial Telemetry Markers -->
+  <circle cx="256" cy="256" r="4" fill="#38bdf8"/>
+</svg>
