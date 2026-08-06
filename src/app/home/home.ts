@@ -58,17 +58,17 @@ export class HomeComponent implements OnInit {
   ) {
     // Model 1: Photorealistic Earth Globe (Day Mode) - Fast & Optimized (~1.2MB geometry)
     this.model1Url = this.sanitizer.bypassSecurityTrustResourceUrl(
-      'https://sketchfab.com/models/c2e4294c32ea4d8b850e152fc26aeeb4/embed?autostart=1&ui_controls=0&ui_infos=0&ui_inspector=0&ui_stop=0&ui_watermark=0&ui_hint=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&ui_animations=0'
+      'https://sketchfab.com/models/c2e4294c32ea4d8b850e152fc26aeeb4/embed?autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_inspector=0&ui_stop=0&ui_watermark=0&ui_hint=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&ui_animations=0'
     );
 
     // Model 2: 16k High Resolution Earth (Night Mode) - Heavy 28MB asset
     this.model2Url = this.sanitizer.bypassSecurityTrustResourceUrl(
-      'https://sketchfab.com/models/e2f01432233b4c0983583ba5066af83d/embed?autostart=1&ui_controls=0&ui_infos=0&ui_inspector=0&ui_stop=0&ui_watermark=0&ui_hint=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&ui_animations=0'
+      'https://sketchfab.com/models/e2f01432233b4c0983583ba5066af83d/embed?autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_inspector=0&ui_stop=0&ui_watermark=0&ui_hint=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&ui_animations=0'
     );
 
     // Model 3: Planet Earth 3D Globe - Stylized shaders asset
     this.model3Url = this.sanitizer.bypassSecurityTrustResourceUrl(
-      'https://sketchfab.com/models/8c08ad8c59184d83b170adc64e1f65c0/embed?autostart=1&ui_controls=0&ui_infos=0&ui_inspector=0&ui_stop=0&ui_watermark=0&ui_hint=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&ui_animations=0'
+      'https://sketchfab.com/models/8c08ad8c59184d83b170adc64e1f65c0/embed?autostart=1&preload=1&transparent=1&ui_controls=0&ui_infos=0&ui_inspector=0&ui_stop=0&ui_watermark=0&ui_hint=0&ui_ar=0&ui_help=0&ui_settings=0&ui_vr=0&ui_fullscreen=0&ui_annotations=0&ui_animations=0'
     );
   }
 

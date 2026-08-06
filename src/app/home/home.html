@@ -36,16 +36,42 @@
     </button>
   </aside>
 
-  <!-- Single Dynamic Lightweight 3D Earth Model Iframe (Direct viewport without blocking overlays) -->
+  <!-- 3D Earth Model 1 (Day Earth - Fast & Optimized Default) -->
   <iframe
-    *ngIf="activeModelUrl"
-    title="3D Earth Model Viewport"
-    [src]="activeModelUrl"
+    *ngIf="activeModelId === 'model1'"
+    title="3D Earth Model 1"
+    [src]="model1Url"
     frameborder="0"
     allowfullscreen
     mozallowfullscreen="true"
     webkitallowfullscreen="true"
-    allow="autoplay; fullscreen; xr-spatial-tracking"
+    allow="autoplay; fullscreen; xr-spatial-tracking; execution-while-out-of-viewport; execution-while-not-rendered"
+    class="pure-sketchfab-iframe"
+  ></iframe>
+
+  <!-- 3D Earth Model 2 (Night Earth 16K HD) -->
+  <iframe
+    *ngIf="activeModelId === 'model2'"
+    title="3D Earth Model 2"
+    [src]="model2Url"
+    frameborder="0"
+    allowfullscreen
+    mozallowfullscreen="true"
+    webkitallowfullscreen="true"
+    allow="autoplay; fullscreen; xr-spatial-tracking; execution-while-out-of-viewport; execution-while-not-rendered"
+    class="pure-sketchfab-iframe"
+  ></iframe>
+
+  <!-- 3D Earth Model 3 (Planet Globe) -->
+  <iframe
+    *ngIf="activeModelId === 'model3'"
+    title="3D Earth Model 3"
+    [src]="model3Url"
+    frameborder="0"
+    allowfullscreen
+    mozallowfullscreen="true"
+    webkitallowfullscreen="true"
+    allow="autoplay; fullscreen; xr-spatial-tracking; execution-while-out-of-viewport; execution-while-not-rendered"
     class="pure-sketchfab-iframe"
   ></iframe>
 </div>
