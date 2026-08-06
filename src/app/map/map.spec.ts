@@ -1,24 +1,26 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-
+import '@angular/compiler';
+import { describe, it, expect, vi } from 'vitest';
 import { MapComponent } from './map';
 
 describe('MapComponent', () => {
-  let component: MapComponent;
-  let fixture: ComponentFixture<MapComponent>;
+  it('should instantiate MapComponent with mock dependencies', () => {
+    const mockCountryService: any = {};
+    const mockRealtimeService: any = {};
+    const mockWbService: any = { getTopics: vi.fn().mockReturnValue([]) };
+    const mockGeoJsonService: any = {};
+    const mockCdr: any = { markForCheck: vi.fn() };
+    const mockRouter: any = { navigate: vi.fn() };
 
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [MapComponent],
-      providers: [provideHttpClient()]
-    }).compileComponents();
+    const component = new MapComponent(
+      mockCountryService,
+      mockRealtimeService,
+      mockWbService,
+      mockGeoJsonService,
+      mockCdr,
+      mockRouter
+    );
 
-    fixture = TestBed.createComponent(MapComponent);
-    component = fixture.componentInstance;
-    await fixture.whenStable();
-  });
-
-  it('should create', () => {
     expect(component).toBeTruthy();
+    expect(component.wbTopics).toEqual([]);
   });
 });

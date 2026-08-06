@@ -1,22 +1,10 @@
-import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-
+import { describe, it, expect, vi } from 'vitest';
 import { CountryService } from './country';
 
 describe('CountryService', () => {
-  let service: CountryService;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        provideHttpClient(),
-        CountryService
-      ]
-    });
-    service = TestBed.inject(CountryService);
-  });
-
-  it('should be created', () => {
+  it('should instantiate with mock HttpClient', () => {
+    const mockHttp: any = { get: vi.fn() };
+    const service = new CountryService(mockHttp);
     expect(service).toBeTruthy();
   });
 });

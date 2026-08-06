@@ -7,6 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Explore interactive 3D WebGL Earth globe, live AIS maritime vessel tracking, real-time forex exchange rates, historical empire maps, World Bank indicators, and geographic trivia.">
   <meta name="keywords" content="3D Earth Globe, WebGL World Map, Live Maritime Radar, AIS Vessel Tracker, Global Quiz, Forex Matrix, Historical Empires, World Bank Indicators, GIS Telemetry, Spatial SQL">
+  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="author" content="World Explorer Team">
   <meta name="theme-color" content="#0f172a">
   <link rel="manifest" href="manifest.json">
@@ -19,6 +20,9 @@
   <meta property="og:description" content="Interactive 3D WebGL Earth globe, real-time AIS vessel radar, forex rates matrix, historical empires, and World Bank indicators.">
   <meta property="og:url" content="https://worldexplorer.app/">
   <meta property="og:image" content="https://worldexplorer.app/assets/og-preview.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="World Explorer 3D Globe and Spatial Telemetry Preview">
   <meta property="og:locale" content="en_US">
 
   <!-- Twitter Card Meta Tags -->
@@ -31,24 +35,42 @@
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "World Explorer",
-    "url": "https://worldexplorer.app",
-    "description": "Interactive 3D WebGL Earth globe, real-time maritime AIS vessel tracking, forex currency matrix, historical empire cartography, and world indicators.",
-    "applicationCategory": "EducationalApplication",
-    "operatingSystem": "All",
-    "offers": {
-      "@type": "Offer",
-      "price": "0",
-      "priceCurrency": "USD"
-    },
-    "featureList": [
-      "Photorealistic 3D WebGL Earth Globe",
-      "Live AIS Vessel Tracking Radar with Kinematic Motion Engine",
-      "Global Geographic Trivia Quiz with Aura Leaderboard",
-      "Real-Time Foreign Exchange (Forex) Currency Matrix",
-      "Historical Empire Cartography & Temporal Timeline",
-      "World Bank Indicators & Spatial SQL Analytics"
+    "@graph": [
+      {
+        "@type": "Organization",
+        "@id": "https://worldexplorer.app/#organization",
+        "name": "World Explorer",
+        "url": "https://worldexplorer.app",
+        "logo": "https://worldexplorer.app/favicon.ico",
+        "sameAs": [
+          "https://github.com/ramesh9686/World-Explorer"
+        ]
+      },
+      {
+        "@type": "WebApplication",
+        "@id": "https://worldexplorer.app/#webapp",
+        "name": "World Explorer",
+        "url": "https://worldexplorer.app",
+        "description": "Interactive 3D WebGL Earth globe, real-time maritime AIS vessel tracking, forex currency matrix, historical empire cartography, and world indicators.",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "All",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "publisher": {
+          "@id": "https://worldexplorer.app/#organization"
+        },
+        "featureList": [
+          "Photorealistic 3D WebGL Earth Globe",
+          "Live AIS Vessel Tracking Radar with Kinematic Motion Engine",
+          "Global Geographic Trivia Quiz with Aura Leaderboard",
+          "Real-Time Foreign Exchange (Forex) Currency Matrix",
+          "Historical Empire Cartography & Temporal Timeline",
+          "World Bank Indicators & Spatial SQL Analytics"
+        ]
+      }
     ]
   }
   </script>
@@ -56,10 +78,18 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 </head>
 <body>
   <app-root></app-root>
+  <noscript>
+    <div style="padding: 2rem; background: #0f172a; color: #f8fafc; font-family: sans-serif; text-align: center;">
+      <h1>World Explorer - 3D Earth Globe & GIS Telemetry Suite</h1>
+      <p>World Explorer requires JavaScript to render photorealistic 3D WebGL Earth globes, live AIS vessel radar tracking, DuckDB spatial SQL analytics, and interactive currency exchange matrices.</p>
+    </div>
+  </noscript>
 </body>
 </html>
+

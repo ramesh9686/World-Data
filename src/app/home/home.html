@@ -13,71 +13,34 @@
   <!-- Prominent 3D Model Selector Toolbar (Top-Right High Contrast Z-Index 9999) -->
   <aside class="right-icon-dock">
     <div class="dock-header-tag">
+      <span class="speed-indicator-pill" [class.fast-active]="activeModelDetails.isFastest">
+        {{ activeModelDetails.isFastest ? '⚡ FASTEST MODE (DEFAULT)' : '🎨 HD OPTION' }}
+      </span>
       <span class="time-badge-text">⏰ {{ detectedTimeString }}</span>
     </div>
 
     <button
+      *ngFor="let option of modelOptions"
       class="icon-dock-btn"
-      [class.active]="activeModelId === 'model1'"
-      (click)="selectModel('model1'); $event.stopPropagation()"
-      title="Switch to 3D Model 1: Day Earth"
+      [class.active]="activeModelId === option.id"
+      [class.default-fast-btn]="option.isFastest"
+      (click)="selectModel(option.id); $event.stopPropagation()"
+      [title]="option.name + ' — ' + option.speedTag"
     >
-      <span class="btn-icon">☀️</span>
-      <span class="btn-label">Day Earth</span>
-    </button>
-
-    <button
-      class="icon-dock-btn"
-      [class.active]="activeModelId === 'model2'"
-      (click)="selectModel('model2'); $event.stopPropagation()"
-      title="Switch to 3D Model 2: Night Earth"
-    >
-      <span class="btn-icon">🌙</span>
-      <span class="btn-label">Night Earth</span>
-    </button>
-
-    <button
-      class="icon-dock-btn"
-      [class.active]="activeModelId === 'model3'"
-      (click)="selectModel('model3'); $event.stopPropagation()"
-      title="Switch to 3D Model 3: Planet Globe"
-    >
-      <span class="btn-icon">🪐</span>
-      <span class="btn-label">Planet Globe</span>
+      <span class="btn-icon">{{ option.icon }}</span>
+      <div class="btn-label-container">
+        <span class="btn-label">{{ option.name }}</span>
+        <span class="btn-subtag" *ngIf="option.isFastest">DEFAULT (FASTEST)</span>
+      </div>
+      <span class="speed-badge" *ngIf="option.isFastest">⚡ 60FPS</span>
     </button>
   </aside>
 
-  <!-- 3D Earth Model 1 Iframe (Day Mode Photorealistic) -->
+  <!-- Single Dynamic Lightweight 3D Earth Model Iframe (Direct viewport without blocking overlays) -->
   <iframe
-    [style.display]="activeModelId === 'model1' ? 'block' : 'none'"
-    title="3D Earth Model 1"
-    [src]="model1Url"
-    frameborder="0"
-    allowfullscreen
-    mozallowfullscreen="true"
-    webkitallowfullscreen="true"
-    allow="autoplay; fullscreen; xr-spatial-tracking"
-    class="pure-sketchfab-iframe"
-  ></iframe>
-
-  <!-- 3D Earth Model 2 Iframe (Night Mode 16k High-Res) -->
-  <iframe
-    [style.display]="activeModelId === 'model2' ? 'block' : 'none'"
-    title="3D Earth Model 2"
-    [src]="model2Url"
-    frameborder="0"
-    allowfullscreen
-    mozallowfullscreen="true"
-    webkitallowfullscreen="true"
-    allow="autoplay; fullscreen; xr-spatial-tracking"
-    class="pure-sketchfab-iframe"
-  ></iframe>
-
-  <!-- 3D Earth Model 3 Iframe (Planet Globe) -->
-  <iframe
-    [style.display]="activeModelId === 'model3' ? 'block' : 'none'"
-    title="3D Earth Model 3"
-    [src]="model3Url"
+    *ngIf="activeModelUrl"
+    title="3D Earth Model Viewport"
+    [src]="activeModelUrl"
     frameborder="0"
     allowfullscreen
     mozallowfullscreen="true"
@@ -86,3 +49,4 @@
     class="pure-sketchfab-iframe"
   ></iframe>
 </div>
+

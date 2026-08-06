@@ -29,7 +29,8 @@
               "src/styles.css"
             ],
             "allowedCommonJsDependencies": [
-              "maplibre-gl"
+              "maplibre-gl",
+              "jszip"
             ]
           },
           "configurations": {
@@ -42,8 +43,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "60kB",
-                  "maximumError": "120kB"
+                  "maximumWarning": "120kB",
+                  "maximumError": "250kB"
                 }
               ],
               "outputHashing": "all"

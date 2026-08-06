@@ -1,29 +1,15 @@
-import { TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import '@angular/compiler';
+import { describe, it, expect, vi } from 'vitest';
 import { App } from './app';
-import { routes } from './app.routes';
 
 describe('App', () => {
-  beforeEach(async () => {
-    await TestBed.configureTestingModule({
-      imports: [App],
-      providers: [
-        provideRouter(routes),
-        provideHttpClient()
-      ]
-    }).compileComponents();
-  });
+  it('should instantiate App component with mock dependencies', () => {
+    const mockRouter: any = { url: '/home', navigate: vi.fn() };
+    const mockSeoService: any = { updateSeoForUrl: vi.fn() };
+    const app = new App(mockRouter, mockSeoService);
 
-  it('should create the app', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
     expect(app).toBeTruthy();
-  });
-
-  it('should have the title "World Explorer"', () => {
-    const fixture = TestBed.createComponent(App);
-    const app = fixture.componentInstance;
     expect(app.title()).toEqual('World Explorer');
+    expect(app.isHomePage).toBe(true);
   });
 });

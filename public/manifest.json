@@ -1,16 +1,42 @@
 {
+  "id": "https://worldexplorer.app/",
   "name": "World Explorer - 3D Earth Globe & Telemetry",
   "short_name": "World Explorer",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "any",
   "background_color": "#030712",
   "theme_color": "#0f172a",
   "description": "Interactive 3D WebGL Earth globe, live AIS vessel radar, forex rates matrix, historical empire cartography, and World Bank indicators.",
+  "categories": [
+    "education",
+    "navigation",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "favicon.ico",
       "sizes": "64x64 32x32 24x24 16x16",
       "type": "image/x-icon"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "World Data Explorer",
+      "url": "/world-data",
+      "description": "View 3D WebGL Globe with World Bank economic metrics"
+    },
+    {
+      "name": "Live Maritime Radar",
+      "url": "/maritime",
+      "description": "Track live AIS vessel positions"
+    },
+    {
+      "name": "Global Geography Quiz",
+      "url": "/quiz",
+      "description": "Test world geography trivia knowledge"
+    }
   ]
 }
+
