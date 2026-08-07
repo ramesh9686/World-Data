@@ -2,7 +2,7 @@ import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HISTORICAL_EMPIRES, HistoricalEmpire } from '../empires-data';
-import { WORLD_SVG_COUNTRY_PATHS, SVGCountryPath } from '../world-svg-paths';
+import { SVGCountryPath } from '../world-svg-paths';
 import {
   SeshatDatabankService,
   RadarAxisInfo,
@@ -58,7 +58,7 @@ export class EmpiresComponent implements OnInit {
   empireEraFilter: string = 'All';
   timelineEraYear: number = -30;
 
-  worldPaths: SVGCountryPath[] = WORLD_SVG_COUNTRY_PATHS;
+  worldPaths: SVGCountryPath[] = [];
   spannedCountryCodes: Set<string> = new Set<string>();
   spannedCountryNames: string[] = [];
 
@@ -94,6 +94,15 @@ export class EmpiresComponent implements OnInit {
     this.epochPresets = this.temporalService.epochPresets;
     this.radarAxes = this.seshatService.getRadarAxisGeometry(150, 150, 105);
     this.topSeshatEmpires = this.seshatService.getTopComplexEmpires(6);
+
+    // Asynchronously load heavy 1.24 MB SVG paths dataset to keep initial main bundle small
+    import('../world-svg-paths').then(m => {
+      this.worldPaths = m.WORLD_SVG_COUNTRY_PATHS;
+      if (this.selectedEmpire) {
+        this.selectEmpire(this.selectedEmpireId);
+      }
+      this.cdr.markForCheck();
+    });
 
     // Initialize Cliopatria 14,000+ ZIP Dataset download & decompression
     this.cliopatriaEngine.loadCliopatriaDataset().then(() => {

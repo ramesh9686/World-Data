@@ -162,7 +162,7 @@
     </div>
   </div>
 
-  <!-- Basemap Switcher & 3D Camera Controls Bar -->
+  <!-- Basemap Switcher, 3D Performance HUD & Camera Controls Bar -->
   <div class="control-bar">
     <div class="basemap-switcher">
       <span class="switcher-title">Basemap Style:</span>
@@ -178,6 +178,26 @@
       <button class="style-btn" [class.active]="activeStyleId === 'positron'" (click)="switchBasemapStyle('positron')">
         ☀️ Light
       </button>
+    </div>
+
+    <!-- Live 3D Graphics & FPS Telemetry HUD -->
+    <div class="fps-telemetry-hud" [title]="'Status: ' + fpsTelemetry.status + ' • Render Time: ' + fpsTelemetry.frameTimeMs + 'ms'">
+      <div class="fps-badge" [class.fps-warning]="fpsTelemetry.avgFps < 40" [class.fps-good]="fpsTelemetry.avgFps >= 50">
+        <span class="fps-pulse"></span>
+        <span class="fps-val">⚡ {{ fpsTelemetry.avgFps }} FPS</span>
+      </div>
+      <div class="preset-selector-group">
+        <span class="switcher-title">3D Mode:</span>
+        <button class="preset-btn" [class.active]="active3dPreset === 'auto'" (click)="set3dPerformancePreset('auto')" title="Adaptive Dynamic DPR & Scaling based on live FPS">
+          ⚡ Auto
+        </button>
+        <button class="preset-btn" [class.active]="active3dPreset === 'high'" (click)="set3dPerformancePreset('high')" title="Full 2.0x Retina Resolution & High Detail">
+          🚀 Ultra
+        </button>
+        <button class="preset-btn" [class.active]="active3dPreset === 'battery'" (click)="set3dPerformancePreset('battery')" title="1.0x Scale Throttle for Battery Saver & Smooth 60FPS">
+          🔋 Saver
+        </button>
+      </div>
     </div>
 
     <!-- 3D Camera Dials -->

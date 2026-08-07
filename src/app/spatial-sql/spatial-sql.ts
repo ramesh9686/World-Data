@@ -1,8 +1,9 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { COUNTRIES_DATA } from '../countries-data';
 import { WorldBankService, WorldBankTopic, WorldBankIndicator, WorldBankDataPoint } from '../world-bank.service';
+import { Model3dLoaderService } from '../services/model-3d-loader.service';
 
 export interface SqlQueryResultRow {
   id?: string;
@@ -258,7 +259,9 @@ export class SpatialSqlComponent implements OnInit, AfterViewInit, OnDestroy {
 
   constructor(
     private cdr: ChangeDetectorRef,
-    private wbService: WorldBankService
+    private wbService: WorldBankService,
+    private model3dLoader: Model3dLoaderService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -275,6 +278,9 @@ export class SpatialSqlComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.clearActiveMarkers();
     if (this.map) {
+      if (typeof this.model3dLoader.disposeHierarchy === 'function') {
+        this.model3dLoader.disposeHierarchy(this.map);
+      }
       this.map.remove();
       this.map = null;
     }
@@ -594,26 +600,31 @@ export class SpatialSqlComponent implements OnInit, AfterViewInit, OnDestroy {
       const maplibreModule = await import('maplibre-gl');
       this.maplibregl = (maplibreModule as any).default || maplibreModule;
 
-      const mapInstance = new this.maplibregl.Map({
-        container: this.previewMapRef.nativeElement,
-        style: {
-          version: 8,
-          sources: {
-            'carto-dark': {
-              type: 'raster',
-              tiles: ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'],
-              tileSize: 256
-            }
+      this.ngZone.runOutsideAngular(() => {
+        const mapInstance = new this.maplibregl.Map({
+          container: this.previewMapRef.nativeElement,
+          style: {
+            version: 8,
+            sources: {
+              'carto-dark': {
+                type: 'raster',
+                tiles: ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'],
+                tileSize: 256
+              }
+            },
+            layers: [{ id: 'carto-dark-layer', type: 'raster', source: 'carto-dark' }]
           },
-          layers: [{ id: 'carto-dark-layer', type: 'raster', source: 'carto-dark' }]
-        },
-        center: [20.0, 20.0],
-        zoom: 2.0
-      });
+          center: [20.0, 20.0],
+          zoom: 2.0,
+          pixelRatio: this.model3dLoader.getOptimalDPR()
+        });
 
-      this.map = mapInstance;
-      mapInstance.on('load', () => {
-        this.renderResultMarkersOnMap();
+        this.map = mapInstance;
+        mapInstance.on('load', () => {
+          this.ngZone.run(() => {
+            this.renderResultMarkersOnMap();
+          });
+        });
       });
     } catch (err) {
       console.warn('Spatial SQL preview map init warning:', err);

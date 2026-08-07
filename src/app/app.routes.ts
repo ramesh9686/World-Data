@@ -1,9 +1,4 @@
 import { Routes } from '@angular/router';
-import { MapComponent } from './map/map';
-import { QuizComponent } from './quiz/quiz';
-import { LocateComponent } from './locate/locate';
-import { ForexComponent } from './forex/forex';
-import { MaritimeComponent } from './maritime/maritime';
 
 export const routes: Routes = [
   { path: '', loadComponent: () => import('./home/home').then(m => m.HomeComponent) },
@@ -12,12 +7,13 @@ export const routes: Routes = [
   { path: 'map', loadComponent: () => import('./geolibre/geolibre').then(m => m.GeolibreComponent) },
   { path: 'geolibre', loadComponent: () => import('./geolibre/geolibre').then(m => m.GeolibreComponent) },
   { path: 'empires', loadComponent: () => import('./empires/empires').then(m => m.EmpiresComponent) },
-  { path: 'maritime', component: MaritimeComponent },
-  { path: 'forex', component: ForexComponent },
-  { path: 'locate', component: LocateComponent },
-  { path: 'quiz', component: QuizComponent },
+  { path: 'maritime', loadComponent: () => import('./maritime/maritime').then(m => m.MaritimeComponent) },
+  { path: 'forex', loadComponent: () => import('./forex/forex').then(m => m.ForexComponent) },
+  { path: 'locate', loadComponent: () => import('./locate/locate').then(m => m.LocateComponent) },
+  { path: 'quiz', loadComponent: () => import('./quiz/quiz').then(m => m.QuizComponent) },
   { path: 'spatial-sql', loadComponent: () => import('./spatial-sql/spatial-sql').then(m => m.SpatialSqlComponent) },
   { path: 'duckdb', redirectTo: 'spatial-sql' },
-  { path: 'classic-map', component: MapComponent },
+  { path: 'classic-map', loadComponent: () => import('./map/map').then(m => m.MapComponent) },
   { path: '**', redirectTo: 'home' }
 ];
+

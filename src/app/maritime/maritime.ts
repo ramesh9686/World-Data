@@ -1,10 +1,11 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { GeoJsonExportService } from '../services/geojson-export.service';
 import { AisStreamService, AisVesselPosition, AisQcStats } from '../services/ais-stream.service';
 import { ArcNauticalService, ArcNauticalAssessmentResponse } from '../services/arc-nautical.service';
+import { Model3dLoaderService } from '../services/model-3d-loader.service';
 import { seaRoute } from 'searoute-ts';
 
 import {
@@ -260,7 +261,9 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
     private geoJsonService: GeoJsonExportService,
     private router: Router,
     public aisStreamService: AisStreamService,
-    public arcNauticalService: ArcNauticalService
+    public arcNauticalService: ArcNauticalService,
+    private model3dLoader: Model3dLoaderService,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -314,13 +317,16 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.aisStreamService.disconnect();
     this.clearActiveMarkers();
     if (this.map) {
+      if (typeof this.model3dLoader.disposeHierarchy === 'function') {
+        this.model3dLoader.disposeHierarchy(this.map);
+      }
       this.map.remove();
       this.map = null;
     }
   }
 
   // ------------------------------------------------------------------
-  // MapLibre WebGL Engine Initialization
+  // MapLibre WebGL Engine Initialization (Optimized Outside Angular Zone)
   // ------------------------------------------------------------------
   private async initMapLibreEngine(): Promise<void> {
     if (!this.mapCanvasRef) return;
@@ -329,46 +335,65 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
       const maplibreModule = await import('maplibre-gl');
       this.maplibregl = (maplibreModule as any).default || maplibreModule;
 
-      const mapInstance = new this.maplibregl.Map({
-        container: this.mapCanvasRef.nativeElement,
-        style: this.mapStyles[this.activeStyleId] as any,
-        center: [this.currentLng, this.currentLat],
-        zoom: this.currentZoom,
-        pitch: this.currentPitch,
-        bearing: this.currentBearing
-      });
+      this.ngZone.runOutsideAngular(() => {
+        const mapInstance = new this.maplibregl.Map({
+          container: this.mapCanvasRef.nativeElement,
+          style: this.mapStyles[this.activeStyleId] as any,
+          center: [this.currentLng, this.currentLat],
+          zoom: this.currentZoom,
+          pitch: this.currentPitch,
+          bearing: this.currentBearing,
+          pixelRatio: this.model3dLoader.getOptimalDPR()
+        });
 
-      this.map = mapInstance;
+        this.map = mapInstance;
 
-      mapInstance.addControl(new this.maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
-      mapInstance.addControl(new this.maplibregl.ScaleControl({ unit: 'nautical' }), 'bottom-left');
-      mapInstance.addControl(new this.maplibregl.FullscreenControl(), 'top-right');
+        mapInstance.addControl(new this.maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
+        mapInstance.addControl(new this.maplibregl.ScaleControl({ unit: 'nautical' }), 'bottom-left');
+        mapInstance.addControl(new this.maplibregl.FullscreenControl(), 'top-right');
 
-      // Render markers immediately so DOM overlays appear instantly
-      this.renderAllMapLayers();
+        this.ngZone.run(() => {
+          this.renderAllMapLayers();
+        });
 
-      setTimeout(() => {
-        if (this.map) this.map.resize();
-      }, 50);
-
-      mapInstance.on('move', () => {
-        const center = mapInstance.getCenter();
-        this.currentLat = center.lat;
-        this.currentLng = center.lng;
-        this.currentZoom = parseFloat(mapInstance.getZoom().toFixed(2));
-        this.currentPitch = Math.round(mapInstance.getPitch());
-        this.currentBearing = Math.round(mapInstance.getBearing());
-        this.cdr.markForCheck();
-      });
-
-      mapInstance.on('load', () => {
-        mapInstance.resize();
-        this.initRouteLayer();
-        this.renderAllMapLayers();
-        this.calculateSeaRoute();
         setTimeout(() => {
           if (this.map) this.map.resize();
-        }, 300);
+        }, 50);
+
+        let lastMoveTime = 0;
+        mapInstance.on('move', () => {
+          const now = performance.now();
+          if (now - lastMoveTime < 60) return; // Throttle state updates during camera movement
+          lastMoveTime = now;
+
+          const center = mapInstance.getCenter();
+          const lat = center.lat;
+          const lng = center.lng;
+          const zoom = parseFloat(mapInstance.getZoom().toFixed(2));
+          const pitch = Math.round(mapInstance.getPitch());
+          const bearing = Math.round(mapInstance.getBearing());
+
+          this.ngZone.run(() => {
+            this.currentLat = lat;
+            this.currentLng = lng;
+            this.currentZoom = zoom;
+            this.currentPitch = pitch;
+            this.currentBearing = bearing;
+            this.cdr.markForCheck();
+          });
+        });
+
+        mapInstance.on('load', () => {
+          mapInstance.resize();
+          this.ngZone.run(() => {
+            this.initRouteLayer();
+            this.renderAllMapLayers();
+            this.calculateSeaRoute();
+            setTimeout(() => {
+              if (this.map) this.map.resize();
+            }, 300);
+          });
+        });
       });
     } catch (err) {
       console.error('Failed to initialize MapLibre GL JS engine in Maritime component:', err);

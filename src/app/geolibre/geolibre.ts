@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -7,6 +7,7 @@ import { COUNTRIES_DATA, CountryData } from '../countries-data';
 import { WORLD_CANALS, STRATEGIC_CHOKEPOINTS, GLOBAL_MEGAPORTS, CARGO_VESSEL_FLEET, CargoVessel } from '../maritime-data';
 import { HISTORICAL_EMPIRES, HistoricalEmpire } from '../empires-data';
 import { WorldBankService, WorldBankDataPoint, WorldBankIndicator, WorldBankTopic } from '../world-bank.service';
+import { Model3dLoaderService, GraphicsPerformancePreset, FpsTelemetry } from '../services/model-3d-loader.service';
 
 export interface SpatialQueryResultRow {
   name: string;
@@ -324,10 +325,34 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     private router: Router,
     private geoJsonService: GeoJsonExportService,
     private wbService: WorldBankService,
+    private model3dLoader: Model3dLoaderService,
+    private ngZone: NgZone,
     private cdr: ChangeDetectorRef
   ) {
     this.wbTopics = this.wbService.getTopics();
     this.wbIndicators = this.wbService.getIndicatorsByTopic(this.selectedTopicId);
+  }
+
+  get fpsTelemetry(): FpsTelemetry {
+    return this.model3dLoader.getFpsTelemetry();
+  }
+
+  get active3dPreset(): GraphicsPerformancePreset {
+    return this.model3dLoader.getPerformancePreset();
+  }
+
+  set3dPerformancePreset(preset: GraphicsPerformancePreset): void {
+    this.model3dLoader.setPerformancePreset(preset);
+    this.playUiSound('click');
+    if (this.map) {
+      const optimalDpr = this.model3dLoader.getOptimalDPR(preset);
+      // Adjust canvas resolution dynamically based on selected preset
+      const canvas = this.map.getCanvas();
+      if (canvas) {
+        canvas.style.transform = `scale(1)`;
+      }
+    }
+    this.cdr.markForCheck();
   }
 
   ngOnInit(): void {
@@ -361,6 +386,9 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.vesselAnimationTimer) clearInterval(this.vesselAnimationTimer);
     this.clearActiveMarkers();
     if (this.map) {
+      if (typeof this.model3dLoader.disposeHierarchy === 'function') {
+        this.model3dLoader.disposeHierarchy(this.map);
+      }
       this.map.remove();
       this.map = null;
     }
@@ -396,7 +424,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   // ------------------------------------------------------------------
-  // MapLibre WebGL Engine Initialization
+  // MapLibre WebGL Engine Initialization (Optimized Outside Angular Zone)
   // ------------------------------------------------------------------
   private async initMapLibreEngine(): Promise<void> {
     if (!this.mapCanvasRef) return;
@@ -405,40 +433,60 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
       const maplibreModule = await import('maplibre-gl');
       this.maplibregl = (maplibreModule as any).default || maplibreModule;
 
-      const mapInstance = new this.maplibregl.Map({
-        container: this.mapCanvasRef.nativeElement,
-        style: this.mapStyles[this.activeStyleId] as any,
-        center: [this.currentLng, this.currentLat],
-        zoom: this.currentZoom,
-        pitch: this.currentPitch,
-        bearing: this.currentBearing
-      });
+      this.ngZone.runOutsideAngular(() => {
+        const mapInstance = new this.maplibregl.Map({
+          container: this.mapCanvasRef.nativeElement,
+          style: this.mapStyles[this.activeStyleId] as any,
+          center: [this.currentLng, this.currentLat],
+          zoom: this.currentZoom,
+          pitch: this.currentPitch,
+          bearing: this.currentBearing,
+          pixelRatio: this.model3dLoader.getOptimalDPR()
+        });
 
-      this.map = mapInstance;
+        this.map = mapInstance;
 
-      mapInstance.addControl(new this.maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
-      mapInstance.addControl(new this.maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
-      mapInstance.addControl(new this.maplibregl.FullscreenControl(), 'top-right');
+        mapInstance.addControl(new this.maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
+        mapInstance.addControl(new this.maplibregl.ScaleControl({ unit: 'metric' }), 'bottom-left');
+        mapInstance.addControl(new this.maplibregl.FullscreenControl(), 'top-right');
 
-      mapInstance.on('move', () => {
-        const center = mapInstance.getCenter();
-        this.currentLat = center.lat;
-        this.currentLng = center.lng;
-        this.currentZoom = parseFloat(mapInstance.getZoom().toFixed(2));
-        this.currentPitch = Math.round(mapInstance.getPitch());
-        this.currentBearing = Math.round(mapInstance.getBearing());
-        this.cdr.markForCheck();
-      });
+        let lastMoveTime = 0;
+        mapInstance.on('move', () => {
+          const now = performance.now();
+          if (now - lastMoveTime < 60) return; // Throttle state updates during fast camera drag
+          lastMoveTime = now;
 
-      mapInstance.on('click', (e: any) => {
-        this.handleCanvasMapClick(e.lngLat.lat, e.lngLat.lng);
-      });
+          const center = mapInstance.getCenter();
+          const lat = center.lat;
+          const lng = center.lng;
+          const zoom = parseFloat(mapInstance.getZoom().toFixed(2));
+          const pitch = Math.round(mapInstance.getPitch());
+          const bearing = Math.round(mapInstance.getBearing());
 
-      mapInstance.on('load', () => {
-        mapInstance.resize();
-        this.addShippingLanesLayer();
-        this.addEmpireTerritoryLayer();
-        this.renderAllVectorLayers();
+          this.ngZone.run(() => {
+            this.currentLat = lat;
+            this.currentLng = lng;
+            this.currentZoom = zoom;
+            this.currentPitch = pitch;
+            this.currentBearing = bearing;
+            this.cdr.markForCheck();
+          });
+        });
+
+        mapInstance.on('click', (e: any) => {
+          this.ngZone.run(() => {
+            this.handleCanvasMapClick(e.lngLat.lat, e.lngLat.lng);
+          });
+        });
+
+        mapInstance.on('load', () => {
+          mapInstance.resize();
+          this.ngZone.run(() => {
+            this.addShippingLanesLayer();
+            this.addEmpireTerritoryLayer();
+            this.renderAllVectorLayers();
+          });
+        });
       });
     } catch (err) {
       console.error('Failed to initialize MapLibre GL JS engine:', err);
