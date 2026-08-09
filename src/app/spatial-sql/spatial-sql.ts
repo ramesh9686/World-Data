@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { COUNTRIES_DATA } from '../countries-data';
 import { WorldBankService, WorldBankTopic, WorldBankIndicator, WorldBankDataPoint } from '../world-bank.service';
-import { Model3dLoaderService } from '../services/model-3d-loader.service';
+import { Model3dLoaderService, GraphicsPerformancePreset, FpsTelemetry } from '../services/model-3d-loader.service';
 
 export interface SqlQueryResultRow {
   id?: string;
@@ -256,6 +256,25 @@ export class SpatialSqlComponent implements OnInit, AfterViewInit, OnDestroy {
   isExecuting: boolean = false;
   executionTimeMs: number = 0;
   activeResults: SqlQueryResultRow[] = [];
+
+  get active3dPreset(): GraphicsPerformancePreset {
+    return this.model3dLoader.getPerformancePreset();
+  }
+
+  get fpsTelemetry(): FpsTelemetry {
+    return this.model3dLoader.getFpsTelemetry();
+  }
+
+  set3dPerformancePreset(preset: GraphicsPerformancePreset): void {
+    this.model3dLoader.setPerformancePreset(preset);
+    if (this.map) {
+      const optimalDpr = this.model3dLoader.getOptimalDPR(preset);
+      if (typeof this.map.setPixelRatio === 'function') {
+        this.map.setPixelRatio(optimalDpr);
+      }
+    }
+    this.cdr.markForCheck();
+  }
 
   constructor(
     private cdr: ChangeDetectorRef,

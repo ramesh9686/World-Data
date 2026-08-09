@@ -27,5 +27,13 @@
     "pathRewrite": {
       "^/gho-api": ""
     }
+  },
+  "/gfw-api": {
+    "target": "https://gateway.api.globalfishingwatch.org",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/gfw-api": ""
+    }
   }
 }

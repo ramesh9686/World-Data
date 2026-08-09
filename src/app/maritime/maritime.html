@@ -3,13 +3,13 @@
   <div class="maritime-ticker-bar">
     <div class="ticker-label">
       <span class="radar-dot"></span>
-      <span>REAL-TIME AISSTREAM.IO SATELLITE FLEET RADAR:</span>
+      <span>REAL-TIME DIGITRAFFIC OPEN AIS SATELLITE FLEET RADAR:</span>
     </div>
     <div class="ticker-scroll">
       <div class="ticker-item">
         <span class="lbl">FEED STATUS:</span>
         <span class="val" [style.color]="isAisStreamConnected ? '#10b981' : '#f59e0b'">
-          {{ isAisStreamConnected ? '🟢 LIVE WEBSOCKET ACTIVE (wss://stream.aisstream.io)' : '🟡 CONNECTING TO STREAM...' }}
+          {{ isAisStreamConnected ? '🟢 LIVE DIGITRAFFIC OPEN AIS (REAL MOVING SHIPS)' : '🟡 CONNECTING TO STREAM...' }}
         </span>
       </div>
       <div class="ticker-item">
@@ -26,7 +26,7 @@
       </div>
     </div>
     <button (click)="openAisModal()" class="ais-badge-btn" title="Inspect AIS Settings">
-      ⚙️ AISStream Key Settings
+      ⚙️ Digitraffic AIS Settings
     </button>
     <button (click)="toggleAudio()" class="audio-toggle-btn" [class.muted]="audioMuted">
       {{ audioMuted ? '🔇 Audio Muted' : '🔊 SFX On' }}
@@ -40,8 +40,9 @@
         <span class="live-pulse"></span>
         <span class="status-pill-text">LIVE OCEANIC AIS SATELLITE TELEMETRY • REAL-TIME WEBSOCKET STREAM</span>
       </div>
-      <h1 class="hero-title">🛰️ Real-Time Global Fleet Radar & Vessel Tracker</h1>
-      <p class="hero-subtitle">High-precision 3D WebGL map tracking real-world ocean ships and maritime fleet movement live from AISStream.io.</p>
+      <h1 class="hero-title"><span class="header-radar-badge">📡</span> Real-Time Global Fleet Radar & Vessel Tracker</h1>
+
+      <p class="hero-subtitle">High-precision 3D WebGL map tracking real-world ocean ships live from Digitraffic Open AIS.</p>
     </div>
 
     <div class="hero-stats-box">
@@ -60,7 +61,7 @@
   <div class="maritime-symbol-toolbar">
     <div class="symbol-guide-group">
       <span class="guide-title">Map Symbols Guide:</span>
-      <span class="symbol-tag live"><span class="icon">📡</span> Live AIS Vessel (AISStream.io)</span>
+      <span class="symbol-tag live"><span class="icon">📡</span> Live AIS Vessel (Digitraffic Open AIS)</span>
       <span class="symbol-tag ship"><span class="icon">🚢</span> Fleet Carrier</span>
       <span class="symbol-tag port"><span class="icon">🏗️</span> Container Megaport</span>
       <span class="symbol-tag chokepoint"><span class="icon">🚨</span> Strategic Bottleneck</span>
@@ -77,7 +78,30 @@
     </div>
   </div>
 
+  <!-- Live Vessel Search & Category Filter Control Bar -->
+  <div class="vessel-filter-toolbar">
+    <div class="search-input-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text"
+             [(ngModel)]="searchQuery"
+             (input)="onSearchOrFilterChange()"
+             placeholder="Search live vessel name or MMSI (e.g. Maersk, 211000105)..."
+             class="vessel-search-field">
+      <button *ngIf="searchQuery" (click)="clearSearch()" class="clear-search-btn">✖</button>
+    </div>
+
+    <div class="filter-chips-group">
+      <span class="filter-title">Fleet Filter:</span>
+      <button (click)="setFilter('ALL')" [class.active]="selectedTypeFilter === 'ALL'" class="filter-chip-btn">🌐 All ({{ trackedLiveVesselCount }})</button>
+      <button (click)="setFilter('CARGO')" [class.active]="selectedTypeFilter === 'CARGO'" class="filter-chip-btn cargo">🚢 Container</button>
+      <button (click)="setFilter('TANKER')" [class.active]="selectedTypeFilter === 'TANKER'" class="filter-chip-btn tanker">🛢️ Tanker</button>
+      <button (click)="setFilter('PASSENGER')" [class.active]="selectedTypeFilter === 'PASSENGER'" class="filter-chip-btn passenger">🛳️ Cruise</button>
+      <button (click)="setFilter('FISHING')" [class.active]="selectedTypeFilter === 'FISHING'" class="filter-chip-btn fishing">🎣 Fishing</button>
+    </div>
+  </div>
+
   <!-- 3D WEBGL MAP VIEWPORT CARD -->
+
   <div class="map-viewport-card main-radar-viewport">
     <div class="viewport-toolbar">
       <div class="viewport-title">
@@ -88,7 +112,20 @@
         </span>
       </div>
 
+      <div class="basemap-switcher-pills">
+        <span class="switcher-lbl">BASEMAP:</span>
+        <button (click)="switchBasemapStyle('satellite')" [class.active]="activeStyleId === 'satellite'" class="style-pill-btn">🛰️ Esri Satellite (World Map)</button>
+        <button (click)="switchBasemapStyle('dark')" [class.active]="activeStyleId === 'dark'" class="style-pill-btn">🌙 CARTO Dark</button>
+        <button (click)="switchBasemapStyle('fiord')" [class.active]="activeStyleId === 'fiord'" class="style-pill-btn">🌊 OpenFreeMap Fiord</button>
+        <button (click)="switchBasemapStyle('bright')" [class.active]="activeStyleId === 'bright'" class="style-pill-btn">☀️ OpenFreeMap Bright</button>
+        <button (click)="switchBasemapStyle('topo')" [class.active]="activeStyleId === 'topo'" class="style-pill-btn">🏔️ OpenTopo</button>
+      </div>
+
+
+
+
       <div class="telemetry-readout">
+
         <span>TRACKED <strong class="telemetry-val" style="color: #34d399;">📡 {{ trackedLiveVesselCount | number }}</strong></span>
         <span class="telemetry-divider">•</span>
         <span>LAT <strong class="telemetry-val">{{ currentLat.toFixed(4) }}°</strong></span>
@@ -242,9 +279,10 @@
       <button class="style-btn" [class.active]="activeStyleId === 'topo'" (click)="switchBasemapStyle('topo')">
         ⛰️ Topo
       </button>
-      <button class="style-btn" [class.active]="activeStyleId === 'positron'" (click)="switchBasemapStyle('positron')">
-        ☀️ Light
+      <button class="style-btn" [class.active]="activeStyleId === 'bright'" (click)="switchBasemapStyle('bright')">
+        ☀️ Bright
       </button>
+
     </div>
 
     <!-- 3D Camera Dials -->
@@ -265,26 +303,43 @@
         🎯 Reset North
       </button>
     </div>
+
+    <!-- 3D Graphics Performance Presets & Dynamic Resolution Scaling -->
+    <div class="fps-telemetry-hud" title="Live WebGL Performance & Resolution Scaling">
+      <div class="fps-badge" [class.fps-warning]="fpsTelemetry.avgFps < 45" [class.fps-good]="fpsTelemetry.avgFps >= 45">
+        <span class="fps-pulse"></span>
+        <span class="fps-val">{{ fpsTelemetry.avgFps }} FPS ({{ fpsTelemetry.frameTimeMs }}ms)</span>
+      </div>
+
+      <div class="preset-selector-group">
+        <button class="preset-btn" [class.active]="active3dPreset === 'auto'" (click)="set3dPerformancePreset('auto')" title="Adaptive Dynamic DPR & Scaling based on live FPS">
+          ⚡ Auto
+        </button>
+        <button class="preset-btn" [class.active]="active3dPreset === 'high'" (click)="set3dPerformancePreset('high')" title="Full 2.0x Retina Resolution & High Detail">
+          💎 High
+        </button>
+        <button class="preset-btn" [class.active]="active3dPreset === 'battery'" (click)="set3dPerformancePreset('battery')" title="1.0x Scale Throttle for Battery Saver & Fast 60FPS">
+          🔋 Battery Saver
+        </button>
+      </div>
+    </div>
   </div>
 
-  <!-- ARC NAUTICAL API VOYAGE ASSESSMENT & SEA ROUTE CALCULATOR -->
+  <!-- AISSTREAM.IO & SEAROUTE-TS VOYAGE ASSESSMENT ENGINE -->
   <section class="arc-nautical-calculator-card">
     <div class="arc-card-header">
       <div class="arc-header-title">
         <span class="arc-icon">⚓</span>
         <div>
-          <h3>Arc Nautical API • Maritime Voyage Assessment Engine</h3>
-          <p>Real-Time Oceanic Routing • IMO CII Carbon Rating • Bunker Fuel Costs • Maritime Risk Telemetry</p>
+          <h3>Digitraffic Open AIS & Searoute-TS Maritime Voyage Engine</h3>
+          <p>Real-Time Oceanic Routing • IMO CII Carbon Rating • Bunker Fuel Costs • Digitraffic Telemetry</p>
         </div>
       </div>
 
       <div class="arc-header-actions">
         <span class="arc-api-status-badge">
-          {{ arcAssessmentResult?.api_source === 'live_api' ? '🟢 LIVE ARC NAUTICAL API ACTIVE' : '⚡ ARC NAUTICAL ENGINE READY' }}
+          🟢 DIGITRAFFIC OPEN AIS & SEAROUTE ENGINE ACTIVE
         </span>
-        <button class="arc-token-btn" (click)="openArcNauticalModal()">
-          🔑 Arc Nautical API Token
-        </button>
       </div>
     </div>
 
@@ -349,25 +404,25 @@
       <div class="arc-result-card">
         <div class="card-head"><span class="icon">🌱</span> Environmental & CII Rating</div>
         <div class="cii-rating-row">
-          <span class="cii-badge" [class]="'cii-' + (arcAssessmentResult?.environmental?.cii_rating || 'A')">
-            CII Rating: {{ arcAssessmentResult?.environmental?.cii_rating || 'A' }}
+          <span class="cii-badge" [class]="'cii-' + (voyageAssessment?.environmental?.cii_rating || 'A')">
+            CII Rating: {{ voyageAssessment?.environmental?.cii_rating || 'A' }}
           </span>
           <span class="eexi-badge">🛡️ EEXI Compliant</span>
         </div>
-        <div class="card-sub-txt">CO2 Footprint: <strong>{{ arcAssessmentResult?.environmental?.co2_emissions_tons || calculatedCo2Tons | number }} Tons</strong></div>
-        <div class="card-sub-txt">Fuel: {{ arcAssessmentResult?.environmental?.fuel_consumption_tons || '285' }} Tons VLSFO</div>
+        <div class="card-sub-txt">CO2 Footprint: <strong>{{ voyageAssessment?.environmental?.co2_emissions_tons || calculatedCo2Tons | number }} Tons</strong></div>
+        <div class="card-sub-txt">Fuel: {{ voyageAssessment?.environmental?.fuel_consumption_tons || '285' }} Tons VLSFO</div>
       </div>
 
       <!-- 3. Financial Voyage Costs -->
       <div class="arc-result-card">
         <div class="card-head"><span class="icon">💰</span> Financial Voyage Cost</div>
         <div class="card-metric-val highlight-gold">
-          ${{ (arcAssessmentResult?.financial?.total_voyage_cost_usd || 450000) | number }} USD
+          ${{ (voyageAssessment?.financial?.total_voyage_cost_usd || 450000) | number }} USD
         </div>
         <div class="financial-breakdown-list">
-          <span>Bunker Fuel: ${{ (arcAssessmentResult?.financial?.bunker_fuel_cost_usd || 320000) | number }}</span>
-          <span>Canal Tolls: ${{ (arcAssessmentResult?.financial?.canal_tolls_usd || 120000) | number }}</span>
-          <span>EU ETS Tax: ${{ (arcAssessmentResult?.financial?.carbon_tax_eu_ets_usd || 10000) | number }}</span>
+          <span>Bunker Fuel: ${{ (voyageAssessment?.financial?.bunker_fuel_cost_usd || 320000) | number }}</span>
+          <span>Canal Tolls: ${{ (voyageAssessment?.financial?.canal_tolls_usd || 120000) | number }}</span>
+          <span>EU ETS Tax: ${{ (voyageAssessment?.financial?.carbon_tax_eu_ets_usd || 10000) | number }}</span>
         </div>
       </div>
 
@@ -375,54 +430,27 @@
       <div class="arc-result-card">
         <div class="card-head"><span class="icon">⚠️</span> Security & Risk Assessment</div>
         <div class="risk-score-row">
-          <span class="risk-score-badge">Risk Score: {{ arcAssessmentResult?.risk_assessment?.overall_risk_score || 15 }}/100</span>
-          <span class="risk-level-tag">Weather: {{ arcAssessmentResult?.risk_assessment?.weather_risk_level || 'Low' }}</span>
+          <span class="risk-score-badge">Risk Score: {{ voyageAssessment?.risk_assessment?.overall_risk_score || 15 }}/100</span>
+          <span class="risk-level-tag">Weather: {{ voyageAssessment?.risk_assessment?.weather_risk_level || 'Low' }}</span>
         </div>
         <p class="security-advisory-txt">
-          {{ arcAssessmentResult?.risk_assessment?.security_advisory || 'Standard international voyage corridor. No heightened security advisories.' }}
+          {{ voyageAssessment?.risk_assessment?.security_advisory || 'Standard international voyage corridor. No heightened security advisories.' }}
         </p>
       </div>
     </div>
   </section>
 
-  <!-- Arc Nautical API Token Settings Modal -->
-  <div *ngIf="isArcNauticalModalOpen" class="ais-modal-overlay" (click)="closeArcNauticalModal()">
-    <div class="ais-modal-card" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h3>🔑 Arc Nautical API Bearer Token Credentials</h3>
-        <button (click)="closeArcNauticalModal()" class="close-modal-btn">✖</button>
-      </div>
-      <div class="modal-body">
-        <p class="modal-desc">
-          Enter your official <strong>Arc Nautical API Bearer Token</strong> received in your confirmation email (https://arcnautical.com).
-        </p>
-
-        <div class="api-key-input-box">
-          <label>Arc Nautical Authorization Bearer Token:</label>
-          <div style="display: flex; gap: 8px; width: 100%; align-items: center;">
-            <input type="password" [(ngModel)]="arcNauticalToken" placeholder="arc_live_••••••••••••••••••••••••" class="ais-api-input" style="flex: 1;">
-          </div>
-
-          <div class="ais-stream-actions">
-            <button class="btn-connect-ws" (click)="saveArcNauticalToken()">
-              💾 Save Token & Run Voyage Assessment
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- AIS Telemetry Stream Settings Modal -->
   <div *ngIf="isAisModalOpen" class="ais-modal-overlay" (click)="closeAisModal()">
     <div class="ais-modal-card" (click)="$event.stopPropagation()">
       <div class="modal-header">
-        <h3>📡 AISStream.io WebSocket Telemetry Stream Settings</h3>
+        <h3>📡 Digitraffic Open AIS Telemetry Stream Settings</h3>
         <button (click)="closeAisModal()" class="close-modal-btn">✖</button>
       </div>
       <div class="modal-body">
         <p class="modal-desc">
-          Real-time global vessel tracking powered by your active <strong>AISStream.io</strong> WebSocket connection.
+          Real-time vessel tracking powered by your active <strong>Digitraffic Open AIS</strong> stream.
         </p>
 
         <div class="api-key-input-box">
@@ -436,7 +464,7 @@
 
           <div class="ais-stream-actions">
             <button class="btn-connect-ws" (click)="connectAisStream()" [disabled]="isAisStreamConnected">
-              {{ isAisStreamConnected ? '🟢 WebSocket Stream Connected' : '🔌 Re-Connect AISStream.io WebSocket' }}
+              {{ isAisStreamConnected ? '🟢 Digitraffic Open AIS Stream Connected' : '🔌 Re-Connect Digitraffic Open AIS Stream' }}
             </button>
             <button *ngIf="isAisStreamConnected" class="btn-disconnect-ws" (click)="disconnectAisStream()">
               🔴 Disconnect

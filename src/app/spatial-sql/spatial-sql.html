@@ -368,7 +368,18 @@
     </div>
 
     <!-- Right: MapLibre GL 3D Map Preview -->
-    <div class="map-preview-box">
+    <div class="map-preview-box" style="position: relative;">
+      <div class="fps-telemetry-hud" style="position: absolute; top: 12px; right: 12px; z-index: 10; background: rgba(11, 15, 26, 0.9);" title="Live WebGL Performance & Resolution Scaling">
+        <div class="fps-badge" [class.fps-warning]="fpsTelemetry.avgFps < 45" [class.fps-good]="fpsTelemetry.avgFps >= 45">
+          <span class="fps-pulse"></span>
+          <span class="fps-val">{{ fpsTelemetry.avgFps }} FPS</span>
+        </div>
+        <div class="preset-selector-group">
+          <button class="preset-btn" [class.active]="active3dPreset === 'auto'" (click)="set3dPerformancePreset('auto')" title="Adaptive Dynamic DPR">⚡ Auto</button>
+          <button class="preset-btn" [class.active]="active3dPreset === 'high'" (click)="set3dPerformancePreset('high')" title="Full 2.0x Retina Detail">💎 High</button>
+          <button class="preset-btn" [class.active]="active3dPreset === 'battery'" (click)="set3dPerformancePreset('battery')" title="1.0x Scale Throttle for Fast 60FPS">🔋 Battery</button>
+        </div>
+      </div>
       <div #previewMapCanvas id="preview-map-canvas"></div>
     </div>
   </div>

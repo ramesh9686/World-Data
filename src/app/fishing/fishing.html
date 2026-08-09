@@ -1,0 +1,340 @@
+<div class="fishing-page">
+  <!-- Ticker Bar -->
+  <div class="gfw-ticker-bar">
+    <div class="ticker-left">
+      <span class="radar-pulse"></span>
+      <span class="ticker-title">GLOBAL FISHING WATCH — REAL-TIME SATELLITE TELEMETRY</span>
+    </div>
+    <div class="ticker-stats">
+      <span class="stat-chip">
+        <span class="stat-lbl">LIVE SATELLITE PINGS:</span>
+        <span class="stat-val green">{{ liveAisPingsCount | number }} Pings</span>
+      </span>
+      <span class="stat-chip">
+        <span class="stat-lbl">TOTAL TRACKED FLEET:</span>
+        <span class="stat-val cyan">{{ stats.totalVesselsSearched }} Vessels</span>
+      </span>
+      <span class="stat-chip">
+        <span class="stat-lbl">EVENTS TRACKED:</span>
+        <span class="stat-val green">{{ stats.totalFishingEvents }} Events</span>
+      </span>
+      <span class="stat-chip">
+        <span class="stat-lbl">STREAM STATUS:</span>
+        <span class="stat-val" [style.color]="isRealtimeStreamConnected ? '#10b981' : '#f59e0b'">
+          {{ isRealtimeStreamConnected ? '🟢 REAL-TIME AIS STREAMING' : '🟡 CONNECTING SATELLITE FEED...' }}
+        </span>
+      </span>
+    </div>
+  </div>
+
+  <!-- Hero Header -->
+  <header class="gfw-header">
+    <div class="hero-content">
+      <div class="hero-badge-row">
+        <span class="live-badge"><span class="pulse-dot"></span> REAL-TIME SATELLITE AIS ACTIVE</span>
+        <span class="api-badge">🌍 Global Fishing Watch v3 API</span>
+      </div>
+      <h1 class="hero-title">🐟 Global Fishing Watch — Ocean Intelligence Dashboard</h1>
+      <p class="hero-subtitle">
+        Track {{ stats.totalVesselsSearched }} active vessels in real time across 8 global fishing grounds with live satellite AIS pings, GFW vessel registry search, and automated activity event detection.
+      </p>
+    </div>
+  </header>
+
+  <!-- MAP VIEWPORT CARD (MOVED TO SECOND TOP AS REQUESTED) -->
+  <div class="map-viewport-card main-top-map">
+    <div class="map-toolbar">
+      <div class="map-toolbar-left">
+        <span class="map-live-dot"></span>
+        <span class="map-engine-label">MapLibre GL JS 3D Engine • GFW 4Wings Heatmap • {{ vesselSearchResults.length }} Live Tracked Vessels</span>
+      </div>
+
+      <div class="basemap-pills">
+        <button (click)="switchBasemap('dark')" [class.active]="activeStyleId === 'dark'" class="basemap-pill">🌙 Dark</button>
+        <button (click)="switchBasemap('satellite')" [class.active]="activeStyleId === 'satellite'" class="basemap-pill">🛰️ Satellite</button>
+      </div>
+
+      <div class="heatmap-toggle">
+        <button (click)="toggleHeatmap()" class="toggle-btn" [class.active]="showHeatmapLayer">
+          {{ showHeatmapLayer ? '🔥 Heatmap ON' : '⬜ Heatmap OFF' }}
+        </button>
+        <button (click)="updateHeatmapDateRange()" class="refresh-btn">🔄 Refresh Map</button>
+      </div>
+
+      <div class="map-telemetry">
+        <span>LAT <strong>{{ currentLat.toFixed(4) }}°</strong></span>
+        <span class="divider">•</span>
+        <span>LNG <strong>{{ currentLng.toFixed(4) }}°</strong></span>
+        <span class="divider">•</span>
+        <span>ZOOM <strong>{{ currentZoom }}x</strong></span>
+      </div>
+    </div>
+
+    <div class="map-container">
+      <div #gfwMapCanvas id="gfw-map-canvas"></div>
+
+      <!-- Selected Event Floating Card -->
+      <div *ngIf="selectedEvent" class="floating-event-card">
+        <div class="fev-header">
+          <span class="fev-icon" [style.color]="getEventTypeColor(selectedEvent.type)">
+            {{ getEventTypeIcon(selectedEvent.type) }}
+          </span>
+          <h4>{{ selectedEvent.type.replace('_', ' ') }} Event</h4>
+          <button class="fev-close" (click)="closeEventCard()">✕</button>
+        </div>
+        <div class="fev-body">
+          <div class="fev-row"><span>Vessel:</span><strong>{{ selectedEvent.vesselName }}</strong></div>
+          <div class="fev-row"><span>Start Time:</span><strong>{{ formatDateTime(selectedEvent.start) }}</strong></div>
+          <div class="fev-row"><span>End Time:</span><strong>{{ formatDateTime(selectedEvent.end) }}</strong></div>
+          <div class="fev-row"><span>Duration:</span><strong>{{ selectedEvent.durationHours }} hours</strong></div>
+          <div class="fev-row"><span>Coordinates:</span><strong>{{ selectedEvent.lat.toFixed(4) }}°, {{ selectedEvent.lng.toFixed(4) }}°</strong></div>
+          <div class="fev-row" *ngIf="selectedEvent.distanceKm"><span>Distance from Shore:</span><strong>{{ selectedEvent.distanceKm.toFixed(0) }} km</strong></div>
+          <div class="fev-row" *ngIf="selectedEvent.regions.length"><span>RFMO Regions:</span><strong>{{ selectedEvent.regions.join(', ') }}</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Fishing Hotspot Quick Jump -->
+  <div class="hotspot-toolbar">
+    <span class="hotspot-title">🌊 Global Fishing Hotspots (3D Fly-To):</span>
+    <div class="hotspot-pills">
+      <button *ngFor="let h of fishingHotspots"
+              (click)="flyTo(h.lng, h.lat, h.zoom)"
+              class="hotspot-pill">
+        {{ h.emoji }} {{ h.name }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Vessel Search & Gear Filter Panel -->
+  <section class="search-panel">
+    <div class="search-header">
+      <span class="panel-icon">🔍</span>
+      <div>
+        <h3>Vessel Search & Global Fleet Registry</h3>
+        <p>Search by vessel name, MMSI, IMO, flag state, or filter by fishing gear type across 400,000+ GFW tracked vessels</p>
+      </div>
+    </div>
+
+    <!-- Gear Type Filter Chips -->
+    <div class="gear-filter-bar">
+      <span class="gear-filter-title">⚙️ Fleet Filter by Gear Type:</span>
+      <div class="gear-filter-chips">
+        <button (click)="setGearFilter('ALL')" [class.active]="selectedGearFilter === 'ALL'" class="gfilter-chip">
+          🌐 All Vessels ({{ allMasterVessels.length }})
+        </button>
+        <button (click)="setGearFilter('trawlers')" [class.active]="selectedGearFilter === 'trawlers'" class="gfilter-chip trawler">
+          🥅 Trawlers
+        </button>
+        <button (click)="setGearFilter('purse_seines')" [class.active]="selectedGearFilter === 'purse_seines'" class="gfilter-chip purse">
+          🪤 Purse Seines
+        </button>
+        <button (click)="setGearFilter('drifting_longlines')" [class.active]="selectedGearFilter === 'drifting_longlines'" class="gfilter-chip longline">
+          🎣 Longlines
+        </button>
+        <button (click)="setGearFilter('squid_jigger')" [class.active]="selectedGearFilter === 'squid_jigger'" class="gfilter-chip squid">
+          Squid Jiggers
+        </button>
+        <button (click)="setGearFilter('pole_and_line')" [class.active]="selectedGearFilter === 'pole_and_line'" class="gfilter-chip pole">
+          🎋 Pole & Line
+        </button>
+      </div>
+    </div>
+
+    <!-- Quick Select Featured Fleet -->
+    <div class="featured-vessels-bar">
+      <span class="featured-title">⚡ Active Live Fleet (Showing {{ vesselSearchResults.length }} vessels — Click to Inspect & Track):</span>
+      <div class="featured-pills">
+        <button *ngFor="let v of vesselSearchResults.slice(0, 20)"
+                (click)="selectVessel(v)"
+                [class.active]="selectedVessel?.id === v.id"
+                class="featured-pill">
+          <span class="live-dot-small" *ngIf="v.isRealtimeLive"></span>
+          {{ v.flagEmoji }} {{ v.name }}
+          <span class="gear-tag" [style.color]="getGearColor(v.gearType)">{{ formatGearType(v.gearType) }}</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="search-bar-row">
+      <div class="search-input-group">
+        <span class="search-field-icon">🚢</span>
+        <input type="text"
+               [(ngModel)]="vesselSearchQuery"
+               (keyup.enter)="searchVessels()"
+               placeholder="Search by vessel name, MMSI, IMO, flag (e.g. Lu Rong Yu, Fu Yuan Yu, Monte Celdo, Alaskan, Norway)..."
+               class="gfw-search-input">
+      </div>
+      <button (click)="searchVessels()" class="gfw-search-btn" [disabled]="isSearchingVessels">
+        {{ isSearchingVessels ? '⏳ Querying GFW...' : '🔎 Search GFW Registry' }}
+      </button>
+    </div>
+
+    <!-- Search Results Grid -->
+    <div *ngIf="vesselSearchResults.length > 0" class="vessel-results-grid">
+      <div *ngFor="let v of vesselSearchResults.slice(0, 24)"
+           class="vessel-result-card"
+           [class.selected]="selectedVessel?.id === v.id"
+           (click)="selectVessel(v)">
+        <div class="vcard-top">
+          <span class="vcard-flag">{{ v.flagEmoji }}</span>
+          <div class="vcard-info">
+            <span class="vcard-name">{{ v.name }} <span class="live-tag" *ngIf="v.isRealtimeLive">📡 LIVE</span></span>
+            <span class="vcard-type" [style.color]="getGearColor(v.gearType)">
+              {{ formatGearType(v.gearType) }} • {{ v.regionName }}
+            </span>
+          </div>
+        </div>
+        <div class="vcard-details">
+          <span *ngIf="v.mmsi">MMSI: {{ v.mmsi }}</span>
+          <span *ngIf="v.imo">IMO: {{ v.imo }}</span>
+          <span *ngIf="v.speedKnots !== undefined">Speed: {{ v.speedKnots }} kts</span>
+          <span *ngIf="v.lengthM">Length: {{ v.lengthM }}m</span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="isSearchingVessels" class="search-loading">
+      <span class="spinner"></span> Querying Global Fishing Watch vessel registry...
+    </div>
+  </section>
+
+  <!-- Selected Vessel Inspector -->
+  <section *ngIf="selectedVessel" class="vessel-inspector">
+    <div class="inspector-header">
+      <div class="inspector-title">
+        <span class="inspector-flag">{{ selectedVessel.flagEmoji }}</span>
+        <div>
+          <h3>{{ selectedVessel.name }} <span class="live-badge-inline" *ngIf="selectedVessel.isRealtimeLive">📡 REAL-TIME SATELLITE LIVE</span></h3>
+          <span class="inspector-subtitle">{{ formatGearType(selectedVessel.gearType) }} • {{ selectedVessel.flag }} Flag • {{ selectedVessel.regionName }}</span>
+        </div>
+      </div>
+      <button class="close-btn" (click)="closeVesselCard()">✕</button>
+    </div>
+
+    <div class="inspector-body">
+      <div class="inspector-row"><span class="lbl">MMSI Identification:</span><span class="val mono">{{ selectedVessel.mmsi || 'N/A' }}</span></div>
+      <div class="inspector-row"><span class="lbl">IMO Number:</span><span class="val mono">{{ selectedVessel.imo || 'N/A' }}</span></div>
+      <div class="inspector-row"><span class="lbl">Callsign:</span><span class="val">{{ selectedVessel.callsign || 'N/A' }}</span></div>
+      <div class="inspector-row"><span class="lbl">Vessel Type:</span><span class="val">{{ selectedVessel.vesselType }}</span></div>
+      <div class="inspector-row"><span class="lbl">Gear Classification:</span><span class="val" [style.color]="getGearColor(selectedVessel.gearType)">{{ formatGearType(selectedVessel.gearType) }}</span></div>
+      <div class="inspector-row"><span class="lbl">Length Overall:</span><span class="val">{{ selectedVessel.lengthM ? selectedVessel.lengthM + ' m' : 'N/A' }}</span></div>
+      <div class="inspector-row"><span class="lbl">Gross Tonnage:</span><span class="val">{{ selectedVessel.tonnageGt ? selectedVessel.tonnageGt + ' GT' : 'N/A' }}</span></div>
+      <div class="inspector-row" *ngIf="selectedVessel.speedKnots !== undefined"><span class="lbl">Real-Time Speed / Course:</span><span class="val" style="color: #22d3ee; font-weight: 700;">{{ selectedVessel.speedKnots }} Knots @ {{ selectedVessel.headingDeg || 0 }}°</span></div>
+      <div class="inspector-row"><span class="lbl">Registered Owner:</span><span class="val">{{ selectedVessel.owner || 'N/A' }}</span></div>
+      <div class="inspector-row"><span class="lbl">Live Coordinates:</span><span class="val" style="color: #34d399;">📍 {{ selectedVessel.lat.toFixed(4) }}°, {{ selectedVessel.lng.toFixed(4) }}°</span></div>
+    </div>
+
+    <!-- Event Loader Controls -->
+    <div class="event-loader-section">
+      <h4>📊 Load Vessel Activity Events (GFW Events API)</h4>
+      <div class="event-type-chips">
+        <button *ngFor="let t of ['FISHING','ENCOUNTER','LOITERING','PORT_VISIT','GAP']"
+                [class.active]="eventTypeFilter === t"
+                (click)="eventTypeFilter = $any(t); loadFishingEvents()"
+                class="event-chip"
+                [style.border-color]="getEventTypeColor(t)">
+          {{ getEventTypeIcon(t) }} {{ t.replace('_', ' ') }}
+        </button>
+      </div>
+      <div class="date-range-row">
+        <div class="date-field">
+          <label>From Date:</label>
+          <input type="date" [(ngModel)]="heatmapStartDate" class="gfw-date-input">
+        </div>
+        <div class="date-field">
+          <label>To Date:</label>
+          <input type="date" [(ngModel)]="heatmapEndDate" class="gfw-date-input">
+        </div>
+      </div>
+      <button (click)="loadFishingEvents()" class="load-events-btn" [disabled]="isLoadingEvents">
+        {{ isLoadingEvents ? '⏳ Querying GFW Events API...' : '📡 Fetch ' + eventTypeFilter + ' Events' }}
+      </button>
+    </div>
+  </section>
+
+  <!-- Fishing Events Results Panel -->
+  <section *ngIf="fishingEvents.length > 0" class="events-results-panel">
+    <div class="events-header">
+      <h3>{{ getEventTypeIcon(eventTypeFilter) }} {{ fishingEvents.length }} {{ eventTypeFilter.replace('_', ' ') }} Events Tracked</h3>
+      <span class="events-vessel-tag">{{ selectedVessel?.flagEmoji }} {{ selectedVessel?.name }}</span>
+    </div>
+    <div class="events-scroll-list">
+      <div *ngFor="let ev of fishingEvents; let i = index"
+           class="event-card"
+           [class.selected]="selectedEvent?.id === ev.id"
+           (click)="selectEvent(ev)">
+        <div class="ev-top">
+          <span class="ev-icon" [style.color]="getEventTypeColor(ev.type)">{{ getEventTypeIcon(ev.type) }}</span>
+          <span class="ev-label">Event #{{ i + 1 }} • {{ ev.type.replace('_', ' ') }}</span>
+          <span class="ev-duration">{{ ev.durationHours }}h</span>
+        </div>
+        <div class="ev-details">
+          <span>📅 {{ formatDateTime(ev.start) }}</span>
+          <span>📍 {{ ev.lat.toFixed(3) }}°, {{ ev.lng.toFixed(3) }}°</span>
+          <span *ngIf="ev.distanceKm">🌊 {{ ev.distanceKm.toFixed(0) }}km from shore</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Heatmap Legend -->
+  <div class="heatmap-legend-card">
+    <h4>🔥 Fishing Effort Heatmap Legend</h4>
+    <p class="legend-desc">Apparent fishing activity intensity from GFW satellite AIS analysis ({{ heatmapStartDate }} to {{ heatmapEndDate }})</p>
+    <div class="legend-gradient">
+      <div class="gradient-bar"></div>
+      <div class="gradient-labels">
+        <span>Low Activity</span>
+        <span>Moderate Intensity</span>
+        <span>High Intensity</span>
+      </div>
+    </div>
+    <div class="gear-type-legend">
+      <h5>Fishing Gear Types:</h5>
+      <div class="gear-chips">
+        <span class="gear-chip" style="--chip-color: #ef4444">🥅 Trawlers</span>
+        <span class="gear-chip" style="--chip-color: #a855f7">🪤 Purse Seines</span>
+        <span class="gear-chip" style="--chip-color: #f97316">🎣 Drifting Longlines</span>
+        <span class="gear-chip" style="--chip-color: #eab308">📏 Set Longlines</span>
+        <span class="gear-chip" style="--chip-color: #06b6d4">Squid Jiggers</span>
+        <span class="gear-chip" style="--chip-color: #10b981">🎋 Pole & Line</span>
+        <span class="gear-chip" style="--chip-color: #3b82f6">🪝 Trollers</span>
+        <span class="gear-chip" style="--chip-color: #ec4899">📦 Fixed Gear</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Event Type Legend -->
+  <div class="event-legend-card">
+    <h4>📊 Event Type Reference Guide</h4>
+    <div class="event-type-list">
+      <div class="event-type-item">
+        <span class="et-dot" style="background: #ef4444"></span>
+        <span class="et-icon">🎣</span>
+        <div><strong>Fishing</strong><p>Apparent fishing activity detected by GFW machine learning models</p></div>
+      </div>
+      <div class="event-type-item">
+        <span class="et-dot" style="background: #a855f7"></span>
+        <span class="et-icon">🤝</span>
+        <div><strong>Encounter</strong><p>Two vessels meeting at sea (potential transshipment of catch)</p></div>
+      </div>
+      <div class="event-type-item">
+        <span class="et-dot" style="background: #f97316"></span>
+        <span class="et-icon">⚓</span>
+        <div><strong>Loitering</strong><p>Vessel stationary in open ocean (may indicate rendezvous activity)</p></div>
+      </div>
+      <div class="event-type-item">
+        <span class="et-dot" style="background: #10b981"></span>
+        <span class="et-icon">🏗️</span>
+        <div><strong>Port Visit</strong><p>Vessel entered and docked at a port facility</p></div>
+      </div>
+      <div class="event-type-item">
+        <span class="et-dot" style="background: #eab308"></span>
+        <span class="et-icon">📡</span>
+        <div><strong>AIS Gap</strong><p>AIS signal lost/disabled for an extended period</p></div>
+      </div>
+    </div>
+  </div>
+</div>

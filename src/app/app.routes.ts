@@ -14,6 +14,7 @@ export const routes: Routes = [
   { path: 'spatial-sql', loadComponent: () => import('./spatial-sql/spatial-sql').then(m => m.SpatialSqlComponent) },
   { path: 'duckdb', redirectTo: 'spatial-sql' },
   { path: 'classic-map', loadComponent: () => import('./map/map').then(m => m.MapComponent) },
+  { path: 'fishing', loadComponent: () => import('./fishing/fishing').then(m => m.FishingComponent) },
   { path: '**', redirectTo: 'home' }
 ];
 

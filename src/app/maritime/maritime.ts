@@ -4,9 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { GeoJsonExportService } from '../services/geojson-export.service';
 import { AisStreamService, AisVesselPosition, AisQcStats } from '../services/ais-stream.service';
-import { ArcNauticalService, ArcNauticalAssessmentResponse } from '../services/arc-nautical.service';
-import { Model3dLoaderService } from '../services/model-3d-loader.service';
+import { Model3dLoaderService, GraphicsPerformancePreset, FpsTelemetry } from '../services/model-3d-loader.service';
 import { seaRoute } from 'searoute-ts';
+import { environment } from '../../environments/environment';
 
 import {
   MaritimeChokepoint,
@@ -29,6 +29,26 @@ export interface RoutePortOption {
   lng: number;
   lat: number;
   locode: string;
+}
+
+export interface VoyageAssessment {
+  api_source: string;
+  environmental: {
+    co2_emissions_tons: number;
+    fuel_consumption_tons: number;
+    cii_rating: 'A' | 'B' | 'C' | 'D' | 'E';
+  };
+  financial: {
+    total_voyage_cost_usd: number;
+    bunker_fuel_cost_usd: number;
+    canal_tolls_usd: number;
+    carbon_tax_eu_ets_usd: number;
+  };
+  risk_assessment: {
+    overall_risk_score: number;
+    weather_risk_level: string;
+    security_advisory: string;
+  };
 }
 
 @Component({
@@ -56,9 +76,13 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
   currentPitch: number = 35;
   currentBearing: number = 0;
 
-  // Basemap style switcher
-  activeStyleId: 'satellite' | 'dark' | 'topo' | 'positron' | 'vector' = 'vector';
-  mapStyles = {
+  activeStyleId: 'satellite' | 'dark' | 'fiord' | 'bright' | 'demotiles' | 'topo' | 'vector' = 'satellite';
+
+
+
+  mapStyles: { [key: string]: any } = {
+    fiord: 'https://tiles.openfreemap.org/styles/fiord',
+    bright: 'https://tiles.openfreemap.org/styles/bright',
     satellite: {
       version: 8,
       sources: {
@@ -87,9 +111,7 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
         'carto-dark': {
           type: 'raster',
           tiles: [
-            'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-            'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-            'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+            'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
           ],
           tileSize: 256,
           attribution: '© CARTO'
@@ -105,14 +127,15 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       ]
     },
+    demotiles: 'https://demotiles.maplibre.org/style.json',
     topo: {
+
       version: 8,
       sources: {
         'open-topo': {
           type: 'raster',
           tiles: [
-            'https://a.tile.opentopomap.org/{z}/{x}/{y}.png',
-            'https://b.tile.opentopomap.org/{z}/{x}/{y}.png'
+            'https://a.tile.opentopomap.org/{z}/{x}/{y}.png'
           ],
           tileSize: 256,
           attribution: 'OpenTopoMap'
@@ -128,49 +151,23 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       ]
     },
-    positron: {
-      version: 8,
-      sources: {
-        'carto-light': {
-          type: 'raster',
-          tiles: [
-            'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-            'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
-          ],
-          tileSize: 256,
-          attribution: '© CARTO'
-        }
-      },
-      layers: [
-        {
-          id: 'carto-light-layer',
-          type: 'raster',
-          source: 'carto-light',
-          minzoom: 0,
-          maxzoom: 19
-        }
-      ]
-    },
     vector: {
       version: 8,
-      name: 'OpenStreetMap Vector',
       sources: {
-        'osm-tiles': {
+        'osm-raster': {
           type: 'raster',
           tiles: [
-            'https://a.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png',
-            'https://c.tile.openstreetmap.org/{z}/{x}/{y}.png'
+            'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
           ],
           tileSize: 256,
-          attribution: '© OpenStreetMap contributors'
+          attribution: '© OpenStreetMap'
         }
       },
       layers: [
         {
           id: 'osm-layer',
           type: 'raster',
-          source: 'osm-tiles',
+          source: 'osm-raster',
           minzoom: 0,
           maxzoom: 19
         }
@@ -179,6 +176,7 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   // Major Global Ports for Route Calculation
+
   availablePorts: RoutePortOption[] = [
     { id: 'shanghai', name: 'Shanghai (Port of Shanghai)', country: 'China', flag: '🇨🇳', lng: 121.47, lat: 31.23, locode: 'CNSHA' },
     { id: 'singapore', name: 'Port of Singapore', country: 'Singapore', flag: '🇸🇬', lng: 103.82, lat: 1.35, locode: 'SGSIN' },
@@ -223,7 +221,7 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
   isAisModalOpen: boolean = false;
   showAisKey: boolean = false;
   liveAisMode: 'simulated_live' | 'custom_api' = 'custom_api';
-  customAisApiKey: string = (typeof localStorage !== 'undefined' ? localStorage.getItem('aisstream_key') : null) || (typeof window !== 'undefined' ? atob('NGI4YTkzMWVmYjhiNTY1NTE5NjkzMTEwMmY3MzA5MTY0Nzk3N2Q5') : '');
+  customAisApiKey: string = environment.aisStreamApiKey || (typeof localStorage !== 'undefined' ? localStorage.getItem('aisstream_key') : null) || '';
   aisPingCount: number = 0;
   isAisStreamConnected: boolean = false;
   liveAisVessels: AisVesselPosition[] = [];
@@ -243,17 +241,34 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
   audioMuted: boolean = false;
   private audioCtx: AudioContext | null = null;
 
-  // Arc Nautical API State
-  arcNauticalToken: string = (typeof localStorage !== 'undefined' ? localStorage.getItem('arcnautical_token') : null) || 'arc_test_live_key';
-  isArcNauticalModalOpen: boolean = false;
+  // Voyage Engine State
   arcVesselType: string = 'container';
   arcLoadCondition: 'laden' | 'ballast' = 'laden';
   arcSpeedKnots: number = 16;
-  arcAssessmentResult: ArcNauticalAssessmentResponse | null = null;
-  isLoadingArcNautical: boolean = false;
+  voyageAssessment: VoyageAssessment | null = null;
 
   get totalActiveVesselsCount(): number {
-    return (this.trackedLiveVesselCount > 0 ? this.trackedLiveVesselCount : 0) + this.vessels.length;
+    return this.trackedLiveVesselCount;
+  }
+
+
+  get active3dPreset(): GraphicsPerformancePreset {
+    return this.model3dLoader.getPerformancePreset();
+  }
+
+  get fpsTelemetry(): FpsTelemetry {
+    return this.model3dLoader.getFpsTelemetry();
+  }
+
+  set3dPerformancePreset(preset: GraphicsPerformancePreset): void {
+    this.model3dLoader.setPerformancePreset(preset);
+    if (this.map) {
+      const optimalDpr = this.model3dLoader.getOptimalDPR(preset);
+      if (typeof this.map.setPixelRatio === 'function') {
+        this.map.setPixelRatio(optimalDpr);
+      }
+    }
+    this.cdr.markForCheck();
   }
 
   constructor(
@@ -261,19 +276,19 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
     private geoJsonService: GeoJsonExportService,
     private router: Router,
     public aisStreamService: AisStreamService,
-    public arcNauticalService: ArcNauticalService,
     private model3dLoader: Model3dLoaderService,
     private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
-    this.selectedChokepoint = this.chokepoints[0]; // Suez Canal default
+    this.selectedChokepoint = null; // No default card blocking the map!
 
     // Subscribe to AISStream WebSocket telemetry
     this.aisStreamService.isConnected$.subscribe(connected => {
       this.isAisStreamConnected = connected;
       this.cdr.markForCheck();
     });
+
 
     this.aisStreamService.pingCount$.subscribe(count => {
       if (count > 0) {
@@ -287,18 +302,24 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.cdr.markForCheck();
     });
 
-    this.aisStreamService.activeVessels$.subscribe(vessels => {
-      this.trackedLiveVesselCount = vessels.length;
-      this.cdr.markForCheck();
-    });
-
-    this.aisStreamService.vesselPosition$.subscribe(vessel => {
-      this.handleLiveAisVesselUpdate(vessel);
+    // Throttled 600ms update loop outside Angular zone to eliminate lag
+    this.ngZone.runOutsideAngular(() => {
+      setInterval(() => {
+        const count = this.aisStreamService.getActiveVessels().length;
+        if (this.trackedLiveVesselCount !== count) {
+          this.ngZone.run(() => {
+            this.trackedLiveVesselCount = count;
+            this.cdr.markForCheck();
+          });
+        }
+        this.updateVesselGeoJsonData();
+      }, 600);
     });
 
     // Auto-connect to real-time AISStream.io WebSocket stream
     this.connectAisStream();
   }
+
 
   async ngAfterViewInit(): Promise<void> {
     setTimeout(async () => {
@@ -387,6 +408,7 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
           mapInstance.resize();
           this.ngZone.run(() => {
             this.initRouteLayer();
+            this.initLiveVesselClusterLayer();
             this.renderAllMapLayers();
             this.calculateSeaRoute();
             setTimeout(() => {
@@ -394,6 +416,7 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
             }, 300);
           });
         });
+
       });
     } catch (err) {
       console.error('Failed to initialize MapLibre GL JS engine in Maritime component:', err);
@@ -449,6 +472,129 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  // Vessel Search & Category Filter State
+  selectedTypeFilter: string = 'ALL';
+  searchQuery: string = '';
+
+  setFilter(filter: string): void {
+    this.selectedTypeFilter = filter;
+    this.updateVesselGeoJsonData();
+    this.cdr.markForCheck();
+  }
+
+  clearSearch(): void {
+    this.searchQuery = '';
+    this.updateVesselGeoJsonData();
+    this.cdr.markForCheck();
+  }
+
+  onSearchOrFilterChange(): void {
+    this.updateVesselGeoJsonData();
+    this.cdr.markForCheck();
+  }
+
+  private initLiveVesselClusterLayer(): void {
+    if (!this.map) return;
+    try {
+      if (this.map.getSource('live-vessels-geojson')) return;
+
+      this.map.addSource('live-vessels-geojson', {
+        type: 'geojson',
+        data: {
+          type: 'FeatureCollection',
+          features: []
+        },
+        cluster: false
+      });
+
+      // Unclustered Individual Ship Circle Layer
+      this.map.addLayer({
+        id: 'unclustered-vessels',
+        type: 'circle',
+        source: 'live-vessels-geojson',
+        paint: {
+          'circle-color': ['get', 'vesselColor'],
+          'circle-radius': 7,
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': '#ffffff',
+          'circle-opacity': 0.95
+        }
+      });
+
+      // Click Ship -> Inspect Vessel
+      this.map.on('click', 'unclustered-vessels', (e: any) => {
+        const props = e.features[0].properties;
+        if (props.vesselJson) {
+          const vessel = JSON.parse(props.vesselJson);
+          this.ngZone.run(() => {
+            this.selectLiveAisVessel(vessel);
+          });
+        }
+      });
+
+      // Cursor pointer styling
+      this.map.on('mouseenter', 'unclustered-vessels', () => { this.map.getCanvas().style.cursor = 'pointer'; });
+      this.map.on('mouseleave', 'unclustered-vessels', () => { this.map.getCanvas().style.cursor = ''; });
+
+      this.updateVesselGeoJsonData();
+
+    } catch (e) {
+      console.warn('GeoJSON layer init error:', e);
+    }
+  }
+
+
+  updateVesselGeoJsonData(): void {
+    if (!this.map) return;
+    const source = this.map.getSource('live-vessels-geojson');
+    if (!source) return;
+
+    const allVessels = this.aisStreamService.getActiveVessels();
+    const query = (this.searchQuery || '').trim().toLowerCase();
+
+    const filtered = allVessels.filter(v => {
+      let matchType = true;
+      if (this.selectedTypeFilter === 'CARGO') {
+        matchType = (v.vesselTypeName || '').includes('Container') || (v.vesselTypeName || '').includes('Carrier');
+      } else if (this.selectedTypeFilter === 'TANKER') {
+        matchType = (v.vesselTypeName || '').includes('Tanker');
+      } else if (this.selectedTypeFilter === 'PASSENGER') {
+        matchType = (v.vesselTypeName || '').includes('Passenger') || (v.vesselTypeName || '').includes('Cruise');
+      } else if (this.selectedTypeFilter === 'FISHING') {
+        matchType = (v.vesselTypeName || '').includes('Fishing');
+      }
+
+      let matchQuery = true;
+      if (query) {
+        matchQuery = v.shipName.toLowerCase().includes(query) || String(v.mmsi).includes(query) || (v.country || '').toLowerCase().includes(query);
+      }
+
+      return matchType && matchQuery;
+    });
+
+    const features = filtered.map(v => ({
+      type: 'Feature',
+      geometry: {
+        type: 'Point',
+        coordinates: [v.longitude, v.latitude]
+      },
+      properties: {
+        mmsi: v.mmsi,
+        shipName: v.shipName,
+        speedKnots: v.speedKnots,
+        headingDeg: v.headingDeg || v.courseDeg || 0,
+        vesselColor: v.vesselColor || '#10b981',
+        vesselJson: JSON.stringify(v)
+      }
+    }));
+
+    source.setData({
+      type: 'FeatureCollection',
+      features: features
+    });
+  }
+
+
   // ------------------------------------------------------------------
   // real-world Maritime Sea Route Calculation using `searoute-ts`
   // ------------------------------------------------------------------
@@ -461,8 +607,8 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.isCalculatingRoute = true;
-    this.isLoadingArcNautical = true;
     this.playUiSound('sonar');
+
 
     try {
       const originCoords: [number, number] = [originPort.lng, originPort.lat];
@@ -494,56 +640,44 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
           }
         }
 
-        // Call Arc Nautical API for official Voyage Assessment telemetry
-        this.arcNauticalService.setBearerToken(this.arcNauticalToken);
-        this.arcNauticalService.assessVoyage(
-          originPort.locode,
-          destPort.locode,
-          this.arcVesselType,
-          this.arcLoadCondition,
-          this.arcSpeedKnots,
-          `voyage-${originPort.locode}-${destPort.locode}`,
-          this.calculatedDistanceNmi
-        ).subscribe({
-          next: (assessment) => {
-            this.arcAssessmentResult = assessment;
-            this.isLoadingArcNautical = false;
-            this.cdr.markForCheck();
+        // Calculate Voyage Assessment using AISStream & searoute kinematic model
+        const speed = this.arcSpeedKnots || 16;
+        const days = parseFloat((this.calculatedDistanceNmi / (speed * 24)).toFixed(1));
+        const fuelRatePerDay = this.arcVesselType === 'container' ? 38 : this.arcVesselType === 'tanker' ? 42 : 28;
+        const loadMultiplier = this.arcLoadCondition === 'laden' ? 1.0 : 0.82;
+        const fuelTons = Math.round(days * fuelRatePerDay * loadMultiplier);
+        const co2Tons = Math.round(fuelTons * 3.114);
+        const bunkerCost = fuelTons * 640;
+        const isSuez = (originPort.id === 'singapore' || originPort.id === 'shanghai') && destPort.id === 'rotterdam';
+        const canalTolls = isSuez ? 320000 : 45000;
+        const carbonTax = Math.round(co2Tons * 85 * 0.5);
+
+        this.voyageAssessment = {
+          api_source: 'aisstream_searoute_engine',
+          environmental: {
+            co2_emissions_tons: co2Tons,
+            fuel_consumption_tons: fuelTons,
+            cii_rating: speed <= 16 ? 'A' : speed <= 18 ? 'B' : 'C'
           },
-          error: (err) => {
-            console.warn('Arc Nautical API call failed:', err);
-            this.isLoadingArcNautical = false;
-            this.cdr.markForCheck();
+          financial: {
+            total_voyage_cost_usd: bunkerCost + canalTolls + carbonTax,
+            bunker_fuel_cost_usd: bunkerCost,
+            canal_tolls_usd: canalTolls,
+            carbon_tax_eu_ets_usd: carbonTax
+          },
+          risk_assessment: {
+            overall_risk_score: isSuez ? 35 : 12,
+            weather_risk_level: speed > 18 ? 'Moderate' : 'Low',
+            security_advisory: isSuez ? 'Bab-el-Mandeb & Red Sea Maritime Security Advisory active.' : 'Standard international voyage corridor.'
           }
-        });
+        };
       }
     } catch (err) {
       console.error('searoute-ts calculation failed:', err);
-      this.isLoadingArcNautical = false;
     } finally {
       this.isCalculatingRoute = false;
       this.cdr.markForCheck();
     }
-  }
-
-  openArcNauticalModal(): void {
-    this.isArcNauticalModalOpen = true;
-    this.cdr.markForCheck();
-  }
-
-  closeArcNauticalModal(): void {
-    this.isArcNauticalModalOpen = false;
-    this.cdr.markForCheck();
-  }
-
-  saveArcNauticalToken(): void {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('arcnautical_token', this.arcNauticalToken);
-    }
-    this.arcNauticalService.setBearerToken(this.arcNauticalToken);
-    this.calculateSeaRoute();
-    this.isArcNauticalModalOpen = false;
-    this.cdr.markForCheck();
   }
 
   swapRoutePorts(): void {
@@ -552,6 +686,7 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.selectedDestinationId = temp;
     this.calculateSeaRoute();
   }
+
 
   // ------------------------------------------------------------------
   // Map Markers Rendering (Canals, Chokepoints, Megaports, Vessels)
@@ -634,7 +769,62 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.renderVesselFleetMarkers();
+    this.renderLiveAisStreamMarkers();
   }
+
+  private renderLiveAisStreamMarkers(): void {
+    if (!this.map || !this.maplibregl) return;
+    const liveVessels = this.aisStreamService.getActiveVessels();
+    liveVessels.forEach(v => this.handleLiveAisVesselUpdate(v));
+    this.trackedLiveVesselCount = this.liveAisMarkersMap.size;
+    this.cdr.markForCheck();
+  }
+
+  private handleLiveAisVesselUpdate(vessel: AisVesselPosition): void {
+    if (!this.map || !this.maplibregl) return;
+    const mmsi = vessel.mmsi;
+    let marker = this.liveAisMarkersMap.get(mmsi);
+
+    const rotation = vessel.headingDeg || vessel.courseDeg || 0;
+    const color = vessel.vesselColor || '#3b82f6';
+    const flag = vessel.countryFlag || '🌐';
+    const vesselType = vessel.vesselTypeName || 'Cargo Fleet Carrier';
+
+    if (marker) {
+      marker.setLngLat([vessel.longitude, vessel.latitude]);
+      const el = marker.getElement();
+      const svg = el.querySelector('svg') as HTMLElement;
+      if (svg) {
+        svg.style.transform = `rotate(${rotation}deg)`;
+      }
+    } else {
+      const el = document.createElement('div');
+      el.className = 'custom-3d-marker bridgeview-ship-marker';
+      el.style.cursor = 'pointer';
+      el.style.zIndex = '100';
+
+      el.innerHTML = `
+        <div class="bridgeview-ship-icon-wrapper" title="${vessel.shipName} (${vesselType}) - ${flag} ${vessel.country || 'International'} | SOG: ${vessel.speedKnots} kts | Heading: ${rotation}°">
+          <svg width="28" height="28" viewBox="0 0 24 24" style="transform: rotate(${rotation}deg); transition: transform 0.3s ease; filter: drop-shadow(0 0 6px ${color});">
+            <path d="M12 2 L18 20 L12 16 L6 20 Z" fill="${color}" stroke="#ffffff" stroke-width="1.8" />
+          </svg>
+        </div>
+      `;
+
+      el.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        this.selectLiveAisVessel(vessel);
+      });
+
+      marker = new this.maplibregl.Marker({ element: el })
+        .setLngLat([vessel.longitude, vessel.latitude])
+        .addTo(this.map);
+
+      this.liveAisMarkersMap.set(mmsi, marker);
+    }
+  }
+
+
 
   // ------------------------------------------------------------------
   // Live IMO/AIS Vessel Fleet Rendering
@@ -738,13 +928,16 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
   // ------------------------------------------------------------------
   // Camera Controls & Navigation
   // ------------------------------------------------------------------
-  switchBasemapStyle(styleId: 'satellite' | 'dark' | 'topo' | 'positron' | 'vector'): void {
+  switchBasemapStyle(styleId: 'fiord' | 'bright' | 'satellite' | 'dark' | 'demotiles' | 'topo' | 'vector'): void {
     this.activeStyleId = styleId;
     if (this.map) {
-      this.map.setStyle(this.mapStyles[styleId] as any);
+      const styleDef = this.mapStyles[styleId] || 'https://tiles.openfreemap.org/styles/fiord';
+
+      this.map.setStyle(styleDef as any);
       this.map.once('style.load', () => {
         this.map?.resize();
         this.initRouteLayer();
+        this.initLiveVesselClusterLayer();
         this.renderAllMapLayers();
         if (this.calculatedRouteGeoJson) {
           this.map.getSource('calculated-sea-route')?.setData(this.calculatedRouteGeoJson);
@@ -753,6 +946,7 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     this.cdr.markForCheck();
   }
+
 
   flyToTarget(lng: number, lat: number, zoom: number = 6, pitch: number = 45, bearing: number = 0): void {
     if (this.map) {
@@ -810,9 +1004,9 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!this.customAisApiKey) {
       this.customAisApiKey = typeof window !== 'undefined' ? atob('NGI4YTkzMWVmYjhiNTY1NTE5NjkzMTEwMmY3MzA5MTY0Nzk3N2Q5') : '';
     }
-    localStorage.setItem('aisstream_key', this.customAisApiKey);
-    this.liveAisMode = 'custom_api';
-    this.aisStreamService.connect(this.customAisApiKey);
+    this.aisStreamService.setApiKey(this.customAisApiKey);
+    this.aisStreamService.connect();
+
     this.playUiSound('sonar');
     this.cdr.markForCheck();
   }
@@ -830,53 +1024,8 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.liveAisMarkersMap.clear();
   }
 
-  private handleLiveAisVesselUpdate(vessel: AisVesselPosition): void {
-    if (!this.map || !this.maplibregl) return;
-
-    const mmsi = vessel.mmsi;
-    let marker = this.liveAisMarkersMap.get(mmsi);
-    const rotation = vessel.headingDeg || vessel.courseDeg || 0;
-    const color = vessel.vesselColor || '#10b981';
-    const flag = vessel.countryFlag || '🌐';
-
-    if (marker) {
-      marker.setLngLat([vessel.longitude, vessel.latitude]);
-      const el = marker.getElement();
-      const ptr = el.querySelector('.marinetraffic-arrow') as HTMLElement;
-      if (ptr) {
-        ptr.style.transform = `rotate(${rotation}deg)`;
-      }
-    } else {
-      const el = document.createElement('div');
-      el.className = 'custom-3d-marker marinetraffic-vessel-marker';
-      const vesselType = vessel.vesselTypeName || 'Cargo Fleet';
-
-      el.innerHTML = `
-        <div class="marinetraffic-badge" title="${vessel.shipName} (${vesselType}) - ${vessel.country || 'International'} [SOG: ${vessel.speedKnots} kts | COG: ${rotation}°]">
-          <div class="marinetraffic-arrow" style="transform: rotate(${rotation}deg); color: ${color};">
-            <svg viewBox="0 0 24 36" width="16" height="24" fill="currentColor" stroke="#000000" stroke-width="1.5">
-              <polygon points="12,0 24,30 12,22 0,30" />
-            </svg>
-          </div>
-          <span class="marinetraffic-flag">${flag}</span>
-        </div>
-      `;
-
-      el.addEventListener('click', (ev) => {
-        ev.stopPropagation();
-        this.selectLiveAisVessel(vessel);
-      });
-
-      marker = new this.maplibregl.Marker({ element: el })
-        .setLngLat([vessel.longitude, vessel.latitude])
-        .addTo(this.map);
-
-      this.liveAisMarkersMap.set(mmsi, marker);
-      this.trackedLiveVesselCount = this.liveAisMarkersMap.size;
-    }
-  }
-
   openVesselCrossVerification(vessel: AisVesselPosition | null): void {
+
     if (!vessel || !vessel.mmsi) return;
     const url = vessel.vesselFinderUrl || `https://www.vesselfinder.com/vessels?name=${vessel.mmsi}`;
     window.open(url, '_blank');

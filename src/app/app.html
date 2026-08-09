@@ -81,6 +81,14 @@
         </div>
       </a>
 
+      <a routerLink="/fishing" routerLinkActive="active" class="sidebar-nav-item">
+        <span class="nav-icon">🐟</span>
+        <div class="nav-text">
+          <span class="nav-label">8. Global Fishing Watch</span>
+          <span class="nav-desc">Ocean Intelligence & IUU</span>
+        </div>
+      </a>
+
       <div class="nav-divider"></div>
 
       <a routerLink="/classic-map" routerLinkActive="active" class="sidebar-nav-item">
@@ -127,6 +135,7 @@
           <option value="/locate" [selected]="router.url.includes('locate')">📍 5. Country Locator Game</option>
           <option value="/quiz" [selected]="router.url.includes('quiz')">🎯 6. Global Quiz</option>
           <option value="/spatial-sql" [selected]="router.url.includes('spatial-sql')">⚡ 7. DuckDB Spatial SQL</option>
+          <option value="/fishing" [selected]="router.url.includes('fishing')">🐟 8. Global Fishing Watch</option>
           <option value="/classic-map" [selected]="router.url.includes('classic-map')">🗺️ Classic 2D Map</option>
         </select>
       </div>
