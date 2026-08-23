@@ -1,14 +1,14 @@
 <div class="quiz-container">
-  <div class="quiz-header">
-    <div class="header-left">
-      <h1>🎯 Global Explorer Quiz</h1>
-      <p class="subtitle">⚡ 15s Speed-Run Geography • Earn Aura Points • Speed Bonuses • Hotkeys [1-4]</p>
+  <div class="quiz-header spotlight-card">
+    <div class="header-left blur-in-text">
+      <h1 class="shiny-text">🎯 Global Explorer Trivia Quiz</h1>
+      <p class="subtitle">⚡ Speed-Run Geography • Earn Aura Points • Hotkeys [1-4]</p>
     </div>
     <div class="header-right">
-      <button (click)="toggleAudio()" class="audio-btn">
-        {{ audioMuted ? '🔇 Muted' : '🔊 Sound FX' }}
+      <button (click)="toggleAudio()" class="audio-btn magnet-interactive">
+        {{ audioMuted ? '🔇 Muted' : '🔊 SFX' }}
       </button>
-      <button (click)="startQuiz()" class="restart-btn">
+      <button (click)="startQuiz()" class="restart-btn magnet-interactive">
         🔄 New Round
       </button>
     </div>
@@ -18,7 +18,7 @@
     <!-- Quiz HUD & Map Panel -->
     <div class="map-column">
       <!-- HUD Question Bar -->
-      <div *ngIf="currentQuestion && !quizCompleted" class="quiz-hud-bar">
+      <div *ngIf="currentQuestion && !quizCompleted" class="quiz-hud-bar spotlight-card" reactBitsSpotlight>
         <!-- 15s Progress Timer Bar -->
         <div class="timer-bar-container">
           <div class="timer-bar" 
@@ -30,13 +30,15 @@
           <span class="q-badge">QUESTION {{ quizCurrentIndex }} / {{ quizTotalQuestions }}</span>
           <div class="score-group">
             <span class="timer-pill" [class.warning]="timerSeconds <= 5">⏱️ {{ timerSeconds }}s</span>
-            <span class="score-pill">✨ Aura: {{ quizScore }}</span>
+            <span class="score-pill">
+              ✨ Aura: <react-bits-count-up [to]="quizScore"></react-bits-count-up>
+            </span>
             <span *ngIf="quizStreak > 1" class="streak-pill">🔥 {{ quizStreak }} Multiplier!</span>
           </div>
         </div>
 
         <div class="q-text">
-          {{ currentQuestion.questionText }}
+          <react-bits-decrypted-text [text]="currentQuestion.questionText" [speed]="15"></react-bits-decrypted-text>
         </div>
 
         <div class="q-hint">
@@ -48,7 +50,7 @@
                   (click)="submitQuizAnswer(opt)"
                   [disabled]="quizAnswered"
                   [class.correct]="quizAnswered && (opt.toLowerCase() === currentQuestion.correctAnswer.toLowerCase())"
-                  class="opt-btn">
+                  class="opt-btn magnet-interactive">
             <span class="hotkey-badge">{{ i + 1 }}</span>
             <span class="opt-label">{{ opt }}</span>
           </button>
@@ -56,7 +58,7 @@
 
         <div *ngIf="quizFeedback" class="feedback-banner" [class.is-correct]="quizIsCorrect">
           <span class="fb-text">{{ quizFeedback }}</span>
-          <button (click)="nextQuizQuestion()" class="next-btn">
+          <button (click)="nextQuizQuestion()" class="next-btn magnet-interactive">
             {{ quizCurrentIndex >= quizTotalQuestions ? '🏆 View Aura Results [Enter]' : 'Next Question [Enter] ➔' }}
           </button>
         </div>

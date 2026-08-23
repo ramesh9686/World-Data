@@ -1,191 +1,49 @@
-<div class="app-layout" [class.sidebar-collapsed]="sidebarCollapsed">
-  <!-- Creative Left Sidebar Navigation -->
-  <aside class="sidebar-nav">
-    <div class="sidebar-header">
-      <div class="brand-group">
-        <span class="brand-icon">🌐</span>
-        <div class="brand-text">
-          <span class="brand-title">WORLD EXPLORER</span>
-          <span class="brand-subtitle">GIS & Telemetry Suite</span>
-        </div>
-      </div>
-      <button class="sidebar-toggle-btn" (click)="toggleSidebar()" [title]="sidebarCollapsed ? 'Expand Navigation Menu' : 'Collapse Navigation Menu'">
-        {{ sidebarCollapsed ? '➔' : '◀' }}
-      </button>
-    </div>
+<div class="app-layout">
+  
+  <!-- Main Viewport Area (Full-bleed immersive view) -->
+  <main class="main-wrapper" [class.full-viewport-home]="isHomePage">
+    <router-outlet />
+  </main>
 
-    <div class="nav-section-title">MAIN MODULES</div>
+  <!-- Sleek Curved Animated Bottom Navigation Bar (Matching Reference Photo) -->
+  <app-curved-bottom-nav (privacyClick)="togglePrivacyModal()"></app-curved-bottom-nav>
 
-    <nav class="sidebar-links">
-      <a routerLink="/home" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="sidebar-nav-item">
-        <span class="nav-icon">🏠</span>
-        <div class="nav-text">
-          <span class="nav-label">0. Home Page</span>
-          <span class="nav-desc">3D Planetary Globe</span>
-        </div>
-      </a>
-
-      <a routerLink="/world-data" routerLinkActive="active" class="sidebar-nav-item">
-        <span class="nav-icon">🌐</span>
-        <div class="nav-text">
-          <span class="nav-label">1. World Data Core</span>
-          <span class="nav-desc">3D Globe & Indicators</span>
-        </div>
-      </a>
-
-      <a routerLink="/empires" routerLinkActive="active" class="sidebar-nav-item">
-        <span class="nav-icon">🏛️</span>
-        <div class="nav-text">
-          <span class="nav-label">2. Historical Empires</span>
-          <span class="nav-desc">Civilizations & Shaded Maps</span>
-        </div>
-      </a>
-
-      <a routerLink="/maritime" routerLinkActive="active" class="sidebar-nav-item">
-        <span class="nav-icon">🚢</span>
-        <div class="nav-text">
-          <span class="nav-label">3. Maritime Routes</span>
-          <span class="nav-desc">Canals & Vessel Tracking</span>
-        </div>
-      </a>
-
-      <a routerLink="/forex" routerLinkActive="active" class="sidebar-nav-item">
-        <span class="nav-icon">💱</span>
-        <div class="nav-text">
-          <span class="nav-label">4. Forex Matrix</span>
-          <span class="nav-desc">FX Rates & Financial Hubs</span>
-        </div>
-      </a>
-
-      <a routerLink="/locate" routerLinkActive="active" class="sidebar-nav-item">
-        <span class="nav-icon">📍</span>
-        <div class="nav-text">
-          <span class="nav-label">5. Country Locator</span>
-          <span class="nav-desc">Geographic Locator Game</span>
-        </div>
-      </a>
-
-      <a routerLink="/quiz" routerLinkActive="active" class="sidebar-nav-item">
-        <span class="nav-icon">🎯</span>
-        <div class="nav-text">
-          <span class="nav-label">6. Global Quiz</span>
-          <span class="nav-desc">Vector Globe Trivia</span>
-        </div>
-      </a>
-
-      <a routerLink="/spatial-sql" routerLinkActive="active" class="sidebar-nav-item">
-        <span class="nav-icon">⚡</span>
-        <div class="nav-text">
-          <span class="nav-label">7. DuckDB Spatial SQL</span>
-          <span class="nav-desc">In-Browser Spatial Query</span>
-        </div>
-      </a>
-
-      <a routerLink="/fishing" routerLinkActive="active" class="sidebar-nav-item">
-        <span class="nav-icon">🐟</span>
-        <div class="nav-text">
-          <span class="nav-label">8. Global Fishing Watch</span>
-          <span class="nav-desc">Ocean Intelligence & IUU</span>
-        </div>
-      </a>
-
-      <div class="nav-divider"></div>
-
-      <a routerLink="/classic-map" routerLinkActive="active" class="sidebar-nav-item">
-        <span class="nav-icon">🗺️</span>
-        <div class="nav-text">
-          <span class="nav-label">Classic 2D Map</span>
-          <span class="nav-desc">SVG Vector Overlay</span>
-        </div>
-      </a>
-
-      <!-- Small Visible Privacy Statement Button in Sidebar -->
-      <div class="sidebar-footer-privacy">
-        <button class="privacy-btn-small" (click)="togglePrivacyModal()" title="View Privacy Statement & Data Security Policy">
-          <span class="shield-icon">🔒</span>
-          <span class="privacy-btn-text">Privacy Statement</span>
-        </button>
-      </div>
-    </nav>
-  </aside>
-
-  <!-- Main Viewport Area -->
-  <div class="main-wrapper" [class.full-viewport-home]="isHomePage">
-    <!-- Header Bar: Hidden on Homepage, Visible on all other pages -->
-    <header *ngIf="!isHomePage" class="top-header-bar">
-      <div class="top-left">
-        <button class="top-toggle-btn" (click)="toggleSidebar()">
-          ☰ Menu
-        </button>
-        <span class="header-status-badge">🟢 LIVE TELEMETRY CORE</span>
-      </div>
-
-      <!-- Quick Jump Module Selector Dropdown & Privacy Button -->
-      <div class="top-right">
-        <button class="header-privacy-btn" (click)="togglePrivacyModal()" title="Read Data Privacy & Security Policy">
-          🔒 Privacy
-        </button>
-        <span class="dropdown-label">🚀 Quick Jump Module:</span>
-        <select class="module-dropdown" (change)="onSelectModule($event)">
-          <option value="/home" [selected]="router.url.includes('home') || router.url === '/'">🏠 0. Home Page (3D Globe)</option>
-          <option value="/world-data" [selected]="router.url.includes('world-data')">🌐 1. World Data Core</option>
-          <option value="/empires" [selected]="router.url.includes('empires')">🏛️ 2. Historical Empires</option>
-          <option value="/maritime" [selected]="router.url.includes('maritime')">🚢 3. Maritime Routes</option>
-          <option value="/forex" [selected]="router.url.includes('forex')">💱 4. Forex Matrix</option>
-          <option value="/locate" [selected]="router.url.includes('locate')">📍 5. Country Locator Game</option>
-          <option value="/quiz" [selected]="router.url.includes('quiz')">🎯 6. Global Quiz</option>
-          <option value="/spatial-sql" [selected]="router.url.includes('spatial-sql')">⚡ 7. DuckDB Spatial SQL</option>
-          <option value="/fishing" [selected]="router.url.includes('fishing')">🐟 8. Global Fishing Watch</option>
-          <option value="/classic-map" [selected]="router.url.includes('classic-map')">🗺️ Classic 2D Map</option>
-        </select>
-      </div>
-    </header>
-
-    <main class="page-content" [class.no-header]="isHomePage">
-      <router-outlet />
-    </main>
-
-    <!-- Always-Visible Floating Privacy Statement Action Button (Bottom Left) -->
-    <button class="floating-privacy-pill" (click)="togglePrivacyModal()" title="Read World Explorer Data Privacy Statement">
-      🔒 Privacy Statement
-    </button>
-
-    <!-- Interactive Glassmorphic Privacy Statement Modal Overlay -->
-    <div *ngIf="showPrivacyModal" class="privacy-modal-backdrop" (click)="togglePrivacyModal()">
-      <div class="privacy-modal-card" (click)="$event.stopPropagation()">
-        <div class="modal-header">
-          <div class="modal-title-group">
-            <span class="modal-icon">🛡️</span>
-            <div>
-              <h3 class="modal-title">Privacy Statement & Data Protection</h3>
-              <span class="modal-subtitle">World Explorer GIS & Telemetry Suite</span>
-            </div>
-          </div>
-          <button class="modal-close-btn" (click)="togglePrivacyModal()" title="Close Privacy Statement">✕</button>
-        </div>
-
-        <div class="modal-body">
-          <div class="privacy-section">
-            <h4>🔒 1. Zero Tracking & Local Storage Integrity</h4>
-            <p>Your geographic searches, viewport navigation, and game scores are processed <strong>100% locally</strong> inside your browser. No personal identifiable information (PII) is tracked, sold, or transmitted to external servers.</p>
-          </div>
-
-          <div class="privacy-section">
-            <h4>🛰️ 2. Public Live Telemetry Sockets</h4>
-            <p>Real-time AIS ship positions, Foreign Exchange rates, and World Bank indicators are requested strictly via secure encrypted HTTPS/WSS endpoints. Only public telemetry telemetry streams are consumed.</p>
-          </div>
-
-          <div class="privacy-section">
-            <h4>🍪 3. Cookies & Session Preference Compliance</h4>
-            <p>Session parameters (such as theme preferences, audio mute states, and optional AIS Stream API keys) are persisted locally in browser <code>localStorage</code> and never shared with 3rd-party advertisers.</p>
+  <!-- Interactive Glassmorphic Privacy Statement Modal Overlay -->
+  <div *ngIf="showPrivacyModal" class="privacy-modal-backdrop" (click)="togglePrivacyModal()">
+    <div class="privacy-modal-card" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="modal-icon">🛡️</span>
+          <div>
+            <h3 class="modal-title">Privacy Statement & Data Protection</h3>
+            <span class="modal-subtitle">World Explorer GIS & Telemetry Suite</span>
           </div>
         </div>
+        <button class="modal-close-btn" (click)="togglePrivacyModal()" title="Close Privacy Statement">✕</button>
+      </div>
 
-        <div class="modal-footer">
-          <span class="compliance-badge">✅ Fully Compliant with Open GIS & Web Privacy Standards</span>
-          <button class="modal-agree-btn" (click)="togglePrivacyModal()">I Understand</button>
+      <div class="modal-body">
+        <div class="privacy-section">
+          <h4>🔒 1. Zero Tracking & Local Storage Integrity</h4>
+          <p>Your geographic searches, viewport navigation, and game scores are processed <strong>100% locally</strong> inside your browser. No personal identifiable information (PII) is tracked, sold, or transmitted to external servers.</p>
         </div>
+
+        <div class="privacy-section">
+          <h4>🛰️ 2. Public Live Telemetry Sockets</h4>
+          <p>Real-time AIS ship positions, Foreign Exchange rates, and World Bank indicators are requested strictly via secure encrypted HTTPS/WSS endpoints. Only public telemetry streams are consumed.</p>
+        </div>
+
+        <div class="privacy-section">
+          <h4>🍪 3. Cookies & Session Preference Compliance</h4>
+          <p>Session parameters (such as theme preferences, audio mute states, and optional AIS Stream API keys) are persisted locally in browser <code>localStorage</code> and never shared with 3rd-party advertisers.</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <span class="compliance-badge">✅ Fully Compliant with Open GIS & Web Privacy Standards</span>
+        <button class="modal-agree-btn" (click)="togglePrivacyModal()">I Understand</button>
       </div>
     </div>
   </div>
+
 </div>

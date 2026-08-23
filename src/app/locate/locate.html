@@ -1,14 +1,14 @@
 <div class="locate-container">
-  <div class="locate-header">
-    <div class="header-left">
-      <h1>📍 Country Locator & Distance Radar</h1>
-      <p class="subtitle">Guess the secret target country! Click the map to get exact kilometer distances, compass directions & hotter/colder feedback!</p>
+  <div class="locate-header spotlight-card">
+    <div class="header-left blur-in-text">
+      <h1 class="shiny-text">📍 Country Locator & Radar Challenge</h1>
+      <p class="subtitle">Find the secret country with real-time geodesic distance feedback & directional hints!</p>
     </div>
     <div class="header-right">
-      <button (click)="toggleAudio()" class="audio-btn">
-        {{ audioMuted ? '🔇 Muted' : '🔊 Sound FX' }}
+      <button (click)="toggleAudio()" class="audio-btn magnet-interactive">
+        {{ audioMuted ? '🔇 Muted' : '🔊 SFX' }}
       </button>
-      <button (click)="startNewGame()" class="restart-btn">
+      <button (click)="startNewGame()" class="restart-btn magnet-interactive">
         🔄 New Target
       </button>
     </div>
@@ -18,18 +18,18 @@
     <!-- Map & Proximity Radar Column -->
     <div class="map-column">
       <!-- Radar HUD Status Bar -->
-      <div class="radar-status-bar">
+      <div class="radar-status-bar spotlight-card" reactBitsSpotlight>
         <div class="status-top">
-          <span class="attempts-pill">GUESS {{ attempts }} / {{ maxAttempts }}</span>
+          <span class="attempts-pill minimal-pill cyan">GUESS {{ attempts }} / {{ maxAttempts }}</span>
           <div class="hud-actions">
-            <button (click)="revealHint()" [disabled]="hintRevealed" class="hint-btn">
+            <button (click)="revealHint()" [disabled]="hintRevealed" class="hint-btn magnet-interactive">
               💡 {{ hintRevealed ? 'Hint Active' : 'Get Hint' }}
             </button>
           </div>
         </div>
 
         <div class="proximity-msg">
-          {{ proximityMessage }}
+          <react-bits-decrypted-text [text]="proximityMessage" [speed]="15"></react-bits-decrypted-text>
         </div>
 
         <div *ngIf="hintText" class="hint-banner">

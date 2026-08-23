@@ -18,10 +18,12 @@ import { SeshatEmpireData } from '../seshat-data';
 
 export type EmpiresViewTab = 'temporal-map' | 'old-maps' | 'map' | 'seshat' | 'compare';
 
+import { DecryptedTextComponent, SpotlightDirective } from '../shared/react-bits';
+
 @Component({
   selector: 'app-empires',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DecryptedTextComponent, SpotlightDirective],
   templateUrl: './empires.html',
   styleUrl: './empires.css'
 })

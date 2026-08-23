@@ -1,0 +1,422 @@
+/* ── Sleek Animated Curved Bottom Navigation Bar (Matching Reference Design) ── */
+
+:host {
+  display: block;
+  pointer-events: none; /* Allows click-through outside the dock container */
+}
+
+.curved-nav-container {
+  position: fixed;
+  bottom: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  user-select: none;
+  width: auto;
+  max-width: calc(100vw - 32px);
+}
+
+/* ── Glassmorphic Popover Drawer for Secondary Modules ──────────────────────── */
+.more-modules-drawer {
+  width: 480px;
+  max-width: calc(100vw - 36px);
+  background: rgba(13, 17, 26, 0.92);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 24px;
+  padding: 1.25rem;
+  margin-bottom: 14px;
+  box-shadow: 
+    0 24px 60px rgba(0, 0, 0, 0.85),
+    0 0 30px rgba(0, 242, 254, 0.12),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  animation: drawerSlideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+@keyframes drawerSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding-bottom: 0.75rem;
+}
+
+.drawer-title-group {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.drawer-icon {
+  font-size: 1.5rem;
+}
+
+.drawer-title {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #f8fafc;
+  margin: 0;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.02em;
+}
+
+.drawer-subtitle {
+  font-size: 0.72rem;
+  color: #94a3b8;
+  font-family: 'Inter', sans-serif;
+}
+
+.drawer-close-btn {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.drawer-close-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border-color: #ef4444;
+}
+
+.drawer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.65rem;
+  max-height: 45vh;
+  overflow-y: auto;
+}
+
+@media (max-width: 480px) {
+  .drawer-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.drawer-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+}
+
+.drawer-card:hover {
+  background: rgba(0, 242, 254, 0.08);
+  border-color: rgba(0, 242, 254, 0.35);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 4px 16px rgba(0, 242, 254, 0.15);
+}
+
+.drawer-card.active {
+  background: linear-gradient(135deg, rgba(0, 242, 254, 0.15), rgba(168, 85, 247, 0.15));
+  border-color: rgba(0, 242, 254, 0.6);
+  box-shadow: 0 0 18px rgba(0, 242, 254, 0.25);
+}
+
+.card-icon {
+  font-size: 1.35rem;
+}
+
+.card-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.card-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-desc {
+  font-size: 0.68rem;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.card-badge {
+  font-size: 0.62rem;
+  font-weight: 800;
+  color: #00f2fe;
+  background: rgba(0, 242, 254, 0.12);
+  border: 1px solid rgba(0, 242, 254, 0.3);
+  padding: 0.15rem 0.45rem;
+  border-radius: 9999px;
+  letter-spacing: 0.04em;
+}
+
+.drawer-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 0.75rem;
+}
+
+.drawer-privacy-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #10b981;
+  padding: 0.55rem;
+  border-radius: 14px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.drawer-privacy-btn:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #10b981;
+  color: #ffffff;
+}
+
+/* ── Main Dock Curved Navigation Bar ───────────────────────────────────────── */
+.curved-dock-bar {
+  position: relative;
+  width: 580px;
+  max-width: calc(100vw - 32px);
+  height: 66px;
+  background: rgba(14, 18, 27, 0.94);
+  backdrop-filter: blur(28px) saturate(200%);
+  -webkit-backdrop-filter: blur(28px) saturate(200%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 34px;
+  box-shadow: 
+    0 20px 48px rgba(0, 0, 0, 0.8),
+    0 0 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15);
+  display: flex;
+  align-items: center;
+  padding: 0 0.5rem;
+}
+
+/* ── Animated Sliding Notch & Floating Bubble ──────────────────────────────── */
+.notch-track {
+  position: absolute;
+  top: 0;
+  left: 0.5rem;
+  right: 0.5rem;
+  height: 100%;
+  pointer-events: none;
+}
+
+.notch-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(100% / 6);
+  height: 100%;
+  transform: translateX(calc(var(--active-index) * 100%));
+  transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: flex;
+  justify-content: center;
+}
+
+/* Curved Notch SVG (Dipping scoop into the bar) */
+.notch-svg {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 88px;
+  height: 32px;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+}
+
+/* Elevated Floating Active Bubble (Warm Orange/Coral Glow from Photo) */
+.floating-active-circle {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff7e40, #f97316 60%, #ea580c);
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  box-shadow: 
+    0 8px 24px rgba(249, 115, 22, 0.55),
+    0 0 16px rgba(249, 115, 22, 0.35),
+    inset 0 2px 4px rgba(255, 255, 255, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: #ffffff;
+  pointer-events: auto;
+  cursor: pointer;
+  animation: bubblePop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes bubblePop {
+  0% {
+    transform: translateX(-50%) scale(0.6) translateY(12px);
+    opacity: 0.5;
+  }
+  60% {
+    transform: translateX(-50%) scale(1.12) translateY(-4px);
+  }
+  100% {
+    transform: translateX(-50%) scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+.active-bubble-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+/* ── Nav Items Track ───────────────────────────────────────────────────────── */
+.nav-items-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  z-index: 10;
+}
+
+.nav-tab-btn {
+  flex: 1;
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.2rem;
+  padding: 0.35rem 0.2rem;
+  position: relative;
+  transition: all 0.25s ease;
+  outline: none;
+}
+
+.nav-tab-btn:hover {
+  color: #f1f5f9;
+}
+
+.nav-tab-btn .tab-icon {
+  font-size: 1.35rem;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.nav-tab-btn:hover .tab-icon {
+  transform: scale(1.2) translateY(-2px);
+  color: #00f2fe;
+}
+
+/* When active, the tab's inline icon is hidden/faded because it is elevated in the bubble */
+.nav-tab-btn.active .tab-icon {
+  opacity: 0;
+  transform: translateY(-16px) scale(0.4);
+}
+
+.nav-tab-btn .tab-label {
+  font-size: 0.68rem;
+  font-weight: 700;
+  font-family: 'Outfit', sans-serif;
+  letter-spacing: 0.02em;
+  transition: all 0.25s ease;
+  color: #94a3b8;
+}
+
+.nav-tab-btn.active .tab-label {
+  color: #f97316;
+  font-weight: 800;
+  transform: translateY(8px);
+}
+
+.nav-tab-btn.is-more-active .tab-label {
+  color: #00f2fe;
+}
+
+.secondary-active-dot {
+  position: absolute;
+  top: 10px;
+  right: calc(50% - 14px);
+  width: 6px;
+  height: 6px;
+  background: #00f2fe;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #00f2fe;
+  animation: pulseDot 1.5s infinite alternate;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(1.4); opacity: 1; }
+}
+
+/* ── Responsive Mobile Optimization ────────────────────────────────────────── */
+@media (max-width: 580px) {
+  .curved-dock-bar {
+    height: 60px;
+    border-radius: 28px;
+  }
+
+  .nav-tab-btn .tab-label {
+    font-size: 0.6rem;
+  }
+
+  .floating-active-circle {
+    width: 46px;
+    height: 46px;
+    top: -18px;
+    font-size: 1.3rem;
+  }
+
+  .notch-svg {
+    width: 76px;
+    height: 28px;
+  }
+}

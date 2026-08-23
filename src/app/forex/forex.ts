@@ -37,13 +37,15 @@ export interface TickerPair {
   isNeg: boolean;
 }
 
+import { CountUpComponent, SpotlightDirective } from '../shared/react-bits';
+
 @Component({
   selector: 'app-forex',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, CountUpComponent, SpotlightDirective],
   templateUrl: './forex.html',
   styleUrl: './forex.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
 })
 export class ForexComponent implements OnInit, OnDestroy {
   // Converter Controls

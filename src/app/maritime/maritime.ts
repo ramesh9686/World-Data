@@ -51,10 +51,12 @@ export interface VoyageAssessment {
   };
 }
 
+import { DecryptedTextComponent, CountUpComponent, SpotlightDirective } from '../shared/react-bits';
+
 @Component({
   selector: 'app-maritime',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
   templateUrl: './maritime.html',
   styleUrl: './maritime.css'
 })

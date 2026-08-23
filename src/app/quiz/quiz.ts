@@ -13,13 +13,15 @@ export interface QuizQuestion {
   explanation?: string;
 }
 
+import { DecryptedTextComponent, CountUpComponent, SpotlightDirective } from '../shared/react-bits';
+
 @Component({
   selector: 'app-quiz',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
   templateUrl: './quiz.html',
   styleUrl: './quiz.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
 })
 export class QuizComponent implements OnInit, OnDestroy {
   quizScore = 0;

@@ -1,58 +1,57 @@
 <div class="maritime-page-container">
-  <!-- Top Telemetry Status Bar -->
-  <div class="maritime-ticker-bar">
-    <div class="ticker-label">
+  <!-- React Bits Sleek Maritime Telemetry Bar -->
+  <div class="maritime-ticker-bar spotlight-card">
+    <div class="ticker-label blur-in-text">
       <span class="radar-dot"></span>
-      <span>REAL-TIME DIGITRAFFIC OPEN AIS SATELLITE FLEET RADAR:</span>
+      <span class="shiny-text">LIVE AIS SATELLITE FLEET RADAR:</span>
     </div>
     <div class="ticker-scroll">
       <div class="ticker-item">
-        <span class="lbl">FEED STATUS:</span>
+        <span class="lbl">STATUS:</span>
         <span class="val" [style.color]="isAisStreamConnected ? '#10b981' : '#f59e0b'">
-          {{ isAisStreamConnected ? '🟢 LIVE DIGITRAFFIC OPEN AIS (REAL MOVING SHIPS)' : '🟡 CONNECTING TO STREAM...' }}
+          {{ isAisStreamConnected ? '🟢 ONLINE (LIVE MOTION)' : '🟡 CONNECTING...' }}
         </span>
       </div>
       <div class="ticker-item">
-        <span class="lbl">LIVE TRACKED AIS SHIPS:</span>
-        <span class="val cyan-txt" style="font-size: 0.92rem;">📡 {{ totalActiveVesselsCount | number }} Vessels</span>
+        <span class="lbl">ACTIVE FLEET:</span>
+        <span class="val cyan-txt">
+          📡 <react-bits-count-up [to]="totalActiveVesselsCount" [suffix]="' Vessels'"></react-bits-count-up>
+        </span>
       </div>
       <div class="ticker-item">
-        <span class="lbl">PINGS STREAMED:</span>
-        <span class="val green-txt">{{ aisPingCount | number }} Pings</span>
-      </div>
-      <div class="ticker-item">
-        <span class="lbl">DATA INTEGRITY:</span>
-        <span class="val green-txt" style="font-weight: 700; color: #10b981;">🛡️ {{ qcStats.dataIntegrityPct }} QC VERIFIED</span>
+        <span class="lbl">PINGS:</span>
+        <span class="val green-txt">
+          <react-bits-count-up [to]="aisPingCount"></react-bits-count-up>
+        </span>
       </div>
     </div>
-    <button (click)="openAisModal()" class="ais-badge-btn" title="Inspect AIS Settings">
-      ⚙️ Digitraffic AIS Settings
+    <button (click)="openAisModal()" class="ais-badge-btn magnet-interactive" title="Inspect AIS Settings">
+      ⚙️ AIS Config
     </button>
-    <button (click)="toggleAudio()" class="audio-toggle-btn" [class.muted]="audioMuted">
-      {{ audioMuted ? '🔇 Audio Muted' : '🔊 SFX On' }}
+    <button (click)="toggleAudio()" class="audio-toggle-btn magnet-interactive" [class.muted]="audioMuted">
+      {{ audioMuted ? '🔇 Audio' : '🔊 SFX' }}
     </button>
   </div>
 
   <!-- Page Header Hero Section -->
-  <header class="maritime-header-hero">
-    <div class="hero-title-group">
-      <div class="header-status-pill">
+  <header class="maritime-header-hero spotlight-card" reactBitsSpotlight>
+    <div class="hero-title-group blur-in-text">
+      <div class="header-status-pill minimal-pill cyan">
         <span class="live-pulse"></span>
-        <span class="status-pill-text">LIVE OCEANIC AIS SATELLITE TELEMETRY • REAL-TIME WEBSOCKET STREAM</span>
+        <span class="status-pill-text">LIVE SATELLITE WEBSOCKET TELEMETRY</span>
       </div>
-      <h1 class="hero-title"><span class="header-radar-badge">📡</span> Real-Time Global Fleet Radar & Vessel Tracker</h1>
-
-      <p class="hero-subtitle">High-precision 3D WebGL map tracking real-world ocean ships live from Digitraffic Open AIS.</p>
+      <h1 class="hero-title shiny-text">
+        <span class="header-radar-badge">📡</span>
+        <react-bits-decrypted-text [text]="'Global Fleet Radar & Vessel Tracker'" [speed]="25"></react-bits-decrypted-text>
+      </h1>
     </div>
 
     <div class="hero-stats-box">
-      <div class="stat-badge">
-        <span class="b-lbl">LIVE SHIPS ON MAP</span>
-        <span class="b-val highlight" style="color: #34d399; font-size: 1.15rem;">📡 {{ totalActiveVesselsCount | number }} Vessels</span>
-      </div>
-      <div class="stat-badge">
-        <span class="b-lbl">SATELLITE PINGS</span>
-        <span class="b-val highlight">{{ aisPingCount | number }}</span>
+      <div class="stat-badge minimal-pill emerald">
+        <span class="b-lbl">TRACKED:</span>
+        <span class="b-val highlight">
+          <react-bits-count-up [to]="totalActiveVesselsCount" [suffix]="' Vessels'"></react-bits-count-up>
+        </span>
       </div>
     </div>
   </header>

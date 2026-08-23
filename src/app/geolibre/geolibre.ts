@@ -46,10 +46,12 @@ export interface SearchResultItem {
   code?: string;
 }
 
+import { DecryptedTextComponent, CountUpComponent, SpotlightDirective, TiltedCardDirective } from '../shared/react-bits';
+
 @Component({
   selector: 'app-geolibre',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DecryptedTextComponent, CountUpComponent, SpotlightDirective, TiltedCardDirective],
   templateUrl: './geolibre.html',
   styleUrl: './geolibre.css'
 })

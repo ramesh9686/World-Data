@@ -50,10 +50,12 @@ export interface FeaturedIndicatorPill {
   topicId: number;
 }
 
+import { DecryptedTextComponent, SpotlightDirective } from '../shared/react-bits';
+
 @Component({
   selector: 'app-spatial-sql',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DecryptedTextComponent, SpotlightDirective],
   templateUrl: './spatial-sql.html',
   styleUrl: './spatial-sql.css'
 })

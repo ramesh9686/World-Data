@@ -1,0 +1,80 @@
+<div class="curved-nav-container" [style.--active-index]="activeIndex">
+  
+  <!-- Sleek React Bits Glassmorphic "More Modules" Popup Drawer -->
+  <div class="more-modules-drawer" *ngIf="isMoreMenuOpen" (click)="$event.stopPropagation()">
+    <div class="drawer-header">
+      <div class="drawer-title-group">
+        <span class="drawer-icon">✨</span>
+        <div>
+          <h4 class="drawer-title">Extended Modules & Tools</h4>
+          <span class="drawer-subtitle">World Explorer GIS Ecosystem</span>
+        </div>
+      </div>
+      <button class="drawer-close-btn" (click)="isMoreMenuOpen = false" title="Close">✕</button>
+    </div>
+
+    <div class="drawer-grid">
+      <div
+        *ngFor="let mod of secondaryModules"
+        class="drawer-card"
+        [class.active]="router.url.includes(mod.id)"
+        (click)="selectSecondary(mod.route)"
+      >
+        <span class="card-icon">{{ mod.icon }}</span>
+        <div class="card-text">
+          <span class="card-title">{{ mod.label }}</span>
+          <span class="card-desc">{{ mod.desc }}</span>
+        </div>
+        <span class="card-badge">{{ mod.badge }}</span>
+      </div>
+    </div>
+
+    <div class="drawer-footer">
+      <button class="drawer-privacy-btn" (click)="onPrivacyClick()">
+        <span>🔒</span>
+        <span>Privacy & Data Security Statement</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Floating Curved Navigation Bar Dock (Matching User Reference Image) -->
+  <nav class="curved-dock-bar">
+    
+    <!-- Fluid Animated Notch Cutout (Scoop) + Floating Active Bubble -->
+    <div class="notch-track">
+      <div class="notch-slider">
+        <!-- SVG Curved Notch Dip -->
+        <svg class="notch-svg" viewBox="0 0 120 40" preserveAspectRatio="none">
+          <!-- Smooth scoop dipping into the navigation bar -->
+          <path d="M 0 0 C 25 0, 32 30, 60 30 C 88 30, 95 0, 120 0 Z" fill="var(--bg-space, #030712)"></path>
+        </svg>
+
+        <!-- Floating Elevated Active Bubble with Warm Coral/Orange Glow (Matching Photo) -->
+        <div class="floating-active-circle" [title]="activeItem.label">
+          <span class="active-bubble-icon">{{ activeItem.icon }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tab Items -->
+    <div class="nav-items-wrapper">
+      <button
+        *ngFor="let item of navItems; let i = index"
+        class="nav-tab-btn"
+        [class.active]="activeIndex === i"
+        [class.is-more-active]="item.id === 'more' && isSecondaryActive"
+        (click)="onNavClick(i, item, $event)"
+        [title]="item.label + ' — ' + item.sublabel"
+      >
+        <!-- Inactive minimalist icon (fades when active since it floats in the bubble) -->
+        <span class="tab-icon">{{ item.icon }}</span>
+        <span class="tab-label">{{ item.label }}</span>
+
+        <!-- Secondary indicator dot on "More" button when inside secondary route -->
+        <span *ngIf="item.id === 'more' && isSecondaryActive" class="secondary-active-dot"></span>
+      </button>
+    </div>
+
+  </nav>
+
+</div>

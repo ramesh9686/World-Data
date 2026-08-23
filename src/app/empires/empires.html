@@ -1,20 +1,20 @@
 <div class="empires-page-container full-width-layout">
-  <!-- Header Banner & Navigation Tabs -->
-  <header class="empires-header">
-    <div class="header-brand">
+  <!-- React Bits Minimalist Header Banner & Navigation Tabs -->
+  <header class="empires-header spotlight-card">
+    <div class="header-brand blur-in-text">
       <span class="header-logo">🏛️</span>
       <div>
-        <h1 class="header-title">TEMPORAL WORLD MAP</h1>
-        <p class="header-subtitle">5,400+ Years of Historical Boundaries (-3400 BCE to 2024 CE) • Seshat Cliopatria Engine</p>
+        <h1 class="header-title shiny-text">Historical Empires & Civilizations</h1>
+        <p class="header-subtitle">5,400+ Years of Historical Boundaries • Seshat Cliopatria Cartography</p>
       </div>
     </div>
 
     <!-- View Tabs -->
     <div class="header-view-tabs">
-      <button class="view-tab-btn" [class.active]="activeTab === 'temporal-map'" (click)="setTabMode('temporal-map')">
+      <button class="view-tab-btn magnet-interactive" [class.active]="activeTab === 'temporal-map'" (click)="setTabMode('temporal-map')">
         🌍 Interactive Map
       </button>
-      <button class="view-tab-btn" [class.active]="activeTab === 'old-maps'" (click)="setTabMode('old-maps')">
+      <button class="view-tab-btn magnet-interactive" [class.active]="activeTab === 'old-maps'" (click)="setTabMode('old-maps')">
         🗺️ Vintage Archival Maps
       </button>
     </div>
@@ -36,14 +36,16 @@
   <!-- TAB 0: TEMPORAL GLOBAL WORLD MAP (-3400 BCE to 2024 CE) -->
   <ng-container *ngIf="activeTab === 'temporal-map'">
     <!-- Year Scrubber & Control HUD -->
-    <div class="temporal-hud-card">
+    <div class="temporal-hud-card spotlight-card" reactBitsSpotlight>
       <div class="hud-year-row">
         <div class="hud-title-box">
           <span class="hud-icon">⏳</span>
           <div>
-            <span class="hud-label">Historical Year:</span>
+            <span class="hud-label">Historical Epoch:</span>
             <div class="year-display-wrap">
-              <strong class="target-year-text">{{ formattedTimelineYear }}</strong>
+              <strong class="target-year-text">
+                <react-bits-decrypted-text [text]="formattedTimelineYear" [speed]="20"></react-bits-decrypted-text>
+              </strong>
             </div>
           </div>
         </div>
@@ -87,11 +89,11 @@
 
       <!-- Epoch Quick-Jump Presets -->
       <div class="epoch-presets-row">
-        <span class="presets-lbl">⚡ Quick Eras:</span>
+        <span class="presets-lbl">⚡ Eras:</span>
         <div class="preset-chips-wrap">
           <button
             *ngFor="let preset of epochPresets"
-            class="epoch-chip-btn"
+            class="epoch-chip-btn magnet-interactive"
             [class.active]="targetYear === preset.year"
             (click)="jumpToEpoch(preset.year)"
             [title]="preset.historicalContext"

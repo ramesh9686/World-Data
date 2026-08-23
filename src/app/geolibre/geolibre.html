@@ -1,17 +1,14 @@
 <div class="geolibre-container">
-  <!-- Header Banner - Futuristic Sci-Fi Telemetry Hub -->
-  <header class="geolibre-header">
-    <div class="geolibre-title-group">
-      <div class="logo-glow-wrapper">
-        <span class="geolibre-logo">🌐</span>
-      </div>
+  <!-- React Bits Minimalist Header Banner -->
+  <header class="geolibre-header spotlight-card">
+    <div class="geolibre-title-group blur-in-text">
+      <span class="geolibre-logo">🌐</span>
       <div>
-        <div class="header-status-pill">
+        <div class="header-status-pill minimal-pill cyan">
           <span class="live-pulse"></span>
-          <span class="status-pill-text">1. WORLD DATA CORE • LIVE WEBGL 3D ENGINE</span>
+          <span class="status-pill-text">WORLD DATA CORE</span>
         </div>
-        <h1 class="geolibre-title">Planetary GIS & Indicators Suite</h1>
-        <p class="geolibre-subtitle">World Bank, WHO & UN Multi-Spectral Vector Analytics • Temporal Extrusion Engine</p>
+        <h1 class="geolibre-title shiny-text">Planetary GIS & Indicators</h1>
       </div>
     </div>
 
@@ -32,7 +29,7 @@
       </div>
 
       <!-- Live Search Suggest Dropdown -->
-      <div *ngIf="isSearchOpen && searchResults.length > 0" class="search-results-dropdown">
+      <div *ngIf="isSearchOpen && searchResults.length > 0" class="search-results-dropdown minimal-hud-panel">
         <div
           *ngFor="let item of searchResults"
           class="search-result-item"
@@ -49,13 +46,13 @@
     </div>
 
     <div class="header-actions">
-      <button class="audio-toggle-btn" [class.muted]="audioMuted" (click)="toggleAudio()" [title]="audioMuted ? 'Unmute Audio SFX' : 'Mute Audio SFX'">
+      <button class="audio-toggle-btn magnet-interactive" [class.muted]="audioMuted" (click)="toggleAudio()" [title]="audioMuted ? 'Unmute Audio SFX' : 'Mute Audio SFX'">
         <span>{{ audioMuted ? '🔇' : '🔊' }}</span>
-        <span>{{ audioMuted ? 'Muted' : 'Sound SFX' }}</span>
+        <span>{{ audioMuted ? 'Muted' : 'Audio' }}</span>
       </button>
-      <button class="btn-primary-gis" (click)="exportCountriesGeoJSON()">
+      <button class="btn-primary-gis magnet-interactive" (click)="exportCountriesGeoJSON()">
         <span class="btn-icon">📥</span>
-        <span>Export GeoJSON</span>
+        <span>GeoJSON</span>
       </button>
     </div>
   </header>
@@ -84,10 +81,12 @@
         <div #mapCanvas id="maplibre-canvas"></div>
 
         <!-- Selected Detail Telemetry Dock Card (Clean Summary) -->
-        <div *ngIf="selectedDetailCard" class="selected-detail-card">
+        <div *ngIf="selectedDetailCard" class="selected-detail-card spotlight-card" reactBitsSpotlight reactBitsTiltedCard>
           <div class="detail-card-header">
             <div class="detail-card-title">
-              <h3>{{ selectedDetailCard.title }}</h3>
+              <h3>
+                <react-bits-decrypted-text [text]="selectedDetailCard.title" [speed]="20"></react-bits-decrypted-text>
+              </h3>
               <span class="detail-card-badge">{{ selectedDetailCard.category }}</span>
             </div>
             <button class="close-card-btn" (click)="closeDetailCard()">✖</button>
@@ -104,7 +103,7 @@
           </div>
 
           <div class="detail-card-actions">
-            <button class="card-action-btn" (click)="focusSelectedCountry()">
+            <button class="card-action-btn magnet-interactive" (click)="focusSelectedCountry()">
               🎯 Focus Camera
             </button>
           </div>
@@ -114,33 +113,33 @@
 
     <!-- Sidebar Panel: 3D Targets & GIS Export Suite -->
     <div class="sidebar-panel">
-      <div class="panel-card">
+      <div class="panel-card spotlight-card" reactBitsSpotlight>
         <div class="card-header-bar">
           <h3 class="card-title">🎯 3D Quick Fly Targets</h3>
           <span class="card-tag">GLOBAL HUB</span>
         </div>
         <div class="preset-list">
-          <button class="location-fly-btn" (click)="jumpToPreset('suez')">
+          <button class="location-fly-btn magnet-interactive" (click)="jumpToPreset('suez')">
             <span class="preset-label">🇪🇬 Suez Canal Passage</span>
             <span class="fly-arrow">➔</span>
           </button>
-          <button class="location-fly-btn" (click)="jumpToPreset('panama')">
+          <button class="location-fly-btn magnet-interactive" (click)="jumpToPreset('panama')">
             <span class="preset-label">🇵🇦 Panama Inter-Oceanic Link</span>
             <span class="fly-arrow">➔</span>
           </button>
-          <button class="location-fly-btn" (click)="jumpToPreset('malacca')">
+          <button class="location-fly-btn magnet-interactive" (click)="jumpToPreset('malacca')">
             <span class="preset-label">🇸🇬 Strait of Malacca</span>
             <span class="fly-arrow">➔</span>
           </button>
-          <button class="location-fly-btn" (click)="jumpToPreset('europe')">
+          <button class="location-fly-btn magnet-interactive" (click)="jumpToPreset('europe')">
             <span class="preset-label">🇪🇺 European Financial Hubs</span>
             <span class="fly-arrow">➔</span>
           </button>
-          <button class="location-fly-btn" (click)="jumpToPreset('tokyo')">
+          <button class="location-fly-btn magnet-interactive" (click)="jumpToPreset('tokyo')">
             <span class="preset-label">🇯🇵 Tokyo Bay Megacity</span>
             <span class="fly-arrow">➔</span>
           </button>
-          <button class="location-fly-btn" (click)="jumpToPreset('usa')">
+          <button class="location-fly-btn magnet-interactive" (click)="jumpToPreset('usa')">
             <span class="preset-label">🇺🇸 North America Corridor</span>
             <span class="fly-arrow">➔</span>
           </button>
@@ -148,13 +147,13 @@
       </div>
 
       <!-- GIS Suite Export Card -->
-      <div class="panel-card">
+      <div class="panel-card spotlight-card" reactBitsSpotlight>
         <div class="card-header-bar">
           <h3 class="card-title">📦 GIS Export Suite</h3>
           <span class="card-tag">OPEN DATA</span>
         </div>
         <div class="gis-suite-actions">
-          <button class="btn-secondary-gis" style="width: 100%; justify-content: center;" (click)="exportCountriesGeoJSON()">
+          <button class="btn-secondary-gis magnet-interactive" style="width: 100%; justify-content: center;" (click)="exportCountriesGeoJSON()">
             📄 Download GeoJSON Vectors
           </button>
         </div>
@@ -163,28 +162,30 @@
   </div>
 
   <!-- Basemap Switcher, 3D Performance HUD & Camera Controls Bar -->
-  <div class="control-bar">
+  <div class="control-bar spotlight-card" reactBitsSpotlight>
     <div class="basemap-switcher">
       <span class="switcher-title">Basemap Style:</span>
-      <button class="style-btn" [class.active]="activeStyleId === 'satellite'" (click)="switchBasemapStyle('satellite')">
+      <button class="style-btn magnet-interactive" [class.active]="activeStyleId === 'satellite'" (click)="switchBasemapStyle('satellite')">
         🛰️ Satellite
       </button>
-      <button class="style-btn" [class.active]="activeStyleId === 'dark'" (click)="switchBasemapStyle('dark')">
+      <button class="style-btn magnet-interactive" [class.active]="activeStyleId === 'dark'" (click)="switchBasemapStyle('dark')">
         🌙 Dark
       </button>
-      <button class="style-btn" [class.active]="activeStyleId === 'topo'" (click)="switchBasemapStyle('topo')">
+      <button class="style-btn magnet-interactive" [class.active]="activeStyleId === 'topo'" (click)="switchBasemapStyle('topo')">
         ⛰️ Topo
       </button>
-      <button class="style-btn" [class.active]="activeStyleId === 'positron'" (click)="switchBasemapStyle('positron')">
+      <button class="style-btn magnet-interactive" [class.active]="activeStyleId === 'positron'" (click)="switchBasemapStyle('positron')">
         ☀️ Light
       </button>
     </div>
 
     <!-- Live 3D Graphics & FPS Telemetry HUD -->
     <div class="fps-telemetry-hud" [title]="'Status: ' + fpsTelemetry.status + ' • Render Time: ' + fpsTelemetry.frameTimeMs + 'ms'">
-      <div class="fps-badge" [class.fps-warning]="fpsTelemetry.avgFps < 40" [class.fps-good]="fpsTelemetry.avgFps >= 50">
+      <div class="fps-badge minimal-pill" [class.emerald]="fpsTelemetry.avgFps >= 50">
         <span class="fps-pulse"></span>
-        <span class="fps-val">⚡ {{ fpsTelemetry.avgFps }} FPS</span>
+        <span class="fps-val">
+          <react-bits-count-up [to]="fpsTelemetry.avgFps" [prefix]="'⚡ '" [suffix]="' FPS'"></react-bits-count-up>
+        </span>
       </div>
       <div class="preset-selector-group">
         <span class="switcher-title">3D Mode:</span>

@@ -13,13 +13,15 @@ export interface GuessRecord {
   tempColor: string;
 }
 
+import { DecryptedTextComponent, SpotlightDirective } from '../shared/react-bits';
+
 @Component({
   selector: 'app-locate',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DecryptedTextComponent, SpotlightDirective],
   templateUrl: './locate.html',
   styleUrl: './locate.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
 })
 export class LocateComponent implements OnInit {
   targetCountryCode = '';

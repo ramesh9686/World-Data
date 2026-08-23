@@ -1,14 +1,14 @@
-/* Full-Screen Pure 3D Model Container (Width 100% fits inside main-wrapper) */
+/* Full-Screen Pure 3D Model Container */
 .pure-3d-model-container {
   position: relative;
   width: 100%;
   height: 100vh;
   overflow: hidden;
   background: #030712;
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
 }
 
-/* Sketchfab Iframe Viewport - Cropped to completely hide top-left author credit bar & bottom watermarks */
+/* Sketchfab Iframe Viewport */
 .pure-sketchfab-iframe {
   position: absolute;
   top: -65px;
@@ -20,7 +20,69 @@
   z-index: 1;
 }
 
-/* Full-Screen Container Overlay with Launch Badge */
+/* Minimalist Top HUD Overlay */
+.home-top-hud {
+  position: absolute;
+  top: 24px;
+  left: 24px;
+  z-index: 100;
+  padding: 0.85rem 1.25rem;
+  border-radius: 20px;
+  pointer-events: auto;
+  user-select: none;
+  animation: fadeInDown 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes fadeInDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hud-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.hud-planet-icon {
+  font-size: 2rem;
+  filter: drop-shadow(0 0 16px rgba(0, 242, 254, 0.7));
+  animation: floatIcon 4s ease-in-out infinite alternate;
+}
+
+@keyframes floatIcon {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-4px) scale(1.05); }
+}
+
+.hud-text-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.hud-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #f8fafc;
+  margin: 0;
+}
+
+.hud-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.hud-time-tag {
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* Bottom Floating Launch Hint Badge */
 .globe-click-overlay {
   position: absolute;
   top: 0;
@@ -32,39 +94,51 @@
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 24px;
+  padding-bottom: 105px;
 }
 
 .globe-launch-hint-badge {
   pointer-events: auto;
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(245, 158, 11, 0.4);
-  border-radius: 24px;
-  padding: 0.65rem 1.35rem;
+  background: rgba(13, 17, 28, 0.88);
+  border: 1px solid rgba(0, 242, 254, 0.4);
+  border-radius: 9999px;
+  padding: 0.75rem 1.6rem;
   color: #f8fafc;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
-  font-size: 0.88rem;
+  gap: 0.75rem;
+  font-size: 0.85rem;
   font-weight: 800;
-  backdrop-filter: blur(12px);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+  letter-spacing: 0.03em;
+  backdrop-filter: blur(24px) saturate(180%);
+  box-shadow: 
+    0 16px 40px rgba(0, 0, 0, 0.75),
+    0 0 28px rgba(0, 242, 254, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
 }
 
 .globe-launch-hint-badge:hover {
-  transform: translateY(-4px) scale(1.03);
-  border-color: #f59e0b;
-  background: rgba(245, 158, 11, 0.2);
+  border-color: #00f2fe;
+  background: rgba(0, 242, 254, 0.2);
+  box-shadow: 
+    0 20px 48px rgba(0, 0, 0, 0.85),
+    0 0 36px rgba(0, 242, 254, 0.5);
 }
 
 .pulse-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #34d399;
-  box-shadow: 0 0 10px #34d399;
+  background: #00f2fe;
+  box-shadow: 0 0 12px #00f2fe;
+  animation: pulseDotGlow 1.6s infinite alternate;
+}
+
+@keyframes pulseDotGlow {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(1.3); opacity: 1; }
 }
 
 .hint-icon {
@@ -72,142 +146,11 @@
 }
 
 .hint-arrow {
-  color: #f59e0b;
+  color: #00f2fe;
   font-size: 1rem;
+  transition: transform 0.2s ease;
 }
 
-/* Prominent 3D Model Selector Toolbar (Top-Right High Contrast Z-Index 9999) */
-.right-icon-dock {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  gap: 0.55rem;
-  background: rgba(15, 23, 42, 0.92);
-  border: 1.5px solid #f59e0b;
-  padding: 0.75rem 0.85rem;
-  border-radius: 18px;
-  backdrop-filter: blur(20px);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.8);
-  pointer-events: auto;
+.globe-launch-hint-badge:hover .hint-arrow {
+  transform: translateX(4px);
 }
-
-.dock-header-tag {
-  background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(245, 158, 11, 0.4);
-  padding: 0.35rem 0.6rem;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 0.2rem;
-  text-align: center;
-  margin-bottom: 0.2rem;
-}
-
-.speed-indicator-pill {
-  font-size: 0.68rem;
-  font-weight: 900;
-  letter-spacing: 0.5px;
-  color: #94a3b8;
-  text-transform: uppercase;
-}
-
-.speed-indicator-pill.fast-active {
-  color: #34d399;
-  text-shadow: 0 0 8px rgba(52, 211, 153, 0.6);
-}
-
-.time-badge-text {
-  font-size: 0.72rem;
-  font-family: monospace;
-  font-weight: 800;
-  color: #f59e0b;
-}
-
-.icon-dock-btn {
-  background: rgba(30, 41, 59, 0.9);
-  border: 1.5px solid rgba(255, 255, 255, 0.2);
-  color: #f8fafc;
-  padding: 0.55rem 0.95rem;
-  border-radius: 12px;
-  font-size: 0.85rem;
-  font-weight: 800;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  white-space: nowrap;
-}
-
-.icon-dock-btn:hover {
-  background: rgba(245, 158, 11, 0.25);
-  border-color: #f59e0b;
-  color: #ffffff;
-  transform: translateX(-3px);
-}
-
-.icon-dock-btn.active {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  border-color: #ffd700;
-  color: #000000;
-  font-weight: 900;
-  box-shadow: 0 0 16px rgba(245, 158, 11, 0.7);
-}
-
-.icon-dock-btn.default-fast-btn {
-  border-color: rgba(52, 211, 153, 0.6);
-}
-
-.icon-dock-btn.default-fast-btn.active {
-  background: linear-gradient(135deg, #10b981, #059669);
-  border-color: #6ee7b7;
-  color: #ffffff;
-  box-shadow: 0 0 18px rgba(16, 185, 129, 0.8);
-}
-
-.btn-icon {
-  font-size: 1.1rem;
-}
-
-.btn-label-container {
-  display: flex;
-  flex-direction: column;
-  text-align: left;
-}
-
-.btn-label {
-  font-size: 0.82rem;
-  letter-spacing: 0.3px;
-}
-
-.btn-subtag {
-  font-size: 0.6rem;
-  font-weight: 900;
-  letter-spacing: 0.4px;
-  color: #6ee7b7;
-}
-
-.icon-dock-btn.active .btn-subtag {
-  color: #ffffff;
-}
-
-.speed-badge {
-  background: rgba(16, 185, 129, 0.2);
-  border: 1px solid #10b981;
-  color: #34d399;
-  font-size: 0.65rem;
-  font-weight: 900;
-  padding: 0.15rem 0.4rem;
-  border-radius: 6px;
-  margin-left: auto;
-}
-
-.icon-dock-btn.active .speed-badge {
-  background: rgba(255, 255, 255, 0.25);
-  border-color: #ffffff;
-  color: #ffffff;
-}
-

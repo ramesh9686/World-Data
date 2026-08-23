@@ -1,72 +1,36 @@
 <div class="pure-3d-model-container">
-  <!-- Full-Screen Container Overlay with Launch Badge -->
-  <div class="globe-click-overlay">
-    <!-- Bottom Floating Launch Hint Badge -->
-    <div class="globe-launch-hint-badge" (click)="enterWorldData()" title="Click to launch World Data 3D Explorer">
-      <span class="pulse-dot"></span>
-      <span class="hint-icon">🌐</span>
-      <span class="hint-text">Drag & Rotate 3D Globe | Click Here to Open World Data Explorer</span>
-      <span class="hint-arrow">➔</span>
+  <!-- Minimalist Sci-Fi Telemetry Overlay (Top-Left Floating Glass HUD) -->
+  <header class="home-top-hud minimal-hud-panel" reactBitsSpotlight>
+    <div class="hud-brand-group">
+      <span class="hud-planet-icon">🌐</span>
+      <div class="hud-text-stack">
+        <h1 class="hud-title">
+          <react-bits-decrypted-text [text]="'WORLD EXPLORER 3D'" [speed]="30"></react-bits-decrypted-text>
+        </h1>
+        <div class="hud-sub-row">
+          <span class="minimal-pill emerald">⚡ <react-bits-count-up [to]="60" [suffix]="' FPS'"></react-bits-count-up> FAST CORE</span>
+          <span class="hud-time-tag">⏰ {{ detectedTimeString }}</span>
+        </div>
+      </div>
     </div>
+  </header>
+
+  <!-- Bottom Floating Launch Pill (Positioned cleanly above the curved bottom dock) -->
+  <div class="globe-click-overlay">
+    <button class="globe-launch-hint-badge magnet-interactive" (click)="enterWorldData()" title="Click to launch World Data 3D Explorer">
+      <span class="pulse-dot"></span>
+      <span class="hint-icon">🚀</span>
+      <span class="hint-text">
+        <react-bits-decrypted-text [text]="'LAUNCH WORLD DATA GIS SUITE'" [speed]="25"></react-bits-decrypted-text>
+      </span>
+      <span class="hint-arrow">➔</span>
+    </button>
   </div>
 
-  <!-- Prominent 3D Model Selector Toolbar (Top-Right High Contrast Z-Index 9999) -->
-  <aside class="right-icon-dock">
-    <div class="dock-header-tag">
-      <span class="speed-indicator-pill" [class.fast-active]="activeModelDetails.isFastest">
-        {{ activeModelDetails.isFastest ? '⚡ FASTEST MODE (DEFAULT)' : '🎨 HD OPTION' }}
-      </span>
-      <span class="time-badge-text">⏰ {{ detectedTimeString }}</span>
-    </div>
-
-    <button
-      *ngFor="let option of modelOptions"
-      class="icon-dock-btn"
-      [class.active]="activeModelId === option.id"
-      [class.default-fast-btn]="option.isFastest"
-      (click)="selectModel(option.id); $event.stopPropagation()"
-      [title]="option.name + ' — ' + option.speedTag"
-    >
-      <span class="btn-icon">{{ option.icon }}</span>
-      <div class="btn-label-container">
-        <span class="btn-label">{{ option.name }}</span>
-        <span class="btn-subtag" *ngIf="option.isFastest">DEFAULT (FASTEST)</span>
-      </div>
-      <span class="speed-badge" *ngIf="option.isFastest">⚡ 60FPS</span>
-    </button>
-  </aside>
-
-  <!-- 3D Earth Model 1 (Day Earth - Fast & Optimized Default) -->
+  <!-- Single Frozen Optimized 60FPS 3D Earth Globe (Instant Load) -->
   <iframe
-    *ngIf="activeModelId === 'model1'"
-    title="3D Earth Model 1"
-    [src]="model1Url"
-    frameborder="0"
-    allowfullscreen
-    mozallowfullscreen="true"
-    webkitallowfullscreen="true"
-    allow="autoplay; fullscreen; xr-spatial-tracking; execution-while-out-of-viewport; execution-while-not-rendered"
-    class="pure-sketchfab-iframe"
-  ></iframe>
-
-  <!-- 3D Earth Model 2 (Night Earth 16K HD) -->
-  <iframe
-    *ngIf="activeModelId === 'model2'"
-    title="3D Earth Model 2"
-    [src]="model2Url"
-    frameborder="0"
-    allowfullscreen
-    mozallowfullscreen="true"
-    webkitallowfullscreen="true"
-    allow="autoplay; fullscreen; xr-spatial-tracking; execution-while-out-of-viewport; execution-while-not-rendered"
-    class="pure-sketchfab-iframe"
-  ></iframe>
-
-  <!-- 3D Earth Model 3 (Planet Globe) -->
-  <iframe
-    *ngIf="activeModelId === 'model3'"
-    title="3D Earth Model 3"
-    [src]="model3Url"
+    title="3D Earth Globe Model"
+    [src]="fastEarthModelUrl"
     frameborder="0"
     allowfullscreen
     mozallowfullscreen="true"
@@ -75,4 +39,3 @@
     class="pure-sketchfab-iframe"
   ></iframe>
 </div>
-

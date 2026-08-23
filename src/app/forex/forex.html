@@ -1,9 +1,9 @@
 <div class="forex-page-container">
-    <!-- Live Global Forex Ticker Marquee (Dynamic Telemetry) -->
-    <div class="forex-ticker-marquee">
-        <div class="ticker-label">
+    <!-- React Bits Live Global Forex Ticker (Minimalist Glass Pill) -->
+    <div class="forex-ticker-marquee spotlight-card">
+        <div class="ticker-label blur-in-text">
             <span class="pulse-dot" [class.syncing]="isSyncing"></span>
-            <span>LIVE FOREX TELEMETRY TICKER:</span>
+            <span class="shiny-text">LIVE FX TELEMETRY:</span>
         </div>
         <div class="ticker-scroll">
             <div *ngFor="let item of tickerPairs" class="ticker-item">
@@ -14,42 +14,38 @@
                 </span>
             </div>
         </div>
-        <button (click)="toggleAudio()" class="audio-toggle-btn" [class.muted]="audioMuted">
-            {{ audioMuted ? '🔇 Audio Off' : '🔊 SFX On' }}
+        <button (click)="toggleAudio()" class="audio-toggle-btn magnet-interactive" [class.muted]="audioMuted">
+            {{ audioMuted ? '🔇 Audio' : '🔊 SFX' }}
         </button>
     </div>
 
     <!-- Page Header Hero Section & Rate Sync Bar -->
-    <div class="forex-header-hero">
-        <div class="hero-title-group">
-            <h1 class="hero-title">💱 Global FX & Forex Matrix</h1>
-            <p class="hero-subtitle">Real-time foreign exchange telemetry, visual converter, and cross-rate directory covering 240+ world countries with authentic currency symbols.</p>
+    <div class="forex-header-hero spotlight-card">
+        <div class="hero-title-group blur-in-text">
+            <h1 class="hero-title shiny-text">💱 Global FX & Forex Matrix</h1>
+            <p class="hero-subtitle">Real-time foreign exchange telemetry, visual converter, and cross-rate directory for 240+ countries.</p>
         </div>
 
         <!-- Live Refresh Rate Interval Controller -->
-        <div class="telemetry-sync-hud">
+        <div class="telemetry-sync-hud minimal-hud-panel">
             <div class="sync-top-row">
-                <span class="sync-label">⚡ RATE REFRESH INTERVAL:</span>
+                <span class="sync-label">⚡ REFRESH:</span>
                 <div class="interval-options">
-                    <button (click)="setIntervalOption(15)" [class.active]="selectedIntervalSec === 15" class="int-btn">15s Live</button>
-                    <button (click)="setIntervalOption(900)" [class.active]="selectedIntervalSec === 900" class="int-btn">15 Min</button>
-                    <button (click)="setIntervalOption(1800)" [class.active]="selectedIntervalSec === 1800" class="int-btn">30 Min</button>
-                    <button (click)="setIntervalOption(3600)" [class.active]="selectedIntervalSec === 3600" class="int-btn">1 Hour</button>
+                    <button (click)="setIntervalOption(15)" [class.active]="selectedIntervalSec === 15" class="int-btn">15s</button>
+                    <button (click)="setIntervalOption(900)" [class.active]="selectedIntervalSec === 900" class="int-btn">15m</button>
+                    <button (click)="setIntervalOption(1800)" [class.active]="selectedIntervalSec === 1800" class="int-btn">30m</button>
+                    <button (click)="setIntervalOption(3600)" [class.active]="selectedIntervalSec === 3600" class="int-btn">1h</button>
                     <button (click)="setIntervalOption(0)" [class.active]="selectedIntervalSec === 0" class="int-btn">Manual</button>
                 </div>
             </div>
 
             <div class="sync-bottom-row">
                 <div class="countdown-badge">
-                    <span class="timer-icon">⏳</span>
-                    <span>Next Sync: <strong>{{ countdownFormatted }}</strong></span>
+                    <span>Next: <strong>{{ countdownFormatted }}</strong></span>
                 </div>
-                <div class="last-sync-badge">
-                    <span>Last Sync: <strong>{{ lastSyncTimeFormatted || 'Just Now' }}</strong></span>
-                </div>
-                <button (click)="fetchLiveMarketRates()" [disabled]="isSyncing" class="manual-sync-btn" title="Sync Live FX Market Rates Now">
+                <button (click)="fetchLiveMarketRates()" [disabled]="isSyncing" class="manual-sync-btn magnet-interactive" title="Sync Live FX Market Rates Now">
                     <span class="sync-icon" [class.spin]="isSyncing">🔄</span>
-                    <span>{{ isSyncing ? 'Syncing...' : 'Sync Now' }}</span>
+                    <span>{{ isSyncing ? 'Syncing...' : 'Sync' }}</span>
                 </button>
             </div>
         </div>
@@ -58,7 +54,7 @@
     <!-- Main Converter & Cross Matrix Dashboard Grid -->
     <div class="forex-dashboard-grid">
         <!-- Dual-Deck Visual FX Exchanger Console -->
-        <div class="converter-card">
+        <div class="converter-card spotlight-card" reactBitsSpotlight>
             <div class="card-header">
                 <h3>⚡ Live Dual-Deck FX Exchanger</h3>
                 <span class="base-badge">Base: {{ baseInfo.symbol }} {{ baseCurrencyCode }}</span>
@@ -85,7 +81,7 @@
                 </div>
 
                 <!-- SWAP BUTTON INTERSECTION -->
-                <button (click)="swapBaseAndTarget()" class="swap-deck-btn" title="Swap From and To Currencies">
+                <button (click)="swapBaseAndTarget()" class="swap-deck-btn magnet-interactive" title="Swap From and To Currencies">
                     ⇄
                 </button>
 
@@ -99,7 +95,7 @@
                         <div class="amount-field-box result">
                             <span class="symbol-prefix target-col">{{ targetInfo.symbol }}</span>
                             <span class="converted-result-display">
-                                {{ convertValue(targetCurrencyCode) | number:'1.2-2' }}
+                                <react-bits-count-up [to]="convertValue(targetCurrencyCode)" [decimals]="2"></react-bits-count-up>
                             </span>
                         </div>
                         <select [ngModel]="targetCurrencyCode" (ngModelChange)="setTargetCurrency($event)" class="deck-select">

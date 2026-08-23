@@ -1,43 +1,43 @@
 <div class="fishing-page">
-  <!-- Ticker Bar -->
-  <div class="gfw-ticker-bar">
-    <div class="ticker-left">
+  <!-- React Bits Live Ocean Telemetry Bar -->
+  <div class="gfw-ticker-bar spotlight-card">
+    <div class="ticker-left blur-in-text">
       <span class="radar-pulse"></span>
-      <span class="ticker-title">GLOBAL FISHING WATCH — REAL-TIME SATELLITE TELEMETRY</span>
+      <span class="ticker-title shiny-text">OCEAN TELEMETRY AIS:</span>
     </div>
     <div class="ticker-stats">
       <span class="stat-chip">
-        <span class="stat-lbl">LIVE SATELLITE PINGS:</span>
-        <span class="stat-val green">{{ liveAisPingsCount | number }} Pings</span>
+        <span class="stat-lbl">LIVE PINGS:</span>
+        <span class="stat-val green">
+          <react-bits-count-up [to]="liveAisPingsCount"></react-bits-count-up>
+        </span>
       </span>
       <span class="stat-chip">
-        <span class="stat-lbl">TOTAL TRACKED FLEET:</span>
-        <span class="stat-val cyan">{{ stats.totalVesselsSearched }} Vessels</span>
+        <span class="stat-lbl">FLEET:</span>
+        <span class="stat-val cyan">
+          <react-bits-count-up [to]="stats.totalVesselsSearched" [suffix]="' Vessels'"></react-bits-count-up>
+        </span>
       </span>
       <span class="stat-chip">
-        <span class="stat-lbl">EVENTS TRACKED:</span>
-        <span class="stat-val green">{{ stats.totalFishingEvents }} Events</span>
-      </span>
-      <span class="stat-chip">
-        <span class="stat-lbl">STREAM STATUS:</span>
+        <span class="stat-lbl">FEED:</span>
         <span class="stat-val" [style.color]="isRealtimeStreamConnected ? '#10b981' : '#f59e0b'">
-          {{ isRealtimeStreamConnected ? '🟢 REAL-TIME AIS STREAMING' : '🟡 CONNECTING SATELLITE FEED...' }}
+          {{ isRealtimeStreamConnected ? '🟢 ONLINE' : '🟡 CONNECTING' }}
         </span>
       </span>
     </div>
   </div>
 
   <!-- Hero Header -->
-  <header class="gfw-header">
-    <div class="hero-content">
+  <header class="gfw-header spotlight-card" reactBitsSpotlight>
+    <div class="hero-content blur-in-text">
       <div class="hero-badge-row">
-        <span class="live-badge"><span class="pulse-dot"></span> REAL-TIME SATELLITE AIS ACTIVE</span>
-        <span class="api-badge">🌍 Global Fishing Watch v3 API</span>
+        <span class="live-badge minimal-pill emerald"><span class="pulse-dot"></span> REAL-TIME AIS ACTIVE</span>
+        <span class="api-badge minimal-pill cyan">🌍 GFW v3 Telemetry</span>
       </div>
-      <h1 class="hero-title">🐟 Global Fishing Watch — Ocean Intelligence Dashboard</h1>
-      <p class="hero-subtitle">
-        Track {{ stats.totalVesselsSearched }} active vessels in real time across 8 global fishing grounds with live satellite AIS pings, GFW vessel registry search, and automated activity event detection.
-      </p>
+      <h1 class="hero-title shiny-text">
+        <span class="header-radar-badge">🐟</span>
+        <react-bits-decrypted-text [text]="'Global Fishing Watch & Ocean Intelligence'" [speed]="25"></react-bits-decrypted-text>
+      </h1>
     </div>
   </header>
 

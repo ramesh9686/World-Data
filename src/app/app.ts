@@ -1,18 +1,18 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
+import { RouterOutlet, Router } from '@angular/router';
 import { SeoService } from './services/seo.service';
+import { CurvedBottomNavComponent } from './components/curved-bottom-nav/curved-bottom-nav.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterOutlet, CurvedBottomNavComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
   public readonly title = signal('World Explorer');
-  public sidebarCollapsed: boolean = false;
   public showPrivacyModal: boolean = false;
 
   constructor(
@@ -25,18 +25,7 @@ export class App {
     return url === '/' || url.includes('home');
   }
 
-  toggleSidebar(): void {
-    this.sidebarCollapsed = !this.sidebarCollapsed;
-  }
-
   togglePrivacyModal(): void {
     this.showPrivacyModal = !this.showPrivacyModal;
-  }
-
-  onSelectModule(event: Event): void {
-    const target = (event.target as HTMLSelectElement).value;
-    if (target) {
-      this.router.navigate([target]);
-    }
   }
 }

@@ -336,10 +336,12 @@ function generateGlobalFishingFleet(): { vessels: GfwVessel[]; events: GfwFishin
 
 const GENERATED_FLEET = generateGlobalFishingFleet();
 
+import { DecryptedTextComponent, CountUpComponent, SpotlightDirective } from '../shared/react-bits';
+
 @Component({
   selector: 'app-fishing',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
   templateUrl: './fishing.html',
   styleUrl: './fishing.css'
 })
