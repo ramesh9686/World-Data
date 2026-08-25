@@ -7,6 +7,7 @@ import { RealtimeDataService, RealtimeData } from '../realtime-data.service';
 import { WorldBankService } from '../world-bank.service';
 import { HISTORICAL_EMPIRES, HistoricalEmpire } from '../empires-data';
 import { GeoJsonExportService } from '../services/geojson-export.service';
+import { WORLD_SVG_COUNTRY_PATHS, SVGCountryPath } from '../world-svg-paths';
 
 export interface QuizQuestion {
   id: string;
@@ -198,13 +199,16 @@ export class MapComponent implements OnInit, OnDestroy {
     { d: 'M 160 230 Q 205 220 250 230', duration: '4.5s', delay: '3s' }
   ];
 
+  public readonly worldPaths: SVGCountryPath[] = WORLD_SVG_COUNTRY_PATHS;
+
   constructor(
     private countryService: CountryService,
     private realtimeService: RealtimeDataService,
     private wbService: WorldBankService,
     private geoJsonService: GeoJsonExportService,
     private cdr: ChangeDetectorRef,
-    private router: Router
+    private router: Router,
+    private ngZone: NgZone
   ) {
     this.wbTopics = this.wbService.getTopics();
   }
@@ -247,6 +251,7 @@ export class MapComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.startTicker();
+    this.fetchCountryData('us');
   }
 
   ngOnDestroy(): void {

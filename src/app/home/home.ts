@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
@@ -9,7 +9,8 @@ import { DecryptedTextComponent, CountUpComponent, SpotlightDirective } from '..
   standalone: true,
   imports: [CommonModule, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
   templateUrl: './home.html',
-  styleUrl: './home.css'
+  styleUrl: './home.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class HomeComponent implements OnInit {
   // Frozen single fastest 60FPS 3D Earth Globe model (optimized geometry, ~1.2MB, instant load)

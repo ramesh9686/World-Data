@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, NgZone } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -44,10 +44,16 @@ export interface VoyageAssessment {
     canal_tolls_usd: number;
     carbon_tax_eu_ets_usd: number;
   };
-  risk_assessment: {
+  risk_assessment?: {
     overall_risk_score: number;
     weather_risk_level: string;
     security_advisory: string;
+  };
+  navigation?: {
+    origin_locode: string;
+    destination_locode: string;
+    route_type: 'shortest_maritime_corridor' | 'deep_water_transoceanic';
+    weather_risk_index: number;
   };
 }
 
@@ -58,7 +64,8 @@ import { DecryptedTextComponent, CountUpComponent, SpotlightDirective } from '..
   standalone: true,
   imports: [CommonModule, FormsModule, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
   templateUrl: './maritime.html',
-  styleUrl: './maritime.css'
+  styleUrl: './maritime.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapCanvas', { static: false }) mapCanvasRef!: ElementRef<HTMLDivElement>;

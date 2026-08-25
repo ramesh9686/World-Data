@@ -1,6 +1,7 @@
 import { Component, ChangeDetectorRef, OnInit, OnDestroy, ChangeDetectionStrategy, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { COUNTRIES_DATA } from '../countries-data';
+import { WORLD_SVG_COUNTRY_PATHS, SVGCountryPath } from '../world-svg-paths';
 
 export interface QuizQuestion {
   id: string;
@@ -21,9 +22,11 @@ import { DecryptedTextComponent, CountUpComponent, SpotlightDirective } from '..
   imports: [CommonModule, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
   templateUrl: './quiz.html',
   styleUrl: './quiz.css',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class QuizComponent implements OnInit, OnDestroy {
+  public readonly worldPaths: SVGCountryPath[] = WORLD_SVG_COUNTRY_PATHS;
+
   quizScore = 0;
   quizStreak = 0;
   maxStreak = 0;

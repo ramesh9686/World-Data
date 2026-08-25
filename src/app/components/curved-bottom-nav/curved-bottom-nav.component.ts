@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, HostListener, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, Output, EventEmitter, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, NavigationEnd } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -18,7 +18,8 @@ export interface NavItem {
   standalone: true,
   imports: [CommonModule],
   templateUrl: './curved-bottom-nav.component.html',
-  styleUrl: './curved-bottom-nav.component.css'
+  styleUrl: './curved-bottom-nav.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CurvedBottomNavComponent implements OnInit, OnDestroy {
   @Output() privacyClick = new EventEmitter<void>();
@@ -46,7 +47,10 @@ export class CurvedBottomNavComponent implements OnInit, OnDestroy {
   public secondaryActiveLabel: string = '';
   private routerSub!: Subscription;
 
-  constructor(public router: Router) {}
+  constructor(
+    public router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.updateActiveIndexByUrl(this.router.url);
@@ -55,6 +59,7 @@ export class CurvedBottomNavComponent implements OnInit, OnDestroy {
       .subscribe((event: any) => {
         this.updateActiveIndexByUrl(event.urlAfterRedirects || event.url);
         this.isMoreMenuOpen = false;
+        this.cdr.markForCheck();
       });
   }
 
@@ -106,20 +111,24 @@ export class CurvedBottomNavComponent implements OnInit, OnDestroy {
       event.preventDefault();
       event.stopPropagation();
       this.isMoreMenuOpen = !this.isMoreMenuOpen;
+      this.cdr.markForCheck();
       return;
     }
     this.activeIndex = index;
     this.isMoreMenuOpen = false;
+    this.cdr.markForCheck();
     this.router.navigate([item.route]);
   }
 
   public selectSecondary(route: string): void {
     this.isMoreMenuOpen = false;
+    this.cdr.markForCheck();
     this.router.navigate([route]);
   }
 
   public onPrivacyClick(): void {
     this.isMoreMenuOpen = false;
+    this.cdr.markForCheck();
     this.privacyClick.emit();
   }
 
@@ -127,7 +136,10 @@ export class CurvedBottomNavComponent implements OnInit, OnDestroy {
   onDocumentClick(event: MouseEvent): void {
     const target = event.target as HTMLElement;
     if (!target.closest('.curved-nav-container')) {
-      this.isMoreMenuOpen = false;
+      if (this.isMoreMenuOpen) {
+        this.isMoreMenuOpen = false;
+        this.cdr.markForCheck();
+      }
     }
   }
 

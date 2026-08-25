@@ -1,6 +1,7 @@
 import { Component, ChangeDetectorRef, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { COUNTRIES_DATA } from '../countries-data';
+import { WORLD_SVG_COUNTRY_PATHS, SVGCountryPath } from '../world-svg-paths';
 
 export interface GuessRecord {
   countryCode: string;
@@ -21,9 +22,11 @@ import { DecryptedTextComponent, SpotlightDirective } from '../shared/react-bits
   imports: [CommonModule, DecryptedTextComponent, SpotlightDirective],
   templateUrl: './locate.html',
   styleUrl: './locate.css',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LocateComponent implements OnInit {
+  public readonly worldPaths: SVGCountryPath[] = WORLD_SVG_COUNTRY_PATHS;
+
   targetCountryCode = '';
   targetCountryName = '';
   targetLat = 0;

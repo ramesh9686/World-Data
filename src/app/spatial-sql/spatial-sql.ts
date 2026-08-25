@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, NgZone } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { COUNTRIES_DATA } from '../countries-data';
@@ -57,7 +57,8 @@ import { DecryptedTextComponent, SpotlightDirective } from '../shared/react-bits
   standalone: true,
   imports: [CommonModule, FormsModule, DecryptedTextComponent, SpotlightDirective],
   templateUrl: './spatial-sql.html',
-  styleUrl: './spatial-sql.css'
+  styleUrl: './spatial-sql.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class SpatialSqlComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('previewMapCanvas', { static: false }) previewMapRef!: ElementRef<HTMLDivElement>;

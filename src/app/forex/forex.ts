@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef, ChangeDetectionStrategy, NgZone } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { COUNTRIES_DATA, CountryData } from '../countries-data';
@@ -45,7 +45,7 @@ import { CountUpComponent, SpotlightDirective } from '../shared/react-bits';
   imports: [CommonModule, FormsModule, CountUpComponent, SpotlightDirective],
   templateUrl: './forex.html',
   styleUrl: './forex.css',
-  changeDetection: ChangeDetectionStrategy.Default,
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ForexComponent implements OnInit, OnDestroy {
   // Converter Controls
@@ -234,7 +234,8 @@ export class ForexComponent implements OnInit, OnDestroy {
 
   constructor(
     private realtimeService: RealtimeDataService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone
   ) {}
 
   ngOnInit(): void {
@@ -321,19 +322,21 @@ export class ForexComponent implements OnInit, OnDestroy {
       return; // Manual refresh only
     }
 
-    this.syncTimer = setInterval(() => {
-      if (this.countdownSec > 1) {
-        this.countdownSec--;
-        // Perform subtle micro-tick live market simulation
-        if (this.countdownSec % 3 === 0) {
-          this.applyMicroTicks();
+    this.ngZone.runOutsideAngular(() => {
+      this.syncTimer = setInterval(() => {
+        if (this.countdownSec > 1) {
+          this.countdownSec--;
+          // Perform subtle micro-tick live market simulation
+          if (this.countdownSec % 3 === 0) {
+            this.applyMicroTicks();
+          }
+        } else {
+          this.fetchLiveMarketRates();
+          this.countdownSec = this.selectedIntervalSec;
         }
-      } else {
-        this.fetchLiveMarketRates();
-        this.countdownSec = this.selectedIntervalSec;
-      }
-      this.cdr.markForCheck();
-    }, 1000);
+        this.cdr.markForCheck();
+      }, 1000);
+    });
   }
 
   // Simulate Realistic Live Market Fluctuation Ticks

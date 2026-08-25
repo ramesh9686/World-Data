@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, NgZone } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -53,7 +53,8 @@ import { DecryptedTextComponent, CountUpComponent, SpotlightDirective, TiltedCar
   standalone: true,
   imports: [CommonModule, FormsModule, DecryptedTextComponent, CountUpComponent, SpotlightDirective, TiltedCardDirective],
   templateUrl: './geolibre.html',
-  styleUrl: './geolibre.css'
+  styleUrl: './geolibre.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('mapCanvas', { static: false }) mapCanvasRef!: ElementRef<HTMLDivElement>;
@@ -377,6 +378,14 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.runSpatialQuery();
+
+    // Default country selection so World Data indicators, charts & telemetry load immediately on open
+    const defaultCountry = COUNTRIES_DATA['us'] || COUNTRIES_DATA['eg'] || Object.values(COUNTRIES_DATA)[0];
+    if (defaultCountry) {
+      const lat = parseFloat(defaultCountry.latitude) || 38.8951;
+      const lng = parseFloat(defaultCountry.longitude) || -77.0364;
+      this.openCountryTelemetryCard(defaultCountry, lat, lng);
+    }
   }
 
   async ngAfterViewInit(): Promise<void> {
@@ -1225,11 +1234,21 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     this.searchQuery = item.name;
     this.isSearchOpen = false;
 
-    if (item.code && COUNTRIES_DATA[item.code]) {
-      this.openCountryTelemetryCard(COUNTRIES_DATA[item.code], item.lat, item.lng);
+    let country: CountryData | null = null;
+    if (item.code) {
+      const codeLower = item.code.toLowerCase();
+      country = COUNTRIES_DATA[codeLower] || Object.values(COUNTRIES_DATA).find(c => c.id.toLowerCase() === codeLower || c.iso2Code.toLowerCase() === codeLower) || null;
+    }
+    if (!country) {
+      country = Object.values(COUNTRIES_DATA).find(c => c.name.toLowerCase() === item.name.toLowerCase()) || null;
+    }
+
+    if (country) {
+      this.openCountryTelemetryCard(country, item.lat, item.lng);
     } else {
       this.flyToTarget(item.lng, item.lat, 7, 55, 10);
     }
+    this.cdr.markForCheck();
   }
 
   // ------------------------------------------------------------------
@@ -1662,6 +1681,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     let targetZoom = 7;
     let targetPitch = 55;
     let targetBearing = -20;
+    let countryKey = 'eg';
 
     switch (preset) {
       case 'suez':
@@ -1670,6 +1690,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         targetZoom = 8;
         targetPitch = 60;
         targetBearing = 25;
+        countryKey = 'eg';
         break;
       case 'panama':
         targetLng = -79.7;
@@ -1677,6 +1698,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         targetZoom = 9;
         targetPitch = 55;
         targetBearing = -45;
+        countryKey = 'pa';
         break;
       case 'malacca':
         targetLng = 101.5;
@@ -1684,6 +1706,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         targetZoom = 7;
         targetPitch = 50;
         targetBearing = 15;
+        countryKey = 'sg';
         break;
       case 'europe':
         targetLng = 10.0;
@@ -1691,6 +1714,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         targetZoom = 5;
         targetPitch = 45;
         targetBearing = 0;
+        countryKey = 'de';
         break;
       case 'tokyo':
         targetLng = 139.6503;
@@ -1698,6 +1722,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         targetZoom = 10;
         targetPitch = 60;
         targetBearing = 30;
+        countryKey = 'jp';
         break;
       case 'usa':
         targetLng = -98.5795;
@@ -1705,10 +1730,17 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         targetZoom = 4;
         targetPitch = 40;
         targetBearing = 0;
+        countryKey = 'us';
         break;
     }
 
+    const c = COUNTRIES_DATA[countryKey] || COUNTRIES_DATA['us'];
+    if (c) {
+      this.openCountryTelemetryCard(c, targetLat, targetLng);
+    }
+
     this.flyToTarget(targetLng, targetLat, targetZoom, targetPitch, targetBearing);
+    this.cdr.markForCheck();
   }
 
   flyToTarget(lng: number, lat: number, zoom: number = 6, pitch: number = 45, bearing: number = 0): void {

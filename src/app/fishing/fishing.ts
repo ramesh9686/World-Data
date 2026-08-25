@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, NgZone } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { environment } from '../../environments/environment';
@@ -343,7 +343,8 @@ import { DecryptedTextComponent, CountUpComponent, SpotlightDirective } from '..
   standalone: true,
   imports: [CommonModule, FormsModule, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
   templateUrl: './fishing.html',
-  styleUrl: './fishing.css'
+  styleUrl: './fishing.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FishingComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('gfwMapCanvas', { static: false }) mapCanvasRef!: ElementRef<HTMLDivElement>;
