@@ -12,7 +12,7 @@ An interactive Angular application that lets users explore countries around the 
 * 📱 Responsive design for desktop and tablet devices
 * 🎨 Smooth hover and selection animations
 * ⚡ Fast, lightweight Angular application
-
+* Used Lot of APIs
 ---
 
 ## 🛠️ Tech Stack
