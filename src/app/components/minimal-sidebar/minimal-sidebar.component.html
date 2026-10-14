@@ -1,0 +1,88 @@
+<aside 
+  class="minimal-sidebar-rail" 
+  [class.expanded]="isExpanded"
+  (mouseenter)="isExpanded = true"
+  (mouseleave)="isExpanded = false"
+  aria-label="Main Navigation Sidebar"
+>
+  <!-- Top Brand Header -->
+  <div class="sidebar-brand-row">
+    <div class="brand-logo-disc" (click)="router.navigate(['/home'])" title="World Explorer Home">
+      <span class="brand-emoji">🌐</span>
+    </div>
+    <div class="brand-text-block">
+      <span class="brand-app-name">WORLD EXPLORER</span>
+      <span class="brand-version-tag">NEUMORPHIC 3D</span>
+    </div>
+  </div>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- Navigation Rail Items -->
+  <nav class="sidebar-nav-scroll">
+    <ul class="nav-item-list">
+      @for (item of primaryNavItems; track item.id) {
+        <li class="nav-item-wrapper">
+          <button
+            type="button"
+            class="nav-rail-btn"
+            [class.active]="isActive(item.route)"
+            (click)="navigate(item)"
+            [attr.title]="item.label"
+          >
+            <!-- Frosted Icon Capsule -->
+            <span class="item-icon-capsule">
+              <span class="item-icon">{{ item.icon }}</span>
+              @if (item.badge) {
+                <span class="micro-status-dot"></span>
+              }
+            </span>
+
+            <!-- Expanded Text Block -->
+            <div class="item-text-block">
+              <span class="item-main-label">{{ item.label }}</span>
+              <span class="item-sub-label">{{ item.sublabel }}</span>
+            </div>
+
+            <!-- Optional Badge -->
+            @if (item.badge) {
+              <span class="item-badge-pill">{{ item.badge }}</span>
+            }
+
+            <!-- Active Glass Indicator Pill -->
+            @if (isActive(item.route)) {
+              <span class="active-indicator-notch"></span>
+            }
+          </button>
+        </li>
+      }
+    </ul>
+  </nav>
+
+  <div class="sidebar-divider"></div>
+
+  <!-- Bottom Utility Footer -->
+  <div class="sidebar-bottom-actions">
+    <!-- Privacy Button -->
+    <button 
+      type="button" 
+      class="sidebar-action-btn" 
+      (click)="openPrivacy()" 
+      title="Privacy Statement & Data Protection"
+    >
+      <span class="action-icon">🛡️</span>
+      <span class="action-label">Privacy & Data</span>
+    </button>
+
+    <!-- Expand / Collapse Toggle -->
+    <button 
+      type="button" 
+      class="sidebar-action-btn toggle-expand-btn" 
+      (click)="toggleExpand()" 
+      [attr.title]="isExpanded ? 'Collapse Rail' : 'Expand Rail'"
+    >
+      <span class="action-icon">{{ isExpanded ? '◀' : '▶' }}</span>
+      <span class="action-label">{{ isExpanded ? 'Collapse Rail' : 'Expand Rail' }}</span>
+    </button>
+  </div>
+</aside>

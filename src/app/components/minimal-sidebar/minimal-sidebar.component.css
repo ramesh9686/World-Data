@@ -1,0 +1,380 @@
+/* ── Frosted Soft Glass & Neumorphic Slim Sidebar Rail ── */
+
+:host {
+  display: block;
+}
+
+.minimal-sidebar-rail {
+  position: fixed;
+  left: 14px;
+  top: 14px;
+  bottom: 14px;
+  width: 66px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  background: rgba(10, 16, 28, 0.78);
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 26px;
+  box-shadow: 
+    0 16px 48px rgba(0, 0, 0, 0.55),
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.16),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.4);
+  padding: 12px 8px;
+  transition: width 0.32s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+  overflow: hidden;
+  user-select: none;
+}
+
+.minimal-sidebar-rail.expanded {
+  width: 232px;
+  box-shadow: 
+    0 24px 64px rgba(0, 0, 0, 0.7),
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.5);
+}
+
+/* 1. Top Brand Header */
+.sidebar-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px;
+  border-radius: 18px;
+  cursor: pointer;
+  min-height: 48px;
+}
+
+.brand-logo-disc {
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: all 0.25s ease;
+}
+
+.brand-logo-disc:hover {
+  background: rgba(56, 189, 248, 0.18);
+  border-color: rgba(56, 189, 248, 0.4);
+  transform: scale(1.05);
+}
+
+.brand-emoji {
+  font-size: 1.35rem;
+  filter: drop-shadow(0 0 10px rgba(56, 189, 248, 0.6));
+}
+
+.brand-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  opacity: 0;
+  transform: translateX(-10px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  white-space: nowrap;
+}
+
+.minimal-sidebar-rail.expanded .brand-text-block {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.brand-app-name {
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #f8fafc;
+}
+
+.brand-version-tag {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: #38bdf8;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  margin: 10px 4px;
+  min-height: 1px;
+}
+
+/* 2. Navigation List */
+.sidebar-nav-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 4px 0;
+}
+
+.sidebar-nav-scroll::-webkit-scrollbar {
+  width: 3px;
+}
+
+.sidebar-nav-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 9999px;
+}
+
+.nav-item-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+  margin: 0;
+}
+
+.nav-item-wrapper {
+  position: relative;
+}
+
+.nav-rail-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 7px 6px;
+  border-radius: 18px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #94a3b8;
+  cursor: pointer;
+  outline: none;
+  position: relative;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  text-align: left;
+}
+
+.nav-rail-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  transform: translateX(2px);
+}
+
+/* Active Neumorphic Glass State */
+.nav-rail-btn.active {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.32);
+  color: #38bdf8;
+  box-shadow: 
+    inset 0 1px 2px rgba(0, 0, 0, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.15),
+    0 4px 16px rgba(56, 189, 248, 0.15);
+}
+
+.item-icon-capsule {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.nav-rail-btn:hover .item-icon-capsule {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.nav-rail-btn.active .item-icon-capsule {
+  background: rgba(56, 189, 248, 0.2);
+  border-color: rgba(56, 189, 248, 0.4);
+}
+
+.item-icon {
+  font-size: 1.15rem;
+}
+
+.micro-status-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 8px #10b981;
+}
+
+.item-text-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.minimal-sidebar-rail.expanded .item-text-block {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.item-main-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: inherit;
+}
+
+.item-sub-label {
+  font-size: 0.65rem;
+  font-family: 'JetBrains Mono', monospace;
+  color: #64748b;
+}
+
+.nav-rail-btn:hover .item-sub-label {
+  color: #94a3b8;
+}
+
+.nav-rail-btn.active .item-sub-label {
+  color: rgba(56, 189, 248, 0.7);
+}
+
+.item-badge-pill {
+  font-size: 0.58rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 800;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #10b981;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  white-space: nowrap;
+}
+
+.minimal-sidebar-rail.expanded .item-badge-pill {
+  opacity: 1;
+}
+
+.active-indicator-notch {
+  position: absolute;
+  right: 6px;
+  width: 4px;
+  height: 16px;
+  border-radius: 9999px;
+  background: #38bdf8;
+  box-shadow: 0 0 10px #38bdf8;
+}
+
+/* 3. Bottom Actions */
+.sidebar-bottom-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 4px;
+}
+
+.sidebar-action-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 6px;
+  border-radius: 16px;
+  background: transparent;
+  border: 1px solid transparent;
+  color: #64748b;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.sidebar-action-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+}
+
+.action-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+
+.action-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateX(-8px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.minimal-sidebar-rail.expanded .action-label {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Responsive: Mobile Bottom Capsule */
+@media (max-width: 768px) {
+  .minimal-sidebar-rail {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    top: auto;
+    width: auto !important;
+    height: 60px;
+    flex-direction: row;
+    align-items: center;
+    padding: 6px 12px;
+    border-radius: 20px;
+  }
+
+  .sidebar-brand-row,
+  .sidebar-divider,
+  .sidebar-bottom-actions,
+  .item-text-block,
+  .item-badge-pill,
+  .active-indicator-notch {
+    display: none;
+  }
+
+  .sidebar-nav-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    width: 100%;
+  }
+
+  .nav-item-list {
+    flex-direction: row;
+    gap: 8px;
+    justify-content: space-around;
+    width: 100%;
+  }
+
+  .nav-rail-btn {
+    padding: 4px;
+    justify-content: center;
+  }
+}

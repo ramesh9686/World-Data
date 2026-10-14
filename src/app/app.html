@@ -1,49 +1,51 @@
 <div class="app-layout">
   
-  <!-- Main Viewport Area (Full-bleed immersive view) -->
+  <!-- Slim Minimalist Left Sidebar Navigation Rail -->
+  <app-minimal-sidebar (privacyClick)="togglePrivacyModal()"></app-minimal-sidebar>
+
+  <!-- Main Viewport Area (Full-bleed immersive view with left sidebar offset) -->
   <main class="main-wrapper" [class.full-viewport-home]="isHomePage">
     <router-outlet />
   </main>
 
-  <!-- Sleek Curved Animated Bottom Navigation Bar (Matching Reference Photo) -->
-  <app-curved-bottom-nav (privacyClick)="togglePrivacyModal()"></app-curved-bottom-nav>
+  <!-- Interactive Frosted Soft Glass Privacy Statement Modal Overlay -->
+  @if (showPrivacyModal) {
+    <div class="privacy-modal-backdrop" (click)="togglePrivacyModal()">
+      <div class="privacy-modal-card" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-icon">🛡️</span>
+            <div>
+              <h3 class="modal-title">Privacy Statement & Data Protection</h3>
+              <span class="modal-subtitle">World Explorer GIS & Telemetry Suite</span>
+            </div>
+          </div>
+          <button class="modal-close-btn" (click)="togglePrivacyModal()" title="Close Privacy Statement">✕</button>
+        </div>
 
-  <!-- Interactive Glassmorphic Privacy Statement Modal Overlay -->
-  <div *ngIf="showPrivacyModal" class="privacy-modal-backdrop" (click)="togglePrivacyModal()">
-    <div class="privacy-modal-card" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <div class="modal-title-group">
-          <span class="modal-icon">🛡️</span>
-          <div>
-            <h3 class="modal-title">Privacy Statement & Data Protection</h3>
-            <span class="modal-subtitle">World Explorer GIS & Telemetry Suite</span>
+        <div class="modal-body">
+          <div class="privacy-section">
+            <h4>🔒 1. Zero Tracking & Local Storage Integrity</h4>
+            <p>Your geographic searches, viewport navigation, and game scores are processed <strong>100% locally</strong> inside your browser. No personal identifiable information (PII) is tracked, sold, or transmitted to external servers.</p>
+          </div>
+
+          <div class="privacy-section">
+            <h4>🛰️ 2. Public Live Telemetry Sockets</h4>
+            <p>Real-time AIS ship positions, Foreign Exchange rates, and World Bank indicators are requested strictly via secure encrypted HTTPS/WSS endpoints. Only public telemetry streams are consumed.</p>
+          </div>
+
+          <div class="privacy-section">
+            <h4>🍪 3. Cookies & Session Preference Compliance</h4>
+            <p>Session parameters (such as theme preferences, audio mute states, and optional AIS Stream API keys) are persisted locally in browser <code>localStorage</code> and never shared with 3rd-party advertisers.</p>
           </div>
         </div>
-        <button class="modal-close-btn" (click)="togglePrivacyModal()" title="Close Privacy Statement">✕</button>
-      </div>
 
-      <div class="modal-body">
-        <div class="privacy-section">
-          <h4>🔒 1. Zero Tracking & Local Storage Integrity</h4>
-          <p>Your geographic searches, viewport navigation, and game scores are processed <strong>100% locally</strong> inside your browser. No personal identifiable information (PII) is tracked, sold, or transmitted to external servers.</p>
+        <div class="modal-footer">
+          <span class="compliance-badge">✅ Fully Compliant with Open GIS & Web Privacy Standards</span>
+          <button class="modal-agree-btn" (click)="togglePrivacyModal()">I Understand</button>
         </div>
-
-        <div class="privacy-section">
-          <h4>🛰️ 2. Public Live Telemetry Sockets</h4>
-          <p>Real-time AIS ship positions, Foreign Exchange rates, and World Bank indicators are requested strictly via secure encrypted HTTPS/WSS endpoints. Only public telemetry streams are consumed.</p>
-        </div>
-
-        <div class="privacy-section">
-          <h4>🍪 3. Cookies & Session Preference Compliance</h4>
-          <p>Session parameters (such as theme preferences, audio mute states, and optional AIS Stream API keys) are persisted locally in browser <code>localStorage</code> and never shared with 3rd-party advertisers.</p>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <span class="compliance-badge">✅ Fully Compliant with Open GIS & Web Privacy Standards</span>
-        <button class="modal-agree-btn" (click)="togglePrivacyModal()">I Understand</button>
       </div>
     </div>
-  </div>
+  }
 
 </div>

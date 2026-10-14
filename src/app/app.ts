@@ -2,12 +2,12 @@ import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterOutlet, Router } from '@angular/router';
 import { SeoService } from './services/seo.service';
-import { CurvedBottomNavComponent } from './components/curved-bottom-nav/curved-bottom-nav.component';
+import { MinimalSidebarComponent } from './components/minimal-sidebar/minimal-sidebar.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, CurvedBottomNavComponent],
+  imports: [CommonModule, RouterOutlet, MinimalSidebarComponent],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })

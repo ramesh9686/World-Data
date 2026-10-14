@@ -1,22 +1,45 @@
 @import 'maplibre-gl/dist/maplibre-gl.css';
 
+/* ──────────────────────────────────────────────────────────────────────────
+   🌌 FROSTED SOFT GLASS & MINIMALIST NEUMORPHIC DESIGN SYSTEM
+   ────────────────────────────────────────────────────────────────────────── */
+
 :root {
-  --bg-space: #030712;
-  --bg-surface: #0b0f19;
-  --bg-card-glass: rgba(13, 17, 28, 0.78);
-  --border-glass: rgba(255, 255, 255, 0.09);
-  --border-cyan-glow: rgba(56, 189, 248, 0.4);
-  --border-purple-glow: rgba(168, 85, 247, 0.4);
+  --bg-space: #070b14;
+  --bg-surface: #0c1220;
+  --bg-card-glass: rgba(13, 20, 36, 0.72);
+  --bg-card-elevated: rgba(18, 27, 48, 0.78);
+  
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-glass-bright: rgba(255, 255, 255, 0.16);
+  --border-accent-cyan: rgba(56, 189, 248, 0.35);
+  --border-accent-emerald: rgba(16, 185, 129, 0.35);
+  --border-accent-purple: rgba(168, 85, 247, 0.35);
   
   --accent-cyan: #38bdf8;
-  --accent-neon: #00f2fe;
-  --accent-purple: #a855f7;
-  --accent-pink: #ec4899;
-  --accent-emerald: #10b981;
-  --accent-amber: #f59e0b;
-  --accent-orange: #f97316;
+  --accent-ice: #7dd3fc;
+  --accent-purple: #c084fc;
+  --accent-emerald: #34d399;
+  --accent-amber: #fbbf24;
+  --accent-orange: #fb923c;
   
-  --font-heading: 'Outfit', 'Space Grotesk', system-ui, sans-serif;
+  --shadow-neumorphic: 
+    0 16px 40px rgba(0, 0, 0, 0.5),
+    0 4px 16px rgba(0, 0, 0, 0.25),
+    inset 0 1px 1px rgba(255, 255, 255, 0.14),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.35);
+
+  --shadow-neumorphic-hover: 
+    0 24px 56px rgba(0, 0, 0, 0.65),
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.4);
+
+  --shadow-inset-bevel: 
+    inset 0 2px 5px rgba(0, 0, 0, 0.35),
+    inset 0 1px 2px rgba(255, 255, 255, 0.08);
+  
+  --font-heading: 'Outfit', 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
   --font-body: 'Inter', system-ui, sans-serif;
 }
@@ -33,10 +56,9 @@ html, body {
   font-family: var(--font-body);
   background-color: var(--bg-space);
   background-image: 
-    radial-gradient(circle at 15% 15%, rgba(0, 242, 254, 0.08) 0%, transparent 45%),
-    radial-gradient(circle at 85% 20%, rgba(168, 85, 247, 0.08) 0%, transparent 45%),
-    radial-gradient(circle at 50% 85%, rgba(249, 115, 22, 0.06) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(16, 185, 129, 0.06) 0%, transparent 45%);
+    radial-gradient(circle at 10% 15%, rgba(56, 189, 248, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 90% 20%, rgba(168, 85, 247, 0.05) 0%, transparent 45%),
+    radial-gradient(circle at 50% 90%, rgba(16, 185, 129, 0.04) 0%, transparent 50%);
   background-attachment: fixed;
   color: #f8fafc;
   overflow-x: hidden;
@@ -44,24 +66,25 @@ html, body {
 }
 
 ::selection {
-  background: var(--accent-neon);
-  color: #030712;
+  background: rgba(56, 189, 248, 0.3);
+  color: #ffffff;
 }
 
 /* ──────────────────────────────────────────────────────────────────────────
-   ✨ REACT BITS DESIGN TOKENS & ANIMATION UTILITIES
+   ✨ FROSTED GLASS & NEUMORPHIC UTILITIES
    ────────────────────────────────────────────────────────────────────────── */
 
-/* 1. Spotlight Card (React Bits Cursor Tracking / Radial Glow Effect) */
+/* 1. Neumorphic Spotlight Card */
 .spotlight-card {
   position: relative;
-  background: rgba(15, 23, 42, 0.7);
-  backdrop-filter: blur(20px) saturate(180%);
-  -webkit-backdrop-filter: blur(20px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.09);
-  border-radius: 20px;
+  background: var(--bg-card-glass);
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
+  border: 1px solid var(--border-glass);
+  border-radius: 22px;
+  box-shadow: var(--shadow-neumorphic);
   overflow: hidden;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .spotlight-card::before {
@@ -71,30 +94,40 @@ html, body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0, 242, 254, 0.12), transparent 40%);
+  background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(56, 189, 248, 0.08), transparent 45%);
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.4s ease;
+  transition: opacity 0.35s ease;
   z-index: 1;
 }
 
 .spotlight-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(0, 242, 254, 0.35);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.5), 0 0 20px rgba(0, 242, 254, 0.12);
+  border-color: rgba(56, 189, 248, 0.3);
+  box-shadow: var(--shadow-neumorphic-hover);
+  transform: translateY(-2px);
 }
 
 .spotlight-card:hover::before {
   opacity: 1;
 }
 
-/* 2. Shiny Text & Decrypted Headlines (React Bits) */
+/* 2. Frosted Floating HUD Panel */
+.minimal-hud-panel {
+  background: rgba(11, 17, 30, 0.82);
+  backdrop-filter: blur(28px) saturate(170%);
+  -webkit-backdrop-filter: blur(28px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  box-shadow: var(--shadow-neumorphic);
+}
+
+/* 3. Text & Typography Styles */
 .shiny-text {
-  background: linear-gradient(120deg, #94a3b8 0%, #ffffff 40%, #00f2fe 60%, #94a3b8 100%);
+  background: linear-gradient(120deg, #94a3b8 0%, #ffffff 45%, #7dd3fc 65%, #94a3b8 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  animation: shineText 5s linear infinite;
+  animation: shineText 6s linear infinite;
   display: inline-block;
 }
 
@@ -104,110 +137,124 @@ html, body {
 }
 
 .gradient-text-reactbits {
-  background: linear-gradient(135deg, #00f2fe 0%, #a855f7 50%, #f97316 100%);
+  background: linear-gradient(135deg, #7dd3fc 0%, #c084fc 50%, #fb923c 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-size: 200% auto;
-  animation: shinyGradient 6s linear infinite;
 }
 
-@keyframes shinyGradient {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* 3. Blur-In Entrance Animation (React Bits) */
-.blur-in-text {
-  animation: blurIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-}
-
-@keyframes blurIn {
-  0% {
-    opacity: 0;
-    filter: blur(12px);
-    transform: translateY(10px);
-  }
-  100% {
-    opacity: 1;
-    filter: blur(0px);
-    transform: translateY(0);
-  }
-}
-
-/* 4. Minimalist HUD Floating Panel (React Bits Micro-Glass) */
-.minimal-hud-panel {
-  background: rgba(11, 15, 25, 0.85);
-  backdrop-filter: blur(24px) saturate(190%);
-  -webkit-backdrop-filter: blur(24px) saturate(190%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 18px;
-  box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.65),
-    inset 0 1px 1px rgba(255, 255, 255, 0.12);
-}
-
-/* 5. Magnet Hover Micro-Interaction */
+/* 4. Interactive Magnet Hover */
 .magnet-interactive {
-  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s ease;
 }
 
 .magnet-interactive:hover {
-  transform: translateY(-2px) scale(1.03);
+  transform: translateY(-2px) scale(1.02);
 }
 
 .magnet-interactive:active {
-  transform: translateY(0) scale(0.97);
+  transform: translateY(0) scale(0.98);
 }
 
-/* 6. Sleek Glass Badges & Pills */
+/* 5. Frosted Soft Glass Badges & Pills */
 .minimal-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.3rem 0.75rem;
+  gap: 0.45rem;
+  padding: 0.32rem 0.8rem;
   border-radius: 9999px;
   background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  font-size: 0.74rem;
   font-weight: 700;
   color: #cbd5e1;
   letter-spacing: 0.02em;
 }
 
 .minimal-pill.cyan {
-  background: rgba(0, 242, 254, 0.1);
-  border-color: rgba(0, 242, 254, 0.35);
-  color: #00f2fe;
+  background: rgba(56, 189, 248, 0.1);
+  border-color: rgba(56, 189, 248, 0.3);
+  color: #7dd3fc;
 }
 
 .minimal-pill.emerald {
   background: rgba(16, 185, 129, 0.1);
-  border-color: rgba(16, 185, 129, 0.35);
-  color: #10b981;
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #34d399;
 }
 
 .minimal-pill.orange {
   background: rgba(249, 115, 22, 0.1);
-  border-color: rgba(249, 115, 22, 0.35);
-  color: #f97316;
+  border-color: rgba(249, 115, 22, 0.3);
+  color: #fb923c;
 }
 
-/* 7. Scrollbar styling */
+.minimal-pill.purple {
+  background: rgba(168, 85, 247, 0.1);
+  border-color: rgba(168, 85, 247, 0.3);
+  color: #c084fc;
+}
+
+/* 6. Neumorphic Inputs & Search Bars */
+input[type="text"],
+input[type="search"],
+input[type="date"],
+select {
+  background: rgba(8, 13, 24, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: var(--shadow-inset-bevel);
+  border-radius: 14px;
+  color: #f8fafc;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+input[type="text"]:focus,
+input[type="search"]:focus,
+input[type="date"]:focus,
+select:focus {
+  outline: none;
+  border-color: rgba(56, 189, 248, 0.5);
+  box-shadow: 
+    var(--shadow-inset-bevel),
+    0 0 16px rgba(56, 189, 248, 0.15);
+}
+
+/* 7. MapLibre GL UI Frosted Glass Customization */
+.maplibregl-ctrl-group {
+  background: rgba(11, 17, 30, 0.85) !important;
+  backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  border-radius: 14px !important;
+  box-shadow: var(--shadow-neumorphic) !important;
+  overflow: hidden;
+}
+
+.maplibregl-ctrl-group button {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+.maplibregl-ctrl-group button:last-child {
+  border-bottom: none !important;
+}
+
+/* 8. Minimalist Scrollbar Styling */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(3, 7, 18, 0.6);
+  background: rgba(5, 8, 16, 0.5);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.14);
   border-radius: 9999px;
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.2);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-neon);
+  background: rgba(56, 189, 248, 0.4);
 }
