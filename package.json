@@ -30,10 +30,12 @@
     "@angular/forms": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
     "@angular/router": "^21.2.0",
+    "@types/three": "^0.186.0",
     "jszip": "^3.10.1",
     "maplibre-gl": "^6.0.0",
     "rxjs": "~7.8.0",
     "searoute-ts": "^2.2.0",
+    "three": "^0.186.1",
     "tslib": "^2.3.0",
     "ws": "^8.21.2"
   },

@@ -15,7 +15,6 @@ An interactive Angular application that lets users explore countries around the 
 * Used Lot of APIs
 ---
 
-## 🛠️ Tech Stack
 
 | Category  | Technology             |
 | --------- | ---------------------- |

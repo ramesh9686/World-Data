@@ -8,12 +8,18 @@
           <react-bits-decrypted-text [text]="'WORLD EXPLORER 3D'" [speed]="30"></react-bits-decrypted-text>
         </h1>
         <div class="hud-sub-row">
-          <span class="minimal-pill emerald">⚡ <react-bits-count-up [to]="60" [suffix]="' FPS'"></react-bits-count-up> FAST CORE</span>
+          <span class="minimal-pill emerald">⚡ <react-bits-count-up [to]="60" [suffix]="' FPS'"></react-bits-count-up> NATIVE 3D CORE</span>
           <span class="hud-time-tag">⏰ {{ detectedTimeString }}</span>
         </div>
       </div>
     </div>
   </header>
+
+  <!-- Drag & Rotate Controller Hint Badge -->
+  <div class="drag-hint-pill">
+    <span class="drag-hint-icon">🖱️</span>
+    <span class="drag-hint-text">Drag anywhere to rotate • Scroll to zoom</span>
+  </div>
 
   <!-- Bottom Floating Launch Pill (Positioned cleanly above the curved bottom dock) -->
   <div class="globe-click-overlay">
@@ -27,15 +33,26 @@
     </button>
   </div>
 
-  <!-- Single Frozen Optimized 60FPS 3D Earth Globe (Instant Load) -->
-  <iframe
-    title="3D Earth Globe Model"
-    [src]="fastEarthModelUrl"
-    frameborder="0"
-    allowfullscreen
-    mozallowfullscreen="true"
-    webkitallowfullscreen="true"
-    allow="autoplay; fullscreen; xr-spatial-tracking; execution-while-out-of-viewport; execution-while-not-rendered"
-    class="pure-sketchfab-iframe"
-  ></iframe>
+  <!-- Loading State Indicator -->
+  @if (isLoading) {
+    <div class="model-loading-overlay">
+      <div class="loading-ring"></div>
+      <div class="loading-title">INITIALIZING 3D PLANET</div>
+      <div class="loading-bar-track">
+        <div class="loading-bar-fill" [style.width.%]="loadProgress || 65"></div>
+      </div>
+      <span class="loading-subtitle">PREPARING 3D MESH & TEXTURES</span>
+    </div>
+  }
+
+  <!-- Error Message (if any) -->
+  @if (loadError) {
+    <div class="model-error-overlay">
+      <span class="error-icon">⚠️</span>
+      <p>{{ loadError }}</p>
+    </div>
+  }
+
+  <!-- Three.js Native 3D WebGL Canvas -->
+  <canvas #canvas3d class="webgl-canvas"></canvas>
 </div>
