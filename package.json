@@ -17,7 +17,9 @@
   "main": "index.js",
   "scripts": {
     "ng": "ng",
+    "prestart": "node scripts/set-env.js",
     "start": "ng serve",
+    "prebuild": "node scripts/set-env.js",
     "build": "ng build --configuration=production",
     "build:dev": "ng build --configuration=development",
     "watch": "ng build --watch --configuration development",

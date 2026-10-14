@@ -94,7 +94,7 @@ export class AisStreamService {
   private qcStatsSubject = new BehaviorSubject<AisQcStats>(this.qcStats);
   public qcStats$: Observable<AisQcStats> = this.qcStatsSubject.asObservable();
 
-  private currentApiKey: string = '4b8a931efb8b56555196a3102f730916479f77d9';
+  private currentApiKey: string = environment.aisStreamApiKey || '';
   private proxyWsUrl: string = 'ws://localhost:3001';
   private directWsUrl: string = 'wss://stream.aisstream.io/v0/stream';
   private pingCounter = 0;

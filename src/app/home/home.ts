@@ -16,6 +16,16 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { DecryptedTextComponent, CountUpComponent, SpotlightDirective } from '../shared/react-bits';
 
+interface CursorFlameParticle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  life: number;
+  hue: number;
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -26,6 +36,7 @@ import { DecryptedTextComponent, CountUpComponent, SpotlightDirective } from '..
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild('canvas3d', { static: true }) canvasRef!: ElementRef<HTMLCanvasElement>;
+  @ViewChild('cursorCanvas', { static: true }) cursorCanvasRef!: ElementRef<HTMLCanvasElement>;
 
   public detectedTimeString: string = '';
   public fpsCount: number = 60;
@@ -47,9 +58,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private mouseNormalizedX: number = 0;
   private mouseNormalizedY: number = 0;
   private hoverVelocityX: number = 0;
+  private hoverVelocityY: number = 0;
   private isHovering: boolean = false;
   private isDragging: boolean = false;
   private lastMouseX: number | null = null;
+  private lastMouseY: number | null = null;
+
+  // Custom Blue & Rainbow Fire Tail Cursor
+  private cursorCtx: CanvasRenderingContext2D | null = null;
+  private cursorParticles: CursorFlameParticle[] = [];
+  private rainbowHue: number = 0;
 
   constructor(
     private router: Router,
@@ -63,6 +81,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngAfterViewInit(): void {
     this.initThreeScene();
+    this.initCursorCanvas();
   }
 
   ngOnDestroy(): void {
@@ -80,6 +99,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public enterWorldData(): void {
     this.router.navigate(['/world-data']);
+  }
+
+  private initCursorCanvas(): void {
+    const canvas = this.cursorCanvasRef.nativeElement;
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    this.cursorCtx = canvas.getContext('2d');
   }
 
   private initThreeScene(): void {
@@ -104,7 +130,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       powerPreference: 'high-performance'
     });
     this.renderer.setSize(width, height);
-    // Limit pixel ratio to 1.5 for ultra-smooth dragging on all devices & low FPS
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -114,20 +139,21 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.controls = new OrbitControls(this.camera, canvas);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.06;
-    this.controls.autoRotate = false; // We handle base & hover revolution directly on the earth group
+    this.controls.autoRotate = false;
     this.controls.enablePan = false;
     this.controls.minDistance = 3.5;
     this.controls.maxDistance = 16.0;
 
-    // Synchronize drag state so hover revolution pauses during active drag
     this.controls.addEventListener('start', () => {
       this.isDragging = true;
       this.hoverVelocityX = 0;
+      this.hoverVelocityY = 0;
     });
 
     this.controls.addEventListener('end', () => {
       this.isDragging = false;
       this.lastMouseX = null;
+      this.lastMouseY = null;
     });
 
     // 5. Lighting
@@ -160,7 +186,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     window.addEventListener('pointermove', this.onPointerMove);
     document.addEventListener('mouseleave', this.onPointerLeave);
 
-    // 10. Run 60 FPS animation loop outside Angular Zone to prevent change detection lag
+    // 10. Run 60 FPS animation loop outside Angular Zone
     this.ngZone.runOutsideAngular(() => {
       this.animate();
     });
@@ -216,21 +242,18 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       (gltf) => {
         const model = gltf.scene;
 
-        // Auto-center and fit model nicely
         const box = new THREE.Box3().setFromObject(model);
         const size = box.getSize(new THREE.Vector3());
         const center = box.getCenter(new THREE.Vector3());
 
         model.position.sub(center);
 
-        // Normalize model size to a comfortable diameter (~4.2 units)
         const maxDim = Math.max(size.x, size.y, size.z);
         if (maxDim > 0) {
           const targetScale = 4.2 / maxDim;
           model.scale.setScalar(targetScale);
         }
 
-        // Optimize materials for smooth rendering
         model.traverse((child: any) => {
           if (child.isMesh) {
             if (child.material) {
@@ -242,7 +265,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.earthGroup.add(model);
 
-        // Play animations if present in the model
         if (gltf.animations && gltf.animations.length > 0) {
           this.mixer = new THREE.AnimationMixer(model);
           gltf.animations.forEach((clip) => {
@@ -273,35 +295,59 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onPointerMove = (e: PointerEvent): void => {
-    // If it's a touch pointer, OrbitControls handles touch dragging
     if (e.pointerType === 'touch') return;
 
     this.isHovering = true;
     const width = window.innerWidth;
     const height = window.innerHeight;
 
-    // Normalized from -1 to 1 (0 at center)
     const newNormX = (e.clientX / width) * 2 - 1;
     const newNormY = (e.clientY / height) * 2 - 1;
 
-    if (this.lastMouseX !== null && !this.isDragging) {
+    if (this.lastMouseX !== null && this.lastMouseY !== null && !this.isDragging) {
       const deltaX = (e.clientX - this.lastMouseX) / width;
-      // Impart rotational momentum on mouse glide
-      this.hoverVelocityX += deltaX * 1.8;
-      // Clamp peak momentum velocity
-      this.hoverVelocityX = Math.max(-0.06, Math.min(0.06, this.hoverVelocityX));
+      const deltaY = (e.clientY - this.lastMouseY) / height;
+      this.hoverVelocityX += deltaX * 2.2;
+      this.hoverVelocityY += deltaY * 2.2;
+      this.hoverVelocityX = Math.max(-0.08, Math.min(0.08, this.hoverVelocityX));
+      this.hoverVelocityY = Math.max(-0.08, Math.min(0.08, this.hoverVelocityY));
+    }
+
+    // Spawn 2-3 blue & rainbow fire tail sparks
+    this.rainbowHue = (this.rainbowHue + 14) % 360;
+    const isElectricBlue = Math.random() > 0.45;
+    const hue = isElectricBlue ? (195 + Math.random() * 25) : this.rainbowHue;
+
+    for (let i = 0; i < 2; i++) {
+      this.cursorParticles.push({
+        x: e.clientX,
+        y: e.clientY,
+        vx: (Math.random() - 0.5) * 2.0,
+        vy: (Math.random() - 0.5) * 2.0 - (Math.random() * 1.2 + 0.4),
+        size: Math.random() * 6 + 4,
+        life: 1.0,
+        hue
+      });
+    }
+
+    if (this.cursorParticles.length > 60) {
+      this.cursorParticles.splice(0, this.cursorParticles.length - 60);
     }
 
     this.mouseNormalizedX = newNormX;
     this.mouseNormalizedY = newNormY;
     this.lastMouseX = e.clientX;
+    this.lastMouseY = e.clientY;
   };
 
   private onPointerLeave = (): void => {
     this.isHovering = false;
     this.lastMouseX = null;
+    this.lastMouseY = null;
     this.mouseNormalizedX = 0;
     this.mouseNormalizedY = 0;
+    this.hoverVelocityX = 0;
+    this.hoverVelocityY = 0;
   };
 
   private onWindowResize = (): void => {
@@ -313,42 +359,107 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.camera.updateProjectionMatrix();
 
     this.renderer.setSize(width, height);
+
+    if (this.cursorCanvasRef?.nativeElement) {
+      this.cursorCanvasRef.nativeElement.width = width;
+      this.cursorCanvasRef.nativeElement.height = height;
+    }
   };
+
+  private renderCursorFireTail(): void {
+    if (!this.cursorCtx || !this.cursorCanvasRef) return;
+    const ctx = this.cursorCtx;
+    const canvas = this.cursorCanvasRef.nativeElement;
+
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 1. Draw fire tail sparks
+    for (let i = this.cursorParticles.length - 1; i >= 0; i--) {
+      const p = this.cursorParticles[i];
+      p.x += p.vx;
+      p.y += p.vy;
+      p.size *= 0.93;
+      p.life -= 0.038;
+
+      if (p.life <= 0 || p.size <= 0.4) {
+        this.cursorParticles.splice(i, 1);
+        continue;
+      }
+
+      ctx.save();
+      ctx.globalAlpha = p.life;
+      ctx.fillStyle = `hsl(${p.hue}, 100%, 65%)`;
+      ctx.shadowColor = `hsl(${p.hue}, 100%, 60%)`;
+      ctx.shadowBlur = 10;
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // 2. Draw glowing blue & rainbow cursor pointer
+    if (this.isHovering && this.lastMouseX !== null && this.lastMouseY !== null) {
+      ctx.save();
+      this.rainbowHue = (this.rainbowHue + 3) % 360;
+
+      // Glow aura
+      ctx.shadowColor = `hsl(${this.rainbowHue}, 100%, 60%)`;
+      ctx.shadowBlur = 14;
+
+      // Inner electric blue core
+      ctx.beginPath();
+      ctx.arc(this.lastMouseX, this.lastMouseY, 4.5, 0, Math.PI * 2);
+      ctx.fillStyle = '#00f2fe';
+      ctx.fill();
+
+      // Outer shifting rainbow ring
+      ctx.strokeStyle = `hsl(${this.rainbowHue}, 100%, 70%)`;
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(this.lastMouseX, this.lastMouseY, 8.5, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    }
+  }
 
   private animate = (): void => {
     this.animationFrameId = requestAnimationFrame(this.animate);
 
     const delta = this.clock.getDelta();
 
-    // 1. Controls update (smooth inertial damping during drag)
+    // 1. Controls update
     if (this.controls) {
       this.controls.update();
     }
 
-    // 2. Hover revolution & dynamic tilt when not actively dragging
+    // 2. Hover revolution & 60-degree all-sides dynamic tilt
     if (!this.isDragging) {
-      // Base continuous revolution + hover acceleration based on horizontal cursor placement
-      const hoverSpeed = this.isHovering ? (this.mouseNormalizedX * 0.022) : 0.005;
-      const totalRotationDeltaY = hoverSpeed + this.hoverVelocityX;
+      const DEG_60 = (60 * Math.PI) / 180; // ~1.047 rad (full 60 degrees tilt)
 
+      // Horizontal Yaw (Left-Right)
+      const hoverSpeed = this.isHovering ? (this.mouseNormalizedX * 0.025) : 0.005;
+      const totalRotationDeltaY = hoverSpeed + this.hoverVelocityX;
       this.earthGroup.rotation.y += totalRotationDeltaY;
 
-      // Smooth interactive 3D tilt towards mouse cursor (gentle pitch & roll)
-      const targetTiltX = this.isHovering ? this.mouseNormalizedY * 0.28 : 0;
-      const targetTiltZ = this.isHovering ? -this.mouseNormalizedX * 0.14 : 0;
-      this.earthGroup.rotation.x += (targetTiltX - this.earthGroup.rotation.x) * 0.06;
-      this.earthGroup.rotation.z += (targetTiltZ - this.earthGroup.rotation.z) * 0.06;
+      // Vertical Pitch (Up-Down) - full 60-degree range on hover + vertical glide momentum
+      const targetTiltX = this.isHovering ? (this.mouseNormalizedY * DEG_60) : 0;
+      this.earthGroup.rotation.x += ((targetTiltX + this.hoverVelocityY) - this.earthGroup.rotation.x) * 0.08;
 
-      // Decay glide momentum with smooth damping
+      // Diagonal 3D Roll (Z-axis tilt) - responds to corner hover
+      const targetTiltZ = this.isHovering ? (-this.mouseNormalizedX * (DEG_60 * 0.4)) : 0;
+      this.earthGroup.rotation.z += (targetTiltZ - this.earthGroup.rotation.z) * 0.08;
+
       this.hoverVelocityX *= 0.94;
+      this.hoverVelocityY *= 0.94;
     }
 
-    // 3. Built-in model animations (if any)
+    // 3. Built-in model animations
     if (this.mixer) {
       this.mixer.update(delta);
     }
 
-    // 4. Subtle cosmic stars rotation & parallax
+    // 4. Stars rotation
     if (this.starsField) {
       this.starsField.rotation.y += 0.0002;
       if (this.isHovering && !this.isDragging) {
@@ -356,10 +467,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     }
 
-    // 5. Render
+    // 5. Render 3D scene
     if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);
     }
+
+    // 6. Render custom blue & rainbow fire tail cursor
+    this.renderCursorFireTail();
   };
 
   private cleanupThreeScene(): void {
