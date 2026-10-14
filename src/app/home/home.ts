@@ -43,6 +43,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private earthGroup = new THREE.Group();
   private starsField?: THREE.Points;
 
+  // Hover & Drag State Tracking
+  private mouseNormalizedX: number = 0;
+  private mouseNormalizedY: number = 0;
+  private hoverVelocityX: number = 0;
+  private isHovering: boolean = false;
+  private isDragging: boolean = false;
+  private lastMouseX: number | null = null;
+
   constructor(
     private router: Router,
     private ngZone: NgZone,
@@ -102,15 +110,25 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.25;
 
-    // 4. OrbitControls - buttery drag & rotation
+    // 4. OrbitControls - seamless drag & rotate
     this.controls = new OrbitControls(this.camera, canvas);
     this.controls.enableDamping = true;
     this.controls.dampingFactor = 0.06;
-    this.controls.autoRotate = true;
-    this.controls.autoRotateSpeed = 0.8;
+    this.controls.autoRotate = false; // We handle base & hover revolution directly on the earth group
     this.controls.enablePan = false;
     this.controls.minDistance = 3.5;
     this.controls.maxDistance = 16.0;
+
+    // Synchronize drag state so hover revolution pauses during active drag
+    this.controls.addEventListener('start', () => {
+      this.isDragging = true;
+      this.hoverVelocityX = 0;
+    });
+
+    this.controls.addEventListener('end', () => {
+      this.isDragging = false;
+      this.lastMouseX = null;
+    });
 
     // 5. Lighting
     const ambientLight = new THREE.AmbientLight(0xffffff, 2.2);
@@ -137,8 +155,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     // 8. Load downloaded Earth Cartoon GLB
     this.loadEarthModel();
 
-    // 9. Resize listener
+    // 9. Resize and Pointer Listeners
     window.addEventListener('resize', this.onWindowResize);
+    window.addEventListener('pointermove', this.onPointerMove);
+    document.addEventListener('mouseleave', this.onPointerLeave);
 
     // 10. Run 60 FPS animation loop outside Angular Zone to prevent change detection lag
     this.ngZone.runOutsideAngular(() => {
@@ -252,6 +272,38 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     );
   }
 
+  private onPointerMove = (e: PointerEvent): void => {
+    // If it's a touch pointer, OrbitControls handles touch dragging
+    if (e.pointerType === 'touch') return;
+
+    this.isHovering = true;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    // Normalized from -1 to 1 (0 at center)
+    const newNormX = (e.clientX / width) * 2 - 1;
+    const newNormY = (e.clientY / height) * 2 - 1;
+
+    if (this.lastMouseX !== null && !this.isDragging) {
+      const deltaX = (e.clientX - this.lastMouseX) / width;
+      // Impart rotational momentum on mouse glide
+      this.hoverVelocityX += deltaX * 1.8;
+      // Clamp peak momentum velocity
+      this.hoverVelocityX = Math.max(-0.06, Math.min(0.06, this.hoverVelocityX));
+    }
+
+    this.mouseNormalizedX = newNormX;
+    this.mouseNormalizedY = newNormY;
+    this.lastMouseX = e.clientX;
+  };
+
+  private onPointerLeave = (): void => {
+    this.isHovering = false;
+    this.lastMouseX = null;
+    this.mouseNormalizedX = 0;
+    this.mouseNormalizedY = 0;
+  };
+
   private onWindowResize = (): void => {
     if (!this.camera || !this.renderer) return;
     const width = window.innerWidth;
@@ -268,22 +320,43 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const delta = this.clock.getDelta();
 
-    // 1. Smooth controls damping & auto-rotate
+    // 1. Controls update (smooth inertial damping during drag)
     if (this.controls) {
       this.controls.update();
     }
 
-    // 2. Built-in model animations (if any)
+    // 2. Hover revolution & dynamic tilt when not actively dragging
+    if (!this.isDragging) {
+      // Base continuous revolution + hover acceleration based on horizontal cursor placement
+      const hoverSpeed = this.isHovering ? (this.mouseNormalizedX * 0.022) : 0.005;
+      const totalRotationDeltaY = hoverSpeed + this.hoverVelocityX;
+
+      this.earthGroup.rotation.y += totalRotationDeltaY;
+
+      // Smooth interactive 3D tilt towards mouse cursor (gentle pitch & roll)
+      const targetTiltX = this.isHovering ? this.mouseNormalizedY * 0.28 : 0;
+      const targetTiltZ = this.isHovering ? -this.mouseNormalizedX * 0.14 : 0;
+      this.earthGroup.rotation.x += (targetTiltX - this.earthGroup.rotation.x) * 0.06;
+      this.earthGroup.rotation.z += (targetTiltZ - this.earthGroup.rotation.z) * 0.06;
+
+      // Decay glide momentum with smooth damping
+      this.hoverVelocityX *= 0.94;
+    }
+
+    // 3. Built-in model animations (if any)
     if (this.mixer) {
       this.mixer.update(delta);
     }
 
-    // 3. Subtle cosmic stars rotation
+    // 4. Subtle cosmic stars rotation & parallax
     if (this.starsField) {
       this.starsField.rotation.y += 0.0002;
+      if (this.isHovering && !this.isDragging) {
+        this.starsField.rotation.x += (this.mouseNormalizedY * 0.05 - this.starsField.rotation.x) * 0.02;
+      }
     }
 
-    // 4. Render
+    // 5. Render
     if (this.renderer && this.scene && this.camera) {
       this.renderer.render(this.scene, this.camera);
     }
@@ -291,6 +364,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private cleanupThreeScene(): void {
     window.removeEventListener('resize', this.onWindowResize);
+    window.removeEventListener('pointermove', this.onPointerMove);
+    document.removeEventListener('mouseleave', this.onPointerLeave);
 
     if (this.animationFrameId !== null) {
       cancelAnimationFrame(this.animationFrameId);
