@@ -299,8 +299,8 @@
             </div>
             <div class="dropdown-wrapper">
               <label class="dropdown-label">Subcategory Indicator:</label>
-              <select class="studio-select indicator-select" [value]="selectedIndicatorId" (change)="onIndicatorChange($event)">
-                <option *ngFor="let ind of wbIndicators" [value]="ind.id">{{ ind.name }}</option>
+              <select class="studio-select indicator-select" [value]="selectedIndicatorId" (change)="onIndicatorChange($event)" [title]="selectedIndicatorName">
+                <option *ngFor="let ind of wbIndicators" [value]="ind.id" [title]="ind.name">{{ ind.name }}</option>
               </select>
             </div>
           </div>
