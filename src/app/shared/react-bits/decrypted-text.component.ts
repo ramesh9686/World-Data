@@ -70,29 +70,30 @@ export class DecryptedTextComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     const target = this.text || '';
-    this.displayChars = target.split('').map(c => (c === ' ' ? ' ' : this.getRandomChar()));
+    const targetChars = Array.from(target);
+    this.displayChars = targetChars.map(c => (c === ' ' ? ' ' : this.getRandomChar()));
     this.revealedIndices.clear();
     this.isAnimating = true;
 
     let step = 0;
-    const totalSteps = target.length + this.maxIterations;
+    const totalSteps = targetChars.length + this.maxIterations;
 
     this.timer = setInterval(() => {
       step++;
-      const revealCount = Math.floor((step / totalSteps) * target.length);
+      const revealCount = Math.floor((step / totalSteps) * targetChars.length);
 
-      for (let i = 0; i < target.length; i++) {
-        if (i < revealCount || target[i] === ' ') {
-          this.displayChars[i] = target[i];
+      for (let i = 0; i < targetChars.length; i++) {
+        if (i < revealCount || targetChars[i] === ' ') {
+          this.displayChars[i] = targetChars[i];
           this.revealedIndices.add(i);
         } else {
           this.displayChars[i] = this.getRandomChar();
         }
       }
 
-      if (this.revealedIndices.size >= target.length || step >= totalSteps * 1.5) {
-        this.displayChars = target.split('');
-        for (let i = 0; i < target.length; i++) this.revealedIndices.add(i);
+      if (this.revealedIndices.size >= targetChars.length || step >= totalSteps * 1.5) {
+        this.displayChars = Array.from(target);
+        for (let i = 0; i < targetChars.length; i++) this.revealedIndices.add(i);
         this.isAnimating = false;
         clearInterval(this.timer);
       }

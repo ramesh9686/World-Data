@@ -1,88 +1,243 @@
-<aside 
-  class="minimal-sidebar-rail" 
-  [class.expanded]="isExpanded"
-  (mouseenter)="isExpanded = true"
-  (mouseleave)="isExpanded = false"
-  aria-label="Main Navigation Sidebar"
->
-  <!-- Top Brand Header -->
-  <div class="sidebar-brand-row">
-    <div class="brand-logo-disc" (click)="router.navigate(['/home'])" title="World Explorer Home">
-      <span class="brand-emoji">🌐</span>
-    </div>
-    <div class="brand-text-block">
-      <span class="brand-app-name">WORLD EXPLORER</span>
-      <span class="brand-version-tag">NEUMORPHIC 3D</span>
-    </div>
-  </div>
+<!-- ==========================================================================
+     ATLAS: DYNAMIC FLOATING ISLAND & DOCK NAVIGATION (NO EMOJIS / LUXURY DESIGN)
+     ========================================================================== -->
 
-  <div class="sidebar-divider"></div>
+<!-- 1. Zen Mode Collapsed Floating Orb Button -->
+@if (isCollapsed) {
+  <aside 
+    class="zen-orbit-orb" 
+    [class.dock-bottom]="dockPosition === 'bottom'"
+    (click)="toggleCollapse()"
+    role="button"
+    tabindex="0"
+    title="Expand Atlas Command Bar"
+    aria-label="Expand Navigation"
+  >
+    <div class="orb-halo-pulse"></div>
+    <div class="orb-glass-body">
+      <span class="orb-core-gem"></span>
+      <span class="orb-badge-dot" *ngIf="isSecondaryActive()"></span>
+    </div>
+    <div class="orb-tooltip">
+      <span>Atlas Command</span>
+      <kbd>Click to Open</kbd>
+    </div>
+  </aside>
+}
 
-  <!-- Navigation Rail Items -->
-  <nav class="sidebar-nav-scroll">
-    <ul class="nav-item-list">
-      @for (item of primaryNavItems; track item.id) {
-        <li class="nav-item-wrapper">
+<!-- 2. Main Floating Dynamic Island Dock Bar -->
+@if (!isCollapsed) {
+  <header 
+    class="dynamic-nav-island"
+    [class.dock-top]="dockPosition === 'top'"
+    [class.dock-bottom]="dockPosition === 'bottom'"
+    aria-label="Atlas Primary Command Bar"
+  >
+    <!-- Island Ambient Glow Aura -->
+    <div class="island-ambient-aura"></div>
+
+    <!-- Inner Frosted Glass Capsule -->
+    <div class="island-glass-capsule">
+      
+      <!-- Left Brand & GEOCORE Ribbon Globe Emblem -->
+      <div 
+        class="island-brand-cluster" 
+        (click)="navigateTo('/home')" 
+        title="GEOCORE Home"
+        role="button"
+        tabindex="0"
+      >
+        <div class="brand-hologram-disc">
+          <img src="assets/logo-emblem.png" alt="GEOCORE Logo" class="brand-navbar-emblem" />
+          <span class="hologram-radar-ping"></span>
+        </div>
+        <div class="brand-typography">
+          <span class="brand-title-line">GEOCORE</span>
+        </div>
+      </div>
+
+      <div class="island-vert-separator"></div>
+
+      <!-- Center Primary Navigation Items -->
+      <nav class="island-tab-track" aria-label="Main Navigation">
+        <div class="tab-list-wrapper">
+          @for (tab of primaryTabs; track tab.id) {
+            <button
+              type="button"
+              class="island-tab-btn"
+              [class.active]="isActive(tab.route)"
+              (click)="navigateTo(tab.route)"
+              [attr.title]="tab.label + ' (Shortcut: ' + tab.keyHint + ')'"
+            >
+              <!-- Animated Liquid Active Backing -->
+              @if (isActive(tab.route)) {
+                <span class="active-liquid-pill"></span>
+              }
+
+              <!-- Gemstone Accent Dot -->
+              <span class="tab-gem-indicator" [style.background-color]="tab.color" [style.box-shadow]="'0 0 8px ' + tab.color"></span>
+
+              <span class="tab-label-text">{{ tab.label }}</span>
+
+              @if (tab.badge) {
+                <span class="tab-pill-badge" [style.border-color]="tab.badgeColor" [style.color]="tab.badgeColor">
+                  {{ tab.badge }}
+                </span>
+              }
+            </button>
+          }
+
+          <!-- Extended Ecosystem "Modules" Trigger Button -->
           <button
             type="button"
-            class="nav-rail-btn"
-            [class.active]="isActive(item.route)"
-            (click)="navigate(item)"
-            [attr.title]="item.label"
+            class="island-tab-btn modules-trigger-btn"
+            [class.active]="isDrawerOpen || isSecondaryActive()"
+            (click)="toggleDrawer()"
+            title="Explore Extended Modules & GIS Tools"
           >
-            <!-- Frosted Icon Capsule -->
-            <span class="item-icon-capsule">
-              <span class="item-icon">{{ item.icon }}</span>
-              @if (item.badge) {
-                <span class="micro-status-dot"></span>
-              }
-            </span>
-
-            <!-- Expanded Text Block -->
-            <div class="item-text-block">
-              <span class="item-main-label">{{ item.label }}</span>
-              <span class="item-sub-label">{{ item.sublabel }}</span>
-            </div>
-
-            <!-- Optional Badge -->
-            @if (item.badge) {
-              <span class="item-badge-pill">{{ item.badge }}</span>
+            @if (isDrawerOpen || isSecondaryActive()) {
+              <span class="active-liquid-pill"></span>
             }
-
-            <!-- Active Glass Indicator Pill -->
-            @if (isActive(item.route)) {
-              <span class="active-indicator-notch"></span>
-            }
+            <span class="tab-gem-indicator" style="background-color: #c084fc; box-shadow: 0 0 8px #c084fc"></span>
+            <span class="tab-label-text">Explore</span>
+            <span class="modules-caret" [class.rotated]="isDrawerOpen">▾</span>
           </button>
-        </li>
-      }
-    </ul>
-  </nav>
+        </div>
+      </nav>
 
-  <div class="sidebar-divider"></div>
+      <div class="island-vert-separator"></div>
 
-  <!-- Bottom Utility Footer -->
-  <div class="sidebar-bottom-actions">
-    <!-- Privacy Button -->
-    <button 
-      type="button" 
-      class="sidebar-action-btn" 
-      (click)="openPrivacy()" 
-      title="Privacy Statement & Data Protection"
-    >
-      <span class="action-icon">🛡️</span>
-      <span class="action-label">Privacy & Data</span>
-    </button>
+      <!-- Right Smart Action Controls (No Emojis) -->
+      <div class="island-actions-cluster">
+        
+        <!-- Web Audio SFX Toggle -->
+        <button
+          type="button"
+          class="island-control-btn sound-btn"
+          [class.muted]="!isSoundEnabled"
+          (click)="toggleSound()"
+          [attr.title]="isSoundEnabled ? 'Audio Active (Click to Mute)' : 'Audio Muted (Click to Enable)'"
+        >
+          <span class="ctrl-txt-tag">{{ isSoundEnabled ? 'SFX' : 'OFF' }}</span>
+        </button>
 
-    <!-- Expand / Collapse Toggle -->
-    <button 
-      type="button" 
-      class="sidebar-action-btn toggle-expand-btn" 
-      (click)="toggleExpand()" 
-      [attr.title]="isExpanded ? 'Collapse Rail' : 'Expand Rail'"
-    >
-      <span class="action-icon">{{ isExpanded ? '◀' : '▶' }}</span>
-      <span class="action-label">{{ isExpanded ? 'Collapse Rail' : 'Expand Rail' }}</span>
-    </button>
+        <!-- Dock Position Switcher (Top / Bottom) -->
+        <button
+          type="button"
+          class="island-control-btn"
+          (click)="toggleDockPosition()"
+          [attr.title]="dockPosition === 'top' ? 'Dock to Bottom' : 'Dock to Top'"
+        >
+          <span class="ctrl-arrow-glyph">{{ dockPosition === 'top' ? '▾' : '▴' }}</span>
+        </button>
+
+        <!-- Privacy & Compliance Modal Trigger -->
+        <button
+          type="button"
+          class="island-control-btn"
+          (click)="openPrivacyModal()"
+          title="Privacy Statement & Zero-Tracking Compliance"
+        >
+          <span class="ctrl-shield-pip"></span>
+        </button>
+
+        <!-- Zen Mode Minimize Orb Toggle -->
+        <button
+          type="button"
+          class="island-control-btn collapse-toggle-btn"
+          (click)="toggleCollapse()"
+          title="Zen Mode: Minimize Navigation to Compact Floating Orb"
+        >
+          <span class="btn-icon">˗</span>
+        </button>
+
+      </div>
+
+    </div>
+  </header>
+}
+
+<!-- 3. Extended Ecosystem Modules Drawer Overlay -->
+@if (isDrawerOpen) {
+  <div 
+    class="ecosystem-drawer-overlay" 
+    [class.dock-bottom]="dockPosition === 'bottom'"
+    (click)="toggleDrawer()"
+  >
+    <div class="ecosystem-drawer-card" (click)="$event.stopPropagation()">
+      
+      <!-- Drawer Header -->
+      <div class="drawer-header-row">
+        <div class="drawer-title-group">
+          <div class="drawer-icon-disc">
+            <span class="drawer-diamond-gem"></span>
+          </div>
+          <div>
+            <h3 class="drawer-heading">ATLAS ECOSYSTEM</h3>
+            <span class="drawer-subheading">Interactive GIS Modules, Games, & Analytics Engines</span>
+          </div>
+        </div>
+        <button class="drawer-close-circle-btn" (click)="toggleDrawer()" title="Close Drawer (Esc)">✕</button>
+      </div>
+
+      <!-- Quick Filter Search Input -->
+      <div class="drawer-search-bar-wrap">
+        <span class="search-glass-icon">⚲</span>
+        <input
+          type="text"
+          class="drawer-search-input"
+          placeholder="Filter modules, telemetry, games, or SQL tools..."
+          [(ngModel)]="searchQuery"
+          autofocus
+        />
+        @if (searchQuery) {
+          <button class="clear-search-btn" (click)="searchQuery = ''">✕</button>
+        }
+      </div>
+
+      <!-- Modules Card Grid -->
+      <div class="drawer-module-grid">
+        @for (module of filteredModules; track module.id) {
+          <div
+            class="module-card-tile magnet-interactive"
+            [class.active]="isActive(module.route)"
+            (click)="navigateTo(module.route)"
+            role="button"
+            tabindex="0"
+          >
+            <div class="tile-top-row">
+              <span class="tile-gem-pip" [style.background-color]="module.badgeColor" [style.box-shadow]="'0 0 10px ' + module.badgeColor"></span>
+              <span class="tile-badge" [style.color]="module.badgeColor" [style.border-color]="module.badgeColor">
+                {{ module.badge }}
+              </span>
+            </div>
+            <div class="tile-content">
+              <h4 class="tile-title">{{ module.label }}</h4>
+              <p class="tile-desc">{{ module.description }}</p>
+            </div>
+            <div class="tile-footer-action">
+              <span class="tile-category-tag">{{ module.category }}</span>
+              <span class="tile-arrow-link">Open ➔</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Drawer Footer -->
+      <div class="drawer-footer-row">
+        <div class="footer-shortcuts-hint">
+          <span class="shortcut-pill"><kbd>1</kbd> Earth</span>
+          <span class="shortcut-pill"><kbd>2</kbd> World Data</span>
+          <span class="shortcut-pill"><kbd>3</kbd> Empires</span>
+          <span class="shortcut-pill"><kbd>4</kbd> Maritime</span>
+          <span class="shortcut-pill"><kbd>5</kbd> Forex</span>
+          <span class="shortcut-pill"><kbd>Esc</kbd> Close</span>
+        </div>
+        <button class="drawer-privacy-link-btn" (click)="openPrivacyModal()">
+          Privacy Statement
+        </button>
+      </div>
+
+    </div>
   </div>
-</aside>
+}

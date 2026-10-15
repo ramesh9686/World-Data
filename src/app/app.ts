@@ -12,7 +12,7 @@ import { MinimalSidebarComponent } from './components/minimal-sidebar/minimal-si
   styleUrl: './app.css'
 })
 export class App {
-  public readonly title = signal('World Explorer');
+  public readonly title = signal('Atlas');
   public showPrivacyModal: boolean = false;
 
   constructor(

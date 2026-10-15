@@ -156,14 +156,14 @@ export class WorldBankService {
     console.log('[IndicatorData] Fetching:', url);
 
     return this.http.get<any>(url).pipe(
-      timeout(10000),
+      timeout(2500),
       map(res => {
         let rawPoints: any[] = [];
 
         if (isWHO) {
           const list = res?.value || [];
-          const hasBothSexes = list.some((item: any) => item.Dim1 === 'SEX_BTSX');
-          const filteredList = hasBothSexes ? list.filter((item: any) => item.Dim1 === 'SEX_BTSX') : list;
+          const hasCombinedDemographics = list.some((item: any) => item.Dim1 === 'SEX_BTSX');
+          const filteredList = hasCombinedDemographics ? list.filter((item: any) => item.Dim1 === 'SEX_BTSX') : list;
 
           rawPoints = filteredList.map((item: any) => ({
             year: parseInt(item.TimeDim || item.TimeDimValue, 10),

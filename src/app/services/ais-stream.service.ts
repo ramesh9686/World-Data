@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, Subject } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { ContentFilterService } from './content-filter.service';
 
 export interface AisVesselPosition {
   mmsi: number;
@@ -100,7 +101,7 @@ export class AisStreamService {
   private pingCounter = 0;
   private pendingVessels: AisVesselPosition[] = [];
 
-  constructor() {
+  constructor(private contentFilter: ContentFilterService) {
     this.startThrottledEmitter();
     this.connect();
     this.startDirectDigitrafficPolling();
@@ -435,9 +436,10 @@ export class AisStreamService {
 
     const rawShipName = meta.ShipName || meta.ship_name || (staticData ? staticData.Name : '');
     const existingVessel = this.activeVesselMap.get(mmsi);
-    const resolvedShipName = (rawShipName && rawShipName.trim().length > 0)
+    let resolvedShipName = (rawShipName && rawShipName.trim().length > 0)
       ? rawShipName.trim()
       : (existingVessel ? existingVessel.shipName : `Vessel-${mmsi}`);
+    resolvedShipName = this.contentFilter.sanitize(resolvedShipName);
 
     const shipTypeCode = staticData ? staticData.Type : undefined;
     const logoInfo = this.resolveVesselLogo(resolvedShipName, shipTypeCode);

@@ -1,54 +1,170 @@
 <div class="pure-3d-model-container">
-  <!-- Minimalist Sci-Fi Telemetry Overlay (Top-Left Floating Glass HUD) -->
-  <header class="home-top-hud minimal-hud-panel" reactBitsSpotlight>
-    <div class="hud-brand-group">
-      <span class="hud-planet-icon">🌐</span>
-      <div class="hud-text-stack">
-        <h1 class="hud-title">
-          <react-bits-decrypted-text [text]="'WORLD EXPLORER 3D'" [speed]="30"></react-bits-decrypted-text>
-        </h1>
-        <div class="hud-sub-row">
-          <span class="minimal-pill emerald">⚡ <react-bits-count-up [to]="60" [suffix]="' FPS'"></react-bits-count-up> NATIVE 3D CORE</span>
-          <span class="hud-time-tag">⏰ {{ detectedTimeString }}</span>
-        </div>
+  
+  <!-- Global Concave Diamond ClipPath Definition (M 50 0 C 50 78, 100 98, 100 98 C 100 98, 50 118, 50 196 C 50 118, 0 98, 0 98 C 0 98, 50 78, 50 0 Z) -->
+  <svg width="0" height="0" style="position: absolute; pointer-events: none;" aria-hidden="true">
+    <defs>
+      <clipPath id="concaveDiamond" clipPathUnits="objectBoundingBox">
+        <path d="M 0.5,0 C 0.5,0.398 1,0.5 1,0.5 C 1,0.5 0.5,0.602 0.5,1 C 0.5,0.602 0,0.5 0,0.5 C 0,0.5 0.5,0.398 0.5,0 Z" />
+      </clipPath>
+    </defs>
+  </svg>
+
+  <!-- Top-Left Floating Brand Emblem & Title (GEOCORE) -->
+  <header class="home-brand-header">
+    <div 
+      class="home-brand-capsule magnet-interactive" 
+      (click)="enterWorldData()" 
+      role="button" 
+      tabindex="0" 
+      title="GEOCORE — Enter 3D Spatial Atlas"
+    >
+      <div class="brand-emblem-wrapper">
+        <img src="assets/logo-emblem.png" alt="GEOCORE Emblem Glow" class="brand-emblem-glow" />
+        <img src="assets/logo-emblem.png" alt="GEOCORE Logo Emblem" class="brand-emblem-art" />
+      </div>
+      <div class="brand-label-group">
+        <span class="brand-main-title">GEOCORE</span>
       </div>
     </div>
   </header>
 
-  <!-- Interactive Hover & Drag Controller Hint Badge -->
-  <div class="drag-hint-pill">
-    <span class="drag-hint-icon">✨</span>
-    <span class="drag-hint-text">Hover to revolve • Drag to rotate • Scroll to zoom</span>
-  </div>
+  <!-- 1. Interactive 3D Orbital Gemstones Overlay (Celestial Navigation) -->
+  @if (!isLoading) {
+    <div class="orbital-satellites-viewport" aria-label="Orbital Celestial Navigation">
+      @for (sat of orbitalSatellites; track sat.id) {
+        <div
+          class="orbital-beacon-node"
+          [class.active]="hoveredSatId === sat.id"
+          [class.behind-earth]="sat.isBehind"
+          [style.transform]="'translate3d(' + sat.screenX + 'px, ' + sat.screenY + 'px, 0)'"
+          (mouseenter)="onSatelliteHover(sat.id)"
+          (mouseleave)="onSatelliteLeave()"
+          (click)="navigateToSatellite(sat.route)"
+          role="button"
+          tabindex="0"
+          [attr.title]="sat.label"
+        >
+          <!-- Glowing Target Gemstone Anchor (Concave diamond pulse dot, no orbit ring, pure glowing aura) -->
+          <div class="beacon-target-glow">
+            <span class="beacon-radial-glow" [style.background]="'radial-gradient(circle, ' + sat.color + '77 0%, transparent 70%)'"></span>
+            <span class="beacon-pulse-dot" [style.background-color]="sat.color" [style.filter]="'drop-shadow(0 0 6px ' + sat.color + ') drop-shadow(0 0 12px ' + sat.color + ')'"></span>
+          </div>
 
-  <!-- Bottom Floating Launch Pill (Positioned cleanly above the curved bottom dock) -->
+          <!-- Frosted Glass Capsule Shown ONLY on Hover (Heading Only, No Emojis) -->
+          @if (hoveredSatId === sat.id) {
+            <div class="beacon-glass-pill magnet-interactive" [style.border-color]="sat.color">
+              <span class="gem-accent-pip" [style.background-color]="sat.color" [style.filter]="'drop-shadow(0 0 4px ' + sat.color + ')'"></span>
+              <span class="sat-title">{{ sat.label }}</span>
+              <span class="sat-engage-arrow" [style.color]="sat.color">➔</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <!-- 2. Celestial Gemstone Menu Bar (macOS Parabolic Magnification & Ambient Glow) -->
   <div class="globe-click-overlay">
-    <button class="globe-launch-hint-badge magnet-interactive" (click)="enterWorldData()" title="Click to launch World Data 3D Explorer">
-      <span class="pulse-dot"></span>
-      <span class="hint-icon">🚀</span>
-      <span class="hint-text">
-        <react-bits-decrypted-text [text]="'LAUNCH WORLD DATA GIS SUITE'" [speed]="25"></react-bits-decrypted-text>
-      </span>
-      <span class="hint-arrow">➔</span>
-    </button>
+    <nav class="celestial-stones-menu-dock" aria-label="Celestial Gemstones Menu">
+      <div 
+        class="stones-menu-capsule"
+        [class.has-active-stone]="!!activeSatColor"
+        [style.--active-stone-color]="activeSatColor || 'rgba(56, 189, 248, 0.4)'"
+        [style.border-color]="activeSatColor ? (activeSatColor + '99') : ''"
+        [style.box-shadow]="activeSatColor ? 
+          ('0 24px 60px rgba(0, 0, 0, 0.85), 0 0 35px ' + activeSatColor + '66, 0 10px 25px ' + activeSatColor + '44, inset 0 1px 2px rgba(255, 255, 255, 0.35), inset 0 0 15px ' + activeSatColor + '25') : ''"
+      >
+        <!-- Ambient Neon Glow Reflection Underneath Dock -->
+        <div 
+          class="dock-ambient-underglow" 
+          [style.background]="activeSatColor ? ('radial-gradient(ellipse at center, ' + activeSatColor + 'bb 0%, ' + activeSatColor + '44 45%, transparent 75%)') : ''"
+        ></div>
+
+        <!-- Pause / Resume Celestial Orbit -->
+        <button 
+          type="button" 
+          class="dock-pause-btn"
+          (click)="toggleOrbitPause()"
+          [attr.title]="isOrbitPaused ? 'Resume Celestial Orbit' : 'Pause Celestial Orbit'"
+          aria-label="Pause/Resume Orbit"
+        >
+          <span class="dock-pause-icon">{{ isOrbitPaused ? '▶' : '⏸' }}</span>
+        </button>
+
+        <div class="stones-dock-divider"></div>
+
+        <!-- The 8 Colored Celestial Stones (macOS Parabolic Wave Track) -->
+        <div 
+          class="stones-item-track"
+          (mousemove)="onDockMouseMove($event)"
+          (mouseleave)="onDockMouseLeave()"
+        >
+          @for (sat of orbitalSatellites; track sat.id; let i = $index) {
+            <button
+              type="button"
+              class="stone-menu-item magnet-interactive"
+              [class.active]="hoveredSatId === sat.id"
+              [style.transform]="'translateY(' + dockItemTranslateY[i] + 'px) scale(' + dockItemScales[i] + ')'"
+              (mouseenter)="onSatelliteHover(sat.id)"
+              (mouseleave)="onSatelliteLeave()"
+              (click)="navigateToSatellite(sat.route)"
+              [attr.title]="sat.label"
+              [attr.aria-label]="sat.label"
+            >
+              <!-- Faceted Concave Diamond Gemstone Crystal with Unique Color -->
+              <span 
+                class="stone-gem-crystal" 
+                [style.background-color]="sat.color" 
+                [style.filter]="'drop-shadow(0 0 6px ' + sat.color + ') drop-shadow(0 0 12px ' + sat.color + 'aa)'"
+              >
+                <span class="gem-crystal-facet"></span>
+              </span>
+
+              <!-- Floating Tooltip displayed above the Magnified Gemstone -->
+              @if (hoveredSatId === sat.id) {
+                <div class="dock-floating-tooltip" [style.border-color]="sat.color + '88'">
+                  <span class="tooltip-pip" [style.background-color]="sat.color" [style.filter]="'drop-shadow(0 0 4px ' + sat.color + ')'"></span>
+                  <span class="tooltip-text" [style.color]="sat.color">{{ sat.label }}</span>
+                  <span class="tooltip-arrow" [style.color]="sat.color">➔</span>
+                </div>
+              }
+            </button>
+          }
+        </div>
+
+        <div class="stones-dock-divider"></div>
+
+        <!-- Quick Enter Primary (World Data) -->
+        <button 
+          type="button" 
+          class="dock-explore-btn magnet-interactive" 
+          (click)="enterWorldData()" 
+          title="Enter Atlas"
+        >
+          <span class="explore-glow-gem"></span>
+          <span class="explore-label">Explore</span>
+        </button>
+
+      </div>
+    </nav>
   </div>
 
   <!-- Loading State Indicator -->
   @if (isLoading) {
     <div class="model-loading-overlay">
       <div class="loading-ring"></div>
-      <div class="loading-title">INITIALIZING 3D PLANET</div>
+      <div class="loading-title">INITIALIZING CELESTIAL STONES</div>
       <div class="loading-bar-track">
         <div class="loading-bar-fill" [style.width.%]="loadProgress || 65"></div>
       </div>
-      <span class="loading-subtitle">PREPARING 3D MESH & TEXTURES</span>
+      <span class="loading-subtitle">RENDERING 3D EARTH &amp; GEMSTONES</span>
     </div>
   }
 
   <!-- Error Message (if any) -->
   @if (loadError) {
     <div class="model-error-overlay">
-      <span class="error-icon">⚠️</span>
+      <span class="error-gem-diamond">!</span>
       <p>{{ loadError }}</p>
     </div>
   }

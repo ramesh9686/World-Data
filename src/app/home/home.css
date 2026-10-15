@@ -1,11 +1,16 @@
+/* ==========================================================================
+   ATLAS: 3D EARTH CELESTIAL ORBITAL RING & SATELLITE NAVIGATION
+   ========================================================================== */
+
 /* Full-Screen Pure 3D Model Container */
 .pure-3d-model-container {
   position: relative;
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  background: var(--bg-space, #070b14);
+  background: var(--bg-space, #030712);
   font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  user-select: none;
 }
 
 /* Native Three.js WebGL Canvas */
@@ -37,110 +42,242 @@
   z-index: 999;
 }
 
-/* Minimalist Frosted Soft Glass Top HUD Overlay */
-.home-top-hud {
+/* ──────────────────────────────────────────────────────────────────────────
+   0. Top-Left Floating GEOCORE Brand Emblem & Title
+   ────────────────────────────────────────────────────────────────────────── */
+.home-brand-header {
   position: absolute;
   top: 22px;
-  left: 96px;
-  z-index: 100;
-  padding: 0.85rem 1.35rem;
-  border-radius: 22px;
-  background: rgba(11, 17, 30, 0.82);
-  backdrop-filter: blur(28px) saturate(170%);
-  -webkit-backdrop-filter: blur(28px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 16px 40px rgba(0, 0, 0, 0.5),
-    inset 0 1px 1px rgba(255, 255, 255, 0.15),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.35);
+  left: 24px;
+  z-index: 65;
   pointer-events: auto;
-  user-select: none;
-  animation: fadeInDown 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: brandGlideDown 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@keyframes fadeInDown {
-  from { opacity: 0; transform: translateY(-16px); }
-  to { opacity: 1; transform: translateY(0); }
+@keyframes brandGlideDown {
+  from { opacity: 0; transform: translateY(-14px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-.hud-brand-group {
+.home-brand-capsule {
   display: flex;
   align-items: center;
-  gap: 0.9rem;
-}
-
-.hud-planet-icon {
-  font-size: 2rem;
-  filter: drop-shadow(0 0 16px rgba(56, 189, 248, 0.6));
-  animation: floatIcon 4s ease-in-out infinite alternate;
-}
-
-@keyframes floatIcon {
-  0% { transform: translateY(0) scale(1); }
-  100% { transform: translateY(-4px) scale(1.05); }
-}
-
-.hud-text-stack {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.hud-title {
-  font-size: 1.05rem;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  color: #f8fafc;
-  margin: 0;
-}
-
-.hud-sub-row {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-}
-
-.hud-time-tag {
-  font-size: 0.72rem;
-  font-family: 'JetBrains Mono', monospace;
-  color: #94a3b8;
-  font-weight: 600;
-}
-
-/* Top-Right Drag Hint Pill */
-.drag-hint-pill {
-  position: absolute;
-  top: 24px;
-  right: 28px;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.55rem 1.15rem;
-  background: rgba(11, 17, 30, 0.82);
-  backdrop-filter: blur(24px) saturate(160%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 12px 32px rgba(0, 0, 0, 0.4),
-    inset 0 1px 1px rgba(255, 255, 255, 0.14);
+  gap: 12px;
+  padding: 6px 18px 6px 8px;
+  background: rgba(9, 14, 28, 0.78);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 9999px;
-  color: #94a3b8;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
+  box-shadow: 
+    0 16px 40px rgba(0, 0, 0, 0.75),
+    0 4px 16px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1px rgba(255, 255, 255, 0.25),
+    0 0 24px rgba(56, 189, 248, 0.12);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.home-brand-capsule:hover {
+  background: rgba(9, 14, 28, 0.92);
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 
+    0 20px 48px rgba(0, 0, 0, 0.85),
+    0 0 32px rgba(56, 189, 248, 0.3),
+    inset 0 1px 1px rgba(255, 255, 255, 0.35);
+  transform: translateY(-1px);
+}
+
+.brand-emblem-wrapper {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.brand-emblem-art {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.6));
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.brand-emblem-glow {
+  position: absolute;
+  inset: -6px;
+  width: calc(100% + 12px);
+  height: calc(100% + 12px);
+  object-fit: contain;
+  filter: blur(10px) saturate(220%);
+  opacity: 0.65;
+  z-index: 1;
   pointer-events: none;
-  animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.3s ease;
 }
 
-.drag-hint-icon {
-  font-size: 0.9rem;
+.home-brand-capsule:hover .brand-emblem-art {
+  transform: scale(1.12) rotate(4deg);
 }
 
-.drag-hint-text {
-  color: #cbd5e1;
+.home-brand-capsule:hover .brand-emblem-glow {
+  opacity: 1;
 }
 
-/* Bottom Floating Launch Hint Badge */
+.brand-label-group {
+  display: flex;
+  align-items: center;
+}
+
+.brand-main-title {
+  font-family: 'Outfit', 'Inter', system-ui, sans-serif;
+  font-size: 1.2rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  background: linear-gradient(135deg, #ffffff 0%, #38bdf8 55%, #34d399 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   1. Interactive 3D Orbital Satellites Overlay (Celestial Navigation)
+   ────────────────────────────────────────────────────────────────────────── */
+.orbital-satellites-viewport {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 50;
+  overflow: hidden;
+}
+
+.orbital-beacon-node {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  pointer-events: auto;
+  cursor: pointer;
+  outline: none;
+  will-change: transform, opacity;
+  transition: opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease;
+  transform-origin: 0 0;
+}
+
+/* Depth occlusion: when satellite orbits behind Earth */
+.orbital-beacon-node.behind-earth {
+  opacity: 0.18;
+  pointer-events: none;
+  filter: blur(1.5px) grayscale(0.5);
+  transform: scale(0.85);
+}
+
+/* Glowing Celestial Stone Target Anchor & Hit Area (Centered on 3D gemstone, no orbit ring) */
+.beacon-target-glow {
+  position: absolute;
+  left: -24px;
+  top: -24px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.beacon-radial-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: pulseRadialGlow 2.5s infinite ease-in-out alternate;
+}
+
+@keyframes pulseRadialGlow {
+  0% { transform: scale(0.8); opacity: 0.5; }
+  100% { transform: scale(1.35); opacity: 0.95; }
+}
+
+.beacon-pulse-dot {
+  position: relative;
+  width: 9px;
+  height: 18px;
+  clip-path: url(#concaveDiamond);
+  -webkit-clip-path: url(#concaveDiamond);
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.orbital-beacon-node:hover .beacon-pulse-dot {
+  transform: scale(1.45);
+}
+
+/* Frosted Glass Capsule - Shown ONLY on Hover (Heading Only) */
+.beacon-glass-pill {
+  position: absolute;
+  left: 26px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 11px;
+  background: rgba(9, 14, 28, 0.92);
+  backdrop-filter: blur(28px) saturate(180%);
+  -webkit-backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  box-shadow: 
+    0 16px 36px rgba(0, 0, 0, 0.85),
+    inset 0 1px 1px rgba(255, 255, 255, 0.28);
+  white-space: nowrap;
+  animation: pillFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: auto;
+}
+
+@keyframes pillFadeIn {
+  from { opacity: 0; transform: translateY(-50%) scale(0.9); }
+  to { opacity: 1; transform: translateY(-50%) scale(1); }
+}
+
+.gem-accent-pip {
+  width: 7px;
+  height: 14px;
+  clip-path: url(#concaveDiamond);
+  -webkit-clip-path: url(#concaveDiamond);
+  flex-shrink: 0;
+}
+
+.sat-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #ffffff;
+  text-transform: uppercase;
+}
+
+.sat-engage-arrow {
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: transform 0.2s ease;
+  margin-left: 2px;
+}
+
+.orbital-beacon-node:hover .sat-engage-arrow {
+  transform: translateX(3px);
+}
+
+/* ──────────────────────────────────────────────────────────────────────────
+   2. Celestial Stones Navigation Menu Bar (Unique Colors, Hover Only Heading)
+   ────────────────────────────────────────────────────────────────────────── */
 .globe-click-overlay {
   position: absolute;
   top: 0;
@@ -148,99 +285,311 @@
   width: 100%;
   height: 100%;
   pointer-events: none;
-  z-index: 10;
+  z-index: 60;
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  padding-bottom: 38px;
+  padding-bottom: 24px;
 }
 
-.globe-launch-hint-badge {
+.celestial-stones-menu-dock {
   pointer-events: auto;
-  background: rgba(12, 19, 34, 0.88);
-  border: 1px solid rgba(56, 189, 248, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: dockSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes dockSlideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.stones-menu-capsule {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background: rgba(9, 14, 28, 0.84);
+  backdrop-filter: blur(30px) saturate(190%);
+  -webkit-backdrop-filter: blur(30px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.14);
   border-radius: 9999px;
-  padding: 0.75rem 1.7rem;
+  box-shadow: 
+    0 20px 48px rgba(0, 0, 0, 0.75),
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.22),
+    0 0 24px rgba(56, 189, 248, 0.12);
+  transition: border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Ambient Neon Glow Reflection Underneath Dock */
+.dock-ambient-underglow {
+  position: absolute;
+  bottom: -18px;
+  left: 6%;
+  width: 88%;
+  height: 38px;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(20px);
+  opacity: 0;
+  transition: opacity 0.35s ease, background 0.35s ease;
+  z-index: -1;
+}
+
+.stones-menu-capsule.has-active-stone .dock-ambient-underglow {
+  opacity: 1;
+}
+
+.dock-pause-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.dock-pause-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fafc;
+  transform: scale(1.08);
+}
+
+.dock-pause-icon {
+  font-size: 0.75rem;
+}
+
+.stones-dock-divider {
+  width: 1px;
+  height: 24px;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+}
+
+.stones-item-track {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  padding: 4px 2px;
+}
+
+/* Individual Stone Menu Item (macOS Parabolic Wave Scale) */
+.stone-menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  outline: none;
+  transform-origin: bottom center;
+  will-change: transform;
+  transition: transform 0.12s cubic-bezier(0.25, 1, 0.5, 1),
+              background 0.2s ease,
+              border-color 0.2s ease,
+              box-shadow 0.2s ease;
+}
+
+.stone-menu-item:hover,
+.stone-menu-item.active {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 0 16px var(--active-stone-color, rgba(56, 189, 248, 0.35));
+}
+
+/* Concave Diamond Gemstone Crystal in Unique Color */
+.stone-gem-crystal {
+  position: relative;
+  display: block;
+  width: 12px;
+  height: 24px;
+  clip-path: url(#concaveDiamond);
+  -webkit-clip-path: url(#concaveDiamond);
+  flex-shrink: 0;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.2s ease;
+}
+
+.gem-crystal-facet {
+  position: absolute;
+  top: 15%;
+  left: 15%;
+  width: 70%;
+  height: 70%;
+  background: rgba(255, 255, 255, 0.45);
+  clip-path: url(#concaveDiamond);
+  -webkit-clip-path: url(#concaveDiamond);
+  pointer-events: none;
+}
+
+.stone-menu-item:hover .stone-gem-crystal,
+.stone-menu-item.active .stone-gem-crystal {
+  transform: scale(1.15);
+}
+
+/* Floating Tooltip Pill displayed strictly above the Magnified Gemstone */
+.dock-floating-tooltip {
+  position: absolute;
+  bottom: calc(100% + 14px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px 5px 9px;
+  background: rgba(9, 14, 28, 0.94);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 9999px;
+  box-shadow: 
+    0 14px 30px rgba(0, 0, 0, 0.85),
+    0 0 16px rgba(0, 0, 0, 0.6),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  white-space: nowrap;
+  pointer-events: none;
+  animation: tooltipFloatIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 100;
+}
+
+.dock-floating-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px 5px 0 5px;
+  border-style: solid;
+  border-color: rgba(9, 14, 28, 0.94) transparent transparent transparent;
+}
+
+@keyframes tooltipFloatIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(6px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+  }
+}
+
+.tooltip-pip {
+  width: 6px;
+  height: 12px;
+  clip-path: url(#concaveDiamond);
+  -webkit-clip-path: url(#concaveDiamond);
+  flex-shrink: 0;
+}
+
+.tooltip-text {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.tooltip-arrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin-left: 1px;
+}
+
+.dock-explore-btn {
+  background: rgba(56, 189, 248, 0.16);
+  border: 1px solid rgba(56, 189, 248, 0.4);
+  border-radius: 9999px;
+  padding: 6px 15px;
   color: #f8fafc;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  font-size: 0.85rem;
-  font-weight: 800;
+  gap: 7px;
+  font-size: 0.82rem;
+  font-weight: 700;
   letter-spacing: 0.03em;
-  backdrop-filter: blur(28px) saturate(180%);
-  box-shadow: 
-    0 18px 44px rgba(0, 0, 0, 0.65),
-    inset 0 1px 1px rgba(255, 255, 255, 0.2),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.4);
   cursor: pointer;
   outline: none;
   transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.globe-launch-hint-badge:hover {
-  border-color: #38bdf8;
-  background: rgba(56, 189, 248, 0.18);
   box-shadow: 
-    0 24px 56px rgba(0, 0, 0, 0.8),
-    0 0 24px rgba(56, 189, 248, 0.3);
-  transform: translateY(-2px);
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    0 4px 14px rgba(56, 189, 248, 0.2);
 }
 
-.pulse-dot {
+.dock-explore-btn:hover {
+  background: rgba(56, 189, 248, 0.28);
+  border-color: rgba(56, 189, 248, 0.7);
+  box-shadow: 0 6px 20px rgba(56, 189, 248, 0.4);
+  transform: translateY(-1px);
+}
+
+.explore-glow-gem {
   width: 8px;
-  height: 8px;
-  border-radius: 50%;
+  height: 16px;
+  clip-path: url(#concaveDiamond);
+  -webkit-clip-path: url(#concaveDiamond);
   background: #38bdf8;
-  box-shadow: 0 0 12px #38bdf8;
-  animation: pulseDotGlow 1.6s infinite alternate;
+  filter: drop-shadow(0 0 8px #38bdf8);
 }
 
-@keyframes pulseDotGlow {
-  0% { transform: scale(0.8); opacity: 0.6; }
+.explore-label {
+  color: #ffffff;
+}
+
+@keyframes pulseDot {
+  0% { transform: scale(0.85); opacity: 0.7; }
   100% { transform: scale(1.3); opacity: 1; }
-}
-
-.hint-icon {
-  font-size: 1.1rem;
 }
 
 .hint-arrow {
   color: #38bdf8;
-  font-size: 1rem;
+  font-size: 0.92rem;
   transition: transform 0.2s ease;
 }
 
-.globe-launch-hint-badge:hover .hint-arrow {
-  transform: translateX(4px);
+.dock-explore-btn:hover .hint-arrow {
+  transform: translateX(3px);
 }
 
-/* Loading State Overlay */
+/* ──────────────────────────────────────────────────────────────────────────
+   3. Loading State Overlay
+   ────────────────────────────────────────────────────────────────────────── */
 .model-loading-overlay {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 50;
+  z-index: 70;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 1rem;
-  background: rgba(12, 18, 32, 0.92);
+  background: rgba(10, 16, 30, 0.94);
   border: 1px solid rgba(255, 255, 255, 0.12);
   padding: 2rem 2.5rem;
   border-radius: 26px;
-  backdrop-filter: blur(28px);
+  backdrop-filter: blur(32px);
   box-shadow: 
-    0 24px 60px rgba(0, 0, 0, 0.8),
-    inset 0 1px 1px rgba(255, 255, 255, 0.15),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.4);
+    0 24px 60px rgba(0, 0, 0, 0.85),
+    inset 0 1px 1px rgba(255, 255, 255, 0.2);
   pointer-events: none;
 }
 
 .loading-ring {
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border: 3px solid rgba(56, 189, 248, 0.2);
   border-top-color: #38bdf8;
   border-radius: 50%;
@@ -274,7 +623,7 @@
 }
 
 .loading-subtitle {
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-family: 'JetBrains Mono', monospace;
   color: #94a3b8;
   letter-spacing: 0.05em;
@@ -286,7 +635,7 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  z-index: 50;
+  z-index: 70;
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -298,19 +647,38 @@
   font-size: 0.85rem;
 }
 
+.error-gem-diamond {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 24px;
+  clip-path: url(#concaveDiamond);
+  -webkit-clip-path: url(#concaveDiamond);
+  background: #ef4444;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.85rem;
+  filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.7));
+  flex-shrink: 0;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
-  .home-top-hud {
-    left: 16px;
-    top: 16px;
-    right: 16px;
-  }
-
-  .drag-hint-pill {
+  .orbital-beacon-node .sat-subtext {
     display: none;
   }
 
+  .beacon-glass-pill {
+    padding: 4px 8px;
+    gap: 4px;
+  }
+
+  .sat-title {
+    font-size: 0.72rem;
+  }
+
   .globe-click-overlay {
-    padding-bottom: 78px;
+    padding-bottom: 20px;
   }
 }

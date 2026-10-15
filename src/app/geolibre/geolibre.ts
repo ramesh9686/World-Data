@@ -85,12 +85,12 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
   showShippingLanes: boolean = false;
 
   // Camera & Vector Map state
-  currentLat: number = 30.5;
-  currentLng: number = 32.3;
-  currentZoom: number = 5;
-  currentPitch: number = 45;
-  currentBearing: number = -15;
-  activePresetId: string = 'suez';
+  currentLat: number = 20;
+  currentLng: number = 0;
+  currentZoom: number = 1.50;
+  currentPitch: number = 0;
+  currentBearing: number = 0;
+  activePresetId: string = 'global';
 
   // Selected Detail Popup Card State
   selectedDetailCard: {
@@ -132,70 +132,96 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     dark: {
       version: 8,
       sources: {
-        'carto-dark': {
+        'esri-dark-base': {
           type: 'raster',
           tiles: [
-            'https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-            'https://b.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png',
-            'https://c.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+            'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
           ],
           tileSize: 256,
-          attribution: '© CARTO'
+          attribution: 'Esri, HERE, Garmin, © OpenStreetMap contributors'
+        },
+        'esri-dark-ref': {
+          type: 'raster',
+          tiles: [
+            'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
+          ],
+          tileSize: 256,
+          attribution: 'Esri'
         }
       },
       layers: [
         {
-          id: 'carto-dark-layer',
+          id: 'esri-dark-base-layer',
           type: 'raster',
-          source: 'carto-dark',
+          source: 'esri-dark-base',
           minzoom: 0,
-          maxzoom: 19
+          maxzoom: 16
+        },
+        {
+          id: 'esri-dark-ref-layer',
+          type: 'raster',
+          source: 'esri-dark-ref',
+          minzoom: 0,
+          maxzoom: 16
         }
       ]
     },
     topo: {
       version: 8,
       sources: {
-        'open-topo': {
+        'esri-topo': {
           type: 'raster',
           tiles: [
-            'https://a.tile.opentopomap.org/{z}/{x}/{y}.png',
-            'https://b.tile.opentopomap.org/{z}/{x}/{y}.png'
+            'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}'
           ],
           tileSize: 256,
-          attribution: 'OpenTopoMap'
+          attribution: 'Esri, HERE, Garmin, Intermap, USGS, METI/NASA, EPA'
         }
       },
       layers: [
         {
-          id: 'open-topo-layer',
+          id: 'esri-topo-layer',
           type: 'raster',
-          source: 'open-topo',
+          source: 'esri-topo',
           minzoom: 0,
-          maxzoom: 17
+          maxzoom: 19
         }
       ]
     },
     positron: {
       version: 8,
       sources: {
-        'carto-light': {
+        'esri-light-base': {
           type: 'raster',
           tiles: [
-            'https://a.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png',
-            'https://b.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+            'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}'
           ],
           tileSize: 256,
-          attribution: '© CARTO'
+          attribution: 'Esri, HERE, Garmin, © OpenStreetMap contributors'
+        },
+        'esri-light-ref': {
+          type: 'raster',
+          tiles: [
+            'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
+          ],
+          tileSize: 256,
+          attribution: 'Esri'
         }
       },
       layers: [
         {
-          id: 'carto-light-layer',
+          id: 'esri-light-base-layer',
           type: 'raster',
-          source: 'carto-light',
+          source: 'esri-light-base',
           minzoom: 0,
-          maxzoom: 19
+          maxzoom: 16
+        },
+        {
+          id: 'esri-light-ref-layer',
+          type: 'raster',
+          source: 'esri-light-ref',
+          minzoom: 0,
+          maxzoom: 16
         }
       ]
     },
@@ -228,11 +254,11 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
 
   // World Bank & Multi-Source Indicators State
   wbTopics: WorldBankTopic[] = [];
-  selectedTopicId: number = 8; // Health by default
+  selectedTopicId: number = 3; // Economy & Growth by default (GDP)
   wbIndicators: WorldBankIndicator[] = [];
-  selectedIndicatorId: string = 'WHO:WHOSIS_000001';
-  selectedIndicatorName: string = 'WHO: Life expectancy at birth (years)';
-  selectedIndicatorDesc: string = 'Average number of years a newborn is expected to live in full health.';
+  selectedIndicatorId: string = 'NY.GDP.MKTP.CD';
+  selectedIndicatorName: string = 'GDP (current US$)';
+  selectedIndicatorDesc: string = 'Gross domestic product is the total market value of all goods and services produced.';
   wbIndicatorData: WorldBankDataPoint[] = [];
   loadingIndicatorData: boolean = false;
 
@@ -267,29 +293,29 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
   fxAmount: number = 100;
   fxBaseCurrency: string = 'USD';
   fxRates: { [key: string]: FxRateInfo } = {
-    USD: { code: 'USD', name: 'US Dollar', symbol: '$', flag: '🇺🇸', rateVsUsd: 1.0 },
-    EUR: { code: 'EUR', name: 'Euro', symbol: '€', flag: '🇪🇺', rateVsUsd: 0.92 },
-    GBP: { code: 'GBP', name: 'British Pound', symbol: '£', flag: '🇬🇧', rateVsUsd: 0.77 },
-    JPY: { code: 'JPY', name: 'Japanese Yen', symbol: '¥', flag: '🇯🇵', rateVsUsd: 155.4 },
-    INR: { code: 'INR', name: 'Indian Rupee', symbol: '₹', flag: '🇮🇳', rateVsUsd: 83.5 },
-    CAD: { code: 'CAD', name: 'Canadian Dollar', symbol: 'CA$', flag: '🇨🇦', rateVsUsd: 1.37 },
-    AUD: { code: 'AUD', name: 'Australian Dollar', symbol: 'A$', flag: '🇦🇺', rateVsUsd: 1.51 },
+    USD: { code: 'USD', name: 'US Dollar', symbol: '$', flag: '$', rateVsUsd: 1.0 },
+    EUR: { code: 'EUR', name: 'Euro', symbol: '€', flag: '€', rateVsUsd: 0.92 },
+    GBP: { code: 'GBP', name: 'British Pound', symbol: '£', flag: '£', rateVsUsd: 0.77 },
+    JPY: { code: 'JPY', name: 'Japanese Yen', symbol: '¥', flag: '¥', rateVsUsd: 155.4 },
+    INR: { code: 'INR', name: 'Indian Rupee', symbol: '₹', flag: '₹', rateVsUsd: 83.5 },
+    CAD: { code: 'CAD', name: 'Canadian Dollar', symbol: 'CA$', flag: 'CA$', rateVsUsd: 1.37 },
+    AUD: { code: 'AUD', name: 'Australian Dollar', symbol: 'A$', flag: 'A$', rateVsUsd: 1.51 },
     CHF: { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF', flag: 'CHF', rateVsUsd: 0.89 },
-    CNY: { code: 'CNY', name: 'Chinese Yuan', symbol: '¥', flag: '🇨🇳', rateVsUsd: 7.25 },
-    AED: { code: 'AED', name: 'UAE Dirham', symbol: 'AED', flag: '🇦🇪', rateVsUsd: 3.67 },
-    SGD: { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$', flag: '🇸🇬', rateVsUsd: 1.34 },
-    BRL: { code: 'BRL', name: 'Brazilian Real', symbol: 'R$', flag: '🇧🇷', rateVsUsd: 5.55 }
+    CNY: { code: 'CNY', name: 'Chinese Yuan', symbol: '¥', flag: '¥', rateVsUsd: 7.25 },
+    AED: { code: 'AED', name: 'UAE Dirham', symbol: 'AED', flag: 'AED', rateVsUsd: 3.67 },
+    SGD: { code: 'SGD', name: 'Singapore Dollar', symbol: 'S$', flag: 'S$', rateVsUsd: 1.34 },
+    BRL: { code: 'BRL', name: 'Brazilian Real', symbol: 'R$', flag: 'R$', rateVsUsd: 5.55 }
   };
 
   fxHubNodes = [
-    { name: 'New York (NYSE/FED)', code: 'USD', rate: '$1.00', flag: '🇺🇸', lat: 40.7128, lng: -74.006 },
-    { name: 'London (LSE/BOE)', code: 'GBP', rate: '£0.77', flag: '🇬🇧', lat: 51.5074, lng: -0.1278 },
-    { name: 'Frankfurt (ECB)', code: 'EUR', rate: '€0.92', flag: '🇪🇺', lat: 50.1109, lng: 8.6821 },
-    { name: 'Tokyo (BOJ)', code: 'JPY', rate: '¥155.4', flag: '🇯🇵', lat: 35.6762, lng: 139.6503 },
-    { name: 'Singapore (MAS)', code: 'SGD', rate: 'S$1.34', flag: '🇸🇬', lat: 1.3521, lng: 103.8198 },
-    { name: 'Dubai (DIFC)', code: 'AED', rate: 'AED 3.67', flag: '🇦🇪', lat: 25.2048, lng: 55.2708 },
-    { name: 'Sydney (RBA)', code: 'AUD', rate: 'A$1.51', flag: '🇦🇺', lat: -33.8688, lng: 151.2093 },
-    { name: 'Mumbai (NSE/RBI)', code: 'INR', rate: '₹83.5', flag: '🇮🇳', lat: 19.0760, lng: 72.8777 }
+    { name: 'New York (NYSE/FED)', code: 'USD', rate: '$1.00', flag: '$', lat: 40.7128, lng: -74.006 },
+    { name: 'London (LSE/BOE)', code: 'GBP', rate: '£0.77', flag: '£', lat: 51.5074, lng: -0.1278 },
+    { name: 'Frankfurt (ECB)', code: 'EUR', rate: '€0.92', flag: '€', lat: 50.1109, lng: 8.6821 },
+    { name: 'Tokyo (BOJ)', code: 'JPY', rate: '¥155.4', flag: '¥', lat: 35.6762, lng: 139.6503 },
+    { name: 'Singapore (MAS)', code: 'SGD', rate: 'S$1.34', flag: 'S$', lat: 1.3521, lng: 103.8198 },
+    { name: 'Dubai (DIFC)', code: 'AED', rate: 'AED 3.67', flag: 'AED', lat: 25.2048, lng: 55.2708 },
+    { name: 'Sydney (RBA)', code: 'AUD', rate: 'A$1.51', flag: 'A$', lat: -33.8688, lng: 151.2093 },
+    { name: 'Mumbai (NSE/RBI)', code: 'INR', rate: '₹83.5', flag: '₹', lat: 19.0760, lng: 72.8777 }
   ];
 
   // Maritime Cargo Fleet Animation State
@@ -334,6 +360,12 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {
     this.wbTopics = this.wbService.getTopics();
     this.wbIndicators = this.wbService.getIndicatorsByTopic(this.selectedTopicId);
+    if (this.wbIndicators.length > 0) {
+      const gdp = this.wbIndicators.find(i => i.id === 'NY.GDP.MKTP.CD') || this.wbIndicators[0];
+      this.selectedIndicatorId = gdp.id;
+      this.selectedIndicatorName = gdp.name;
+      this.selectedIndicatorDesc = gdp.sourceNote || '';
+    }
   }
 
   get fpsTelemetry(): FpsTelemetry {
@@ -384,7 +416,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     if (defaultCountry) {
       const lat = parseFloat(defaultCountry.latitude) || 38.8951;
       const lng = parseFloat(defaultCountry.longitude) || -77.0364;
-      this.openCountryTelemetryCard(defaultCountry, lat, lng);
+      this.openCountryTelemetryCard(defaultCountry, lat, lng, false);
     }
   }
 
@@ -718,21 +750,21 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  openCountryTelemetryCard(c: CountryData, lat: number, lng: number): void {
+  openCountryTelemetryCard(c: CountryData, lat: number, lng: number, flyCamera: boolean = true): void {
     this.playUiSound('select');
     this.selectedDetailCard = {
-      title: `${c.flag || '🌐'} ${c.name} (${this.selectedYear})`,
+      title: c.name,
       category: `Country • ${c.region?.value || 'Global'}`,
       countryId: c.id,
       details: [
-        { label: '🏛️ Capital City', value: c.capitalCity || 'N/A' },
-        { label: '📅 Active Year', value: `${this.selectedYear}` },
-        { label: '💰 Income Level', value: c.incomeLevel?.value || 'N/A' },
-        { label: '🗣️ Languages', value: c.languages || 'N/A' },
-        { label: '💵 Currency', value: c.currencies || 'N/A' },
-        { label: '📐 Land Area', value: c.area ? c.area.toLocaleString() + ' km²' : 'N/A' },
-        { label: '🌐 Region / Subregion', value: `${c.region?.value || 'N/A'} / ${c.subregion || 'N/A'}` },
-        { label: '📍 Coordinates', value: `${lat.toFixed(2)}°, ${lng.toFixed(2)}°` }
+        { label: 'Capital City', value: c.capitalCity || 'N/A' },
+        { label: 'Active Year', value: `${this.selectedYear}` },
+        { label: 'Income Level', value: c.incomeLevel?.value || 'N/A' },
+        { label: 'Languages', value: c.languages || 'N/A' },
+        { label: 'Currency', value: c.currencies || 'N/A' },
+        { label: 'Land Area', value: c.area ? c.area.toLocaleString() + ' km²' : 'N/A' },
+        { label: 'Region / Subregion', value: `${c.region?.value || 'N/A'} / ${c.subregion || 'N/A'}` },
+        { label: 'Coordinates', value: `${lat.toFixed(2)}°, ${lng.toFixed(2)}°` }
       ],
       summary: `ISO Code: ${c.id} (${c.iso2Code}) • Country ID: ${c.id}`,
       lat,
@@ -740,7 +772,9 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
     };
 
     this.loadIndicatorDataForCountry(c.id);
-    this.flyToTarget(lng, lat, 6, 50, 15);
+    if (flyCamera && this.map) {
+      this.flyToTarget(lng, lat, 6, 50, 15);
+    }
     this.cdr.markForCheck();
   }
 
@@ -760,9 +794,8 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
       this.selectedIndicatorName = this.wbIndicators[0].name;
       this.selectedIndicatorDesc = this.wbIndicators[0].sourceNote || '';
 
-      if (this.selectedDetailCard?.countryId) {
-        this.loadIndicatorDataForCountry(this.selectedDetailCard.countryId);
-      }
+      const countryId = this.selectedDetailCard?.countryId || 'USA';
+      this.loadIndicatorDataForCountry(countryId);
     }
     this.cdr.markForCheck();
   }
@@ -775,9 +808,8 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
       this.selectedIndicatorName = found.name;
       this.selectedIndicatorDesc = found.sourceNote || '';
     }
-    if (this.selectedDetailCard?.countryId) {
-      this.loadIndicatorDataForCountry(this.selectedDetailCard.countryId);
-    }
+    const countryId = this.selectedDetailCard?.countryId || 'USA';
+    this.loadIndicatorDataForCountry(countryId);
     this.cdr.markForCheck();
   }
 
@@ -789,6 +821,9 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.wbService.getIndicatorData(countryCode, this.selectedIndicatorId).subscribe({
       next: (data) => {
+        if (!data || data.length === 0) {
+          data = this.wbService.generateFallbackDataPoints(countryCode, this.selectedIndicatorId);
+        }
         this.wbIndicatorData = data;
         this.loadingIndicatorData = false;
         
@@ -800,10 +835,18 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         this.cdr.markForCheck();
       },
       error: () => {
+        this.wbIndicatorData = this.wbService.generateFallbackDataPoints(countryCode, this.selectedIndicatorId);
         this.loadingIndicatorData = false;
         this.cdr.markForCheck();
       }
     });
+  }
+
+  scrollToAnalyticsStudio(): void {
+    const el = document.getElementById('world-data-analytics-studio');
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 
   get formattedIndicatorPoints(): { year: number; value: number; percent: number }[] {
@@ -1009,7 +1052,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
       this.currentQuizQuestion = {
         id: targetKey,
         type: 'capital',
-        questionText: `What is the capital city of ${target.flag || '🌐'} ${target.name}?`,
+        questionText: `What is the capital city of ${target.name}?`,
         countryCode: targetKey,
         countryName: target.name,
         correctAnswer: target.capitalCity,
@@ -1115,13 +1158,13 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
       const lat = (250 - coords.cy) * (180 / 500);
 
       this.selectedDetailCard = {
-        title: `${found.flagEmoji} ${found.name}`,
+        title: `${found.name}`,
         category: `Historical Empire • ${found.era} Era`,
         details: [
-          { label: '⏳ Span', value: found.yearSpan },
-          { label: '👑 Founder/Ruler', value: found.founderOrRuler },
-          { label: '🏛️ Capital', value: found.capitalCity },
-          { label: '📐 Peak Area', value: found.peakAreaSqKm }
+          { label: 'Span', value: found.yearSpan },
+          { label: 'Founder/Ruler', value: found.founderOrRuler },
+          { label: 'Capital', value: found.capitalCity },
+          { label: 'Peak Area', value: found.peakAreaSqKm }
         ],
         summary: `${found.summary} Key Achievements: ${found.keyAchievements.join(' • ')}`,
         lat,
@@ -1192,7 +1235,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
           results.push({
             name: c.name,
             category: `Country (${c.region?.value || 'Global'})`,
-            flag: c.flag || '🌐',
+            flag: '🌐',
             lat,
             lng,
             code: c.id
@@ -1286,18 +1329,18 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
       el.addEventListener('click', (ev: Event) => {
         ev.stopPropagation();
         this.selectedDetailCard = {
-          title: `🚢 ${vessel.name}`,
+          title: `${vessel.name}`,
           category: `${vessel.vesselType} • ${vessel.shippingLine || vessel.flagName}`,
           details: [
-            { label: '🚢 IMO Number', value: `${vessel.imoNumber || 'N/A'}` },
-            { label: '📡 MMSI / Callsign', value: `${vessel.mmsiNumber || 'N/A'} / ${vessel.callsign || 'N/A'}` },
-            { label: '🏢 Shipping Line', value: vessel.shippingLine || 'N/A' },
-            { label: '📍 Flag Registry', value: `${vessel.flagEmoji} ${vessel.flagName}` },
-            { label: '📐 Dimensions', value: `${vessel.lengthMeters}m x ${vessel.beamMeters || 'N/A'}m (Draft: ${vessel.draftMeters || 'N/A'}m)` },
-            { label: '📦 Capacity & DWT', value: `${vessel.capacityTEU} (${vessel.dwtTons ? vessel.dwtTons.toLocaleString() + ' DWT' : ''})` },
-            { label: '⚡ Speed & Heading', value: `${vessel.speedKnots} knots @ ${vessel.headingDeg.toFixed(0)}°` },
-            { label: '📍 Dynamic GPS Coords', value: `${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E` },
-            { label: '🏁 Route', value: `${vessel.originPort} ➔ ${vessel.destinationPort}` }
+            { label: 'IMO Number', value: `${vessel.imoNumber || 'N/A'}` },
+            { label: 'MMSI / Callsign', value: `${vessel.mmsiNumber || 'N/A'} / ${vessel.callsign || 'N/A'}` },
+            { label: 'Shipping Line', value: vessel.shippingLine || 'N/A' },
+            { label: 'Flag Registry', value: `${vessel.flagName}` },
+            { label: 'Dimensions', value: `${vessel.lengthMeters}m x ${vessel.beamMeters || 'N/A'}m (Draft: ${vessel.draftMeters || 'N/A'}m)` },
+            { label: 'Capacity & DWT', value: `${vessel.capacityTEU} (${vessel.dwtTons ? vessel.dwtTons.toLocaleString() + ' DWT' : ''})` },
+            { label: 'Speed & Heading', value: `${vessel.speedKnots} knots @ ${vessel.headingDeg.toFixed(0)}°` },
+            { label: 'Dynamic GPS Coords', value: `${lat.toFixed(4)}°N, ${lng.toFixed(4)}°E` },
+            { label: 'Route', value: `${vessel.originPort} ➔ ${vessel.destinationPort}` }
           ],
           summary: `Active vessel navigating trade corridor ${vessel.corridorId.toUpperCase()}`,
           lat,
@@ -1502,7 +1545,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         if (!isNaN(lat) && !isNaN(lng) && (lat !== 0 || lng !== 0)) {
           const el = document.createElement('div');
           el.className = 'custom-3d-marker country-marker';
-          el.title = `${c.name} (${this.selectedYear})`;
+          el.title = c.name;
 
           if (this.extrusionMetric === 'gdp') {
             const heightPx = Math.min(60, Math.max(12, (c.area || 100000) / 40000));
@@ -1549,15 +1592,15 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         el.addEventListener('click', (ev: Event) => {
           ev.stopPropagation();
           this.selectedDetailCard = {
-            title: `${c.flag} ${c.name}`,
+            title: `${c.name}`,
             category: `Verified Artificial Canal • ${c.country}`,
             details: [
-              { label: '📏 Total Canal Length', value: c.lengthKm },
-              { label: '🔒 Lock Systems', value: c.lockCount },
-              { label: '🚢 Annual Transits', value: c.annualVessels },
-              { label: '📐 Max Draft / Beam', value: `${c.maxDraftMeters || 'N/A'}m Draft • ${c.maxBeamMeters || 'N/A'}m Beam` },
-              { label: '📦 Annual Metric Cargo', value: c.annualCargoTons || 'N/A' },
-              { label: '🌊 Waterway Type', value: c.waterwayType }
+              { label: 'Total Canal Length', value: c.lengthKm },
+              { label: 'Lock Systems', value: c.lockCount },
+              { label: 'Annual Transits', value: c.annualVessels },
+              { label: 'Max Draft / Beam', value: `${c.maxDraftMeters || 'N/A'}m Draft • ${c.maxBeamMeters || 'N/A'}m Beam` },
+              { label: 'Annual Metric Cargo', value: c.annualCargoTons || 'N/A' },
+              { label: 'Waterway Type', value: c.waterwayType }
             ],
             summary: c.summary,
             lat: c.coordinates.lat,
@@ -1582,14 +1625,14 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         el.addEventListener('click', (ev: Event) => {
           ev.stopPropagation();
           this.selectedDetailCard = {
-            title: `🚨 ${chk.name}`,
+            title: `${chk.name}`,
             category: `Strategic Chokepoint • ${chk.country}`,
             details: [
-              { label: '⚠️ Security Status', value: chk.status },
-              { label: '🚢 Daily Vessels', value: `${chk.dailyVessels} Ships/day` },
-              { label: '🛢️ Daily Oil Flow', value: chk.dailyOilBarrels || 'N/A' },
-              { label: '📦 Global Trade Share', value: chk.cargoVolume },
-              { label: '⛽ Key Commodities', value: chk.keyCommodities.join(', ') }
+              { label: 'Security Status', value: chk.status },
+              { label: 'Daily Vessels', value: `${chk.dailyVessels} Ships/day` },
+              { label: 'Daily Oil Flow', value: chk.dailyOilBarrels || 'N/A' },
+              { label: 'Global Trade Share', value: chk.cargoVolume },
+              { label: 'Key Commodities', value: chk.keyCommodities.join(', ') }
             ],
             summary: chk.summary,
             lat: chk.coordinates.lat,
@@ -1625,13 +1668,13 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
         el.addEventListener('click', (ev: Event) => {
           ev.stopPropagation();
           this.selectedDetailCard = {
-            title: `💱 ${node.name}`,
+            title: `${node.name}`,
             category: `FX Currency Telemetry Hub`,
             details: [
-              { label: '💱 Currency Code', value: `${node.flag} ${node.code}` },
-              { label: `💵 Value (${this.fxAmount} ${this.fxBaseCurrency})`, value: `${rateInfo.symbol || ''} ${converted}` },
-              { label: '📈 Live FX vs USD', value: node.rate },
-              { label: '📍 Location', value: `${node.lat.toFixed(2)}°, ${node.lng.toFixed(2)}°` }
+              { label: 'Currency Code', value: `${node.code}` },
+              { label: `Value (${this.fxAmount} ${this.fxBaseCurrency})`, value: `${rateInfo.symbol || ''} ${converted}` },
+              { label: 'Live FX vs USD', value: node.rate },
+              { label: 'Location', value: `${node.lat.toFixed(2)}°, ${node.lng.toFixed(2)}°` }
             ],
             summary: 'Global financial liquidity node tracking real-time exchange rate telemetry.',
             lat: node.lat,
@@ -1668,22 +1711,31 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
 
   resetNorth(): void {
     this.currentBearing = 0;
-    this.currentPitch = 45;
+    this.currentPitch = 0;
     if (this.map) {
-      this.map.easeTo({ bearing: 0, pitch: 45, duration: 1000 });
+      this.map.easeTo({ bearing: 0, pitch: 0, duration: 1000 });
     }
   }
 
   jumpToPreset(preset: string): void {
     this.activePresetId = preset;
-    let targetLng = 32.3;
-    let targetLat = 30.5;
-    let targetZoom = 7;
-    let targetPitch = 55;
-    let targetBearing = -20;
-    let countryKey = 'eg';
+    let targetLng = 0;
+    let targetLat = 20;
+    let targetZoom = 1.50;
+    let targetPitch = 0;
+    let targetBearing = 0;
+    let countryKey = 'us';
 
     switch (preset) {
+      case 'global':
+      case 'world':
+        targetLng = 0;
+        targetLat = 20;
+        targetZoom = 1.50;
+        targetPitch = 0;
+        targetBearing = 0;
+        countryKey = 'us';
+        break;
       case 'suez':
         targetLng = 32.3;
         targetLat = 30.5;
@@ -1736,7 +1788,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const c = COUNTRIES_DATA[countryKey] || COUNTRIES_DATA['us'];
     if (c) {
-      this.openCountryTelemetryCard(c, targetLat, targetLng);
+      this.openCountryTelemetryCard(c, targetLat, targetLng, false);
     }
 
     this.flyToTarget(targetLng, targetLat, targetZoom, targetPitch, targetBearing);
@@ -1829,7 +1881,7 @@ export class GeolibreComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if (!isNaN(lat) && !isNaN(lng)) {
           results.push({
-            name: `${c.flag || '🏳️'} ${c.name}`,
+            name: `${c.name}`,
             category: c.region?.value || 'Country',
             metric1: `Capital: ${c.capitalCity || 'N/A'}`,
             metric2: `Income: ${c.incomeLevel?.value || 'N/A'}`,

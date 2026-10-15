@@ -19,6 +19,8 @@
     "ng": "ng",
     "prestart": "node scripts/set-env.js",
     "start": "ng serve",
+    "predev": "node scripts/set-env.js",
+    "dev": "ng serve",
     "prebuild": "node scripts/set-env.js",
     "build": "ng build --configuration=production",
     "build:dev": "ng build --configuration=development",

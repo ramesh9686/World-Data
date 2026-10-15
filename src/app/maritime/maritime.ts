@@ -117,22 +117,37 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
     dark: {
       version: 8,
       sources: {
-        'carto-dark': {
+        'esri-dark-base': {
           type: 'raster',
           tiles: [
-            'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+            'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'
           ],
           tileSize: 256,
-          attribution: '© CARTO'
+          attribution: 'Esri, HERE, Garmin, © OpenStreetMap contributors'
+        },
+        'esri-dark-ref': {
+          type: 'raster',
+          tiles: [
+            'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}'
+          ],
+          tileSize: 256,
+          attribution: 'Esri'
         }
       },
       layers: [
         {
-          id: 'carto-dark-layer',
+          id: 'esri-dark-base-layer',
           type: 'raster',
-          source: 'carto-dark',
+          source: 'esri-dark-base',
           minzoom: 0,
-          maxzoom: 19
+          maxzoom: 16
+        },
+        {
+          id: 'esri-dark-ref-layer',
+          type: 'raster',
+          source: 'esri-dark-ref',
+          minzoom: 0,
+          maxzoom: 16
         }
       ]
     },

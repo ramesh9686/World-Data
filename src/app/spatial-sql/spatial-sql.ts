@@ -628,13 +628,13 @@ export class SpatialSqlComponent implements OnInit, AfterViewInit, OnDestroy {
           style: {
             version: 8,
             sources: {
-              'carto-dark': {
+              'esri-dark': {
                 type: 'raster',
-                tiles: ['https://a.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'],
+                tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}'],
                 tileSize: 256
               }
             },
-            layers: [{ id: 'carto-dark-layer', type: 'raster', source: 'carto-dark' }]
+            layers: [{ id: 'esri-dark-layer', type: 'raster', source: 'esri-dark' }]
           },
           center: [20.0, 20.0],
           zoom: 2.0,
