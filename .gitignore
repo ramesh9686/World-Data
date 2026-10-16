@@ -44,4 +44,10 @@ __screenshots__/
 Thumbs.db
 .env
 .env.local
+.env.*.local
+
+# Environments with secrets injected from .env / process.env
+src/environments/environment.ts
+src/environments/environment.development.ts
+
 

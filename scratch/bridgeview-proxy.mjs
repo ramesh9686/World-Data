@@ -1,7 +1,7 @@
 import http from 'http';
 import crypto from 'crypto';
 
-const API_KEY = '4b8a931efb8b56555196a3102f730916479f77d9';
+const API_KEY = process.env.AISSTREAM_API_KEY || '';
 const UPSTREAM_URL = 'wss://stream.aisstream.io/v0/stream';
 const PORT = 3001;
 

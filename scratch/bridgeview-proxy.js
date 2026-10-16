@@ -1,12 +1,30 @@
 const { WebSocketServer, WebSocket } = require('ws');
+const fs = require('fs');
+const path = require('path');
 
-const API_KEY = process.env.AISSTREAM_API_KEY || '4b8a931efb8b56555196a3102f730916479f77d9';
+const envPath = path.resolve(__dirname, '../.env');
+if (!process.env.AISSTREAM_API_KEY && fs.existsSync(envPath)) {
+  const content = fs.readFileSync(envPath, 'utf-8');
+  content.split('\n').forEach(line => {
+    const trimmed = line.trim();
+    if (trimmed && !trimmed.startsWith('#')) {
+      const eqIdx = trimmed.indexOf('=');
+      if (eqIdx !== -1) {
+        const key = trimmed.slice(0, eqIdx).trim();
+        const val = trimmed.slice(eqIdx + 1).trim();
+        if (key === 'AISSTREAM_API_KEY') process.env.AISSTREAM_API_KEY = val;
+      }
+    }
+  });
+}
+
+const API_KEY = process.env.AISSTREAM_API_KEY || '';
 const UPSTREAM_URL = 'wss://stream.aisstream.io/v0/stream';
 const PORT = 3001;
 
 console.log('=====================================================');
 console.log('🚀 [AISStream Single-Connection Proxy] Initializing...');
-console.log(`🔑 Using API Key: ${API_KEY.substring(0, 8)}...`);
+console.log(`🔑 Using API Key: ${API_KEY ? API_KEY.substring(0, 8) + '...' : 'NOT SET (define in .env)'}`);
 console.log(`🌐 Proxy WebSocket Server Port: ws://localhost:${PORT}`);
 console.log('=====================================================');
 

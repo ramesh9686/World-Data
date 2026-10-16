@@ -1026,7 +1026,7 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
   // ------------------------------------------------------------------
   connectAisStream(): void {
     if (!this.customAisApiKey) {
-      this.customAisApiKey = typeof window !== 'undefined' ? atob('NGI4YTkzMWVmYjhiNTY1NTE5NjkzMTEwMmY3MzA5MTY0Nzk3N2Q5') : '';
+      this.customAisApiKey = environment.aisStreamApiKey || (typeof localStorage !== 'undefined' ? (localStorage.getItem('aisstream_key') || '') : '');
     }
     this.aisStreamService.setApiKey(this.customAisApiKey);
     this.aisStreamService.connect();
