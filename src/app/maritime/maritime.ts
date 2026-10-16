@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, ChangeDetectorRef, ElementRef, ViewChild, NgZone, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { GeoJsonExportService } from '../services/geojson-export.service';
 import { AisStreamService, AisVesselPosition, AisQcStats } from '../services/ais-stream.service';
 import { Model3dLoaderService, GraphicsPerformancePreset, FpsTelemetry } from '../services/model-3d-loader.service';
@@ -62,7 +62,7 @@ import { DecryptedTextComponent, CountUpComponent, SpotlightDirective } from '..
 @Component({
   selector: 'app-maritime',
   standalone: true,
-  imports: [CommonModule, FormsModule, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
+  imports: [CommonModule, FormsModule, RouterLink, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
   templateUrl: './maritime.html',
   styleUrl: './maritime.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -470,9 +470,9 @@ export class MaritimeComponent implements OnInit, AfterViewInit, OnDestroy {
           'line-cap': 'round'
         },
         paint: {
-          'line-color': '#00f2fe',
+          'line-color': '#10b981',
           'line-width': 7,
-          'line-opacity': 0.4,
+          'line-opacity': 0.45,
           'line-blur': 3
         }
       });

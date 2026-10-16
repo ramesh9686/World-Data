@@ -1,8 +1,19 @@
 @import 'maplibre-gl/dist/maplibre-gl.css';
 
 /* ==========================================================================
-   Page 3: Maritime Routes - 3D GIS & Searoute-TS Telemetry Engine CSS
+   Page 3: Maritime Routes - Emerald Celestial Stone 3D GIS & Telemetry CSS
    ========================================================================== */
+
+:root {
+  --stone-emerald-glow: 0 0 24px rgba(16, 185, 129, 0.45);
+  --stone-emerald-border: 1px solid rgba(16, 185, 129, 0.35);
+  --stone-emerald-gradient: linear-gradient(135deg, #10b981, #059669);
+  --emerald-primary: #10b981;
+  --emerald-accent: #34d399;
+  --emerald-bright: #6ee7b7;
+  --emerald-dark: #047857;
+  --emerald-obsidian: rgba(4, 18, 16, 0.94);
+}
 
 .maritime-page-container {
   display: flex;
@@ -14,6 +25,9 @@
   color: #e2e8f0;
   font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   position: relative;
+  background: 
+    radial-gradient(circle at 12% 8%, rgba(16, 185, 129, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 88% 92%, rgba(5, 150, 105, 0.06) 0%, transparent 50%);
 }
 
 /* --------------------------------------------------------------------------
@@ -23,12 +37,12 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: rgba(6, 10, 20, 0.9);
-  border: 1px solid rgba(0, 242, 254, 0.25);
+  background: rgba(4, 18, 16, 0.92);
+  border: 1px solid rgba(16, 185, 129, 0.35);
   border-radius: 9999px;
   padding: 0.5rem 1.25rem;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 0 16px rgba(16, 185, 129, 0.12);
   backdrop-filter: blur(16px);
 }
 
@@ -38,7 +52,7 @@
   gap: 0.5rem;
   font-size: 0.72rem;
   font-weight: 800;
-  color: #00f2fe;
+  color: #34d399;
   font-family: 'JetBrains Mono', monospace;
   white-space: nowrap;
 }
@@ -47,8 +61,8 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #00f2fe;
-  box-shadow: 0 0 10px #00f2fe;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
   animation: radarPulse 1.8s infinite;
 }
 
@@ -87,9 +101,9 @@
 .ticker-item .trend.alert { color: #f87171; background: rgba(248, 113, 113, 0.15); }
 
 .ais-badge-btn, .audio-toggle-btn {
-  background: rgba(22, 30, 48, 0.8);
-  border: 1px solid rgba(0, 242, 254, 0.3);
-  color: #00f2fe;
+  background: rgba(6, 26, 22, 0.85);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  color: #34d399;
   padding: 0.35rem 0.85rem;
   border-radius: 9999px;
   font-size: 0.78rem;
@@ -100,8 +114,9 @@
 }
 
 .ais-badge-btn:hover, .audio-toggle-btn:hover {
-  background: rgba(0, 242, 254, 0.2);
-  box-shadow: 0 0 14px rgba(0, 242, 254, 0.4);
+  background: rgba(16, 185, 129, 0.22);
+  border-color: #34d399;
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.45);
 }
 
 .audio-toggle-btn.muted {
@@ -110,7 +125,7 @@
 }
 
 /* --------------------------------------------------------------------------
-   Header Hero Banner
+   Header Hero Banner (Emerald Celestial Stone Luxury Template)
    -------------------------------------------------------------------------- */
 .maritime-header-hero {
   display: flex;
@@ -118,59 +133,130 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1.25rem;
-  background: rgba(11, 15, 26, 0.85);
-  border: 1px solid rgba(0, 242, 254, 0.25);
+  background: linear-gradient(135deg, rgba(4, 18, 16, 0.95), rgba(6, 30, 24, 0.9));
+  border: 1px solid rgba(16, 185, 129, 0.38);
   border-radius: 24px;
-  padding: 1.4rem 2rem;
+  padding: 1.35rem 2rem;
   box-shadow: 
     inset 0 1px 1px rgba(255, 255, 255, 0.2),
-    0 16px 45px rgba(0, 0, 0, 0.65);
+    0 16px 45px rgba(0, 0, 0, 0.75),
+    0 0 24px rgba(16, 185, 129, 0.16);
   backdrop-filter: blur(24px) saturate(190%);
+  position: relative;
+  overflow: hidden;
 }
 
-.header-status-pill {
-  display: inline-flex;
+.maritime-header-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #a7f3d0, #34d399, #10b981, #047857, transparent);
+  opacity: 0.85;
+}
+
+.header-brand-group {
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background: rgba(0, 242, 254, 0.12);
-  border: 1px solid rgba(0, 242, 254, 0.35);
-  border-radius: 9999px;
-  padding: 0.2rem 0.75rem;
-  margin-bottom: 0.3rem;
+  gap: 1.25rem;
 }
 
-.live-pulse {
-  width: 7px;
-  height: 7px;
+/* Emerald Stone Emblem Logo (Exact Homepage Concave Diamond Gemstone) */
+.stone-logo-anchor {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.stone-aura-pulse {
+  position: absolute;
+  inset: -6px;
   border-radius: 50%;
-  background: #00f2fe;
-  box-shadow: 0 0 10px #00f2fe;
-  animation: radarPulse 1.8s infinite;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.55) 0%, rgba(5, 150, 105, 0.22) 50%, transparent 75%);
+  animation: stoneAuraPulse 3.2s ease-in-out infinite alternate;
+  pointer-events: none;
 }
 
-.status-pill-text {
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: #00f2fe;
-  font-family: 'JetBrains Mono', monospace;
+@keyframes stoneAuraPulse {
+  0% { transform: scale(0.9); opacity: 0.55; filter: blur(5px); }
+  100% { transform: scale(1.22); opacity: 0.95; filter: blur(9px); }
+}
+
+.home-exact-stone-disc {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(4, 18, 16, 0.88);
+  border: 1px solid rgba(16, 185, 129, 0.45);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.75),
+    0 0 20px rgba(16, 185, 129, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(12px);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stone-logo-anchor:hover .home-exact-stone-disc {
+  transform: scale(1.12);
+  border-color: rgba(52, 211, 153, 0.85);
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.85),
+    0 0 30px rgba(16, 185, 129, 0.75),
+    inset 0 1px 1px rgba(255, 255, 255, 0.45);
+}
+
+.home-exact-stone-svg {
+  width: 22px;
+  height: 42px;
+  filter: drop-shadow(0 0 8px #10b981) drop-shadow(0 0 14px rgba(16, 185, 129, 0.7));
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), filter 0.28s ease;
+}
+
+.stone-logo-anchor:hover .home-exact-stone-svg {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 12px #34d399) drop-shadow(0 0 22px rgba(16, 185, 129, 0.95));
+}
+
+.hero-titles-col {
+  display: flex;
+  flex-direction: column;
 }
 
 .hero-title {
   margin: 0;
-  font-size: 1.85rem;
+  font-size: 1.75rem;
   font-weight: 900;
   letter-spacing: -0.02em;
-  background: linear-gradient(135deg, #ffffff 0%, #cbd5e1 50%, #94a3b8 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #d1fae5 25%, #6ee7b7 50%, #10b981 80%, #059669 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 10px rgba(16, 185, 129, 0.35));
 }
 
 .hero-subtitle {
-  margin: 0.25rem 0 0 0;
+  margin: 0.3rem 0 0 0;
   color: #94a3b8;
   font-size: 0.88rem;
-  max-width: 700px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.header-sep {
+  color: rgba(16, 185, 129, 0.5);
 }
 
 .hero-stats-box {
@@ -180,10 +266,37 @@
   flex-wrap: wrap;
 }
 
-.stat-badge {
-  background: rgba(18, 25, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  padding: 0.55rem 0.95rem;
+.header-status-pill.emerald {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(16, 185, 129, 0.12);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  border-radius: 9999px;
+  padding: 0.3rem 0.85rem;
+}
+
+.header-status-pill.emerald .live-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 10px #10b981;
+  animation: radarPulse 1.8s infinite;
+}
+
+.header-status-pill.emerald .status-pill-text {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #6ee7b7;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-badge.emerald {
+  background: rgba(6, 26, 22, 0.85);
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  padding: 0.45rem 0.95rem;
   border-radius: 14px;
   display: flex;
   flex-direction: column;
@@ -192,13 +305,13 @@
 
 .b-lbl { font-size: 0.68rem; color: #94a3b8; font-weight: 800; }
 .b-val { font-size: 0.92rem; font-weight: 800; color: #ffffff; }
-.b-val.highlight { color: #00f2fe; }
+.b-val.highlight { color: #34d399; }
 
 .btn-primary-gis {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  background: linear-gradient(135deg, #00f2fe 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 0.7rem 1.4rem;
@@ -207,20 +320,20 @@
   font-size: 0.88rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 8px 24px rgba(0, 242, 254, 0.35);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
 }
 
 .btn-primary-gis:hover {
   transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 0 28px rgba(0, 242, 254, 0.65);
+  box-shadow: 0 0 28px rgba(16, 185, 129, 0.65);
 }
 
 /* --------------------------------------------------------------------------
    Interactive Real-World Sea Route Calculator Widget (`searoute-ts`)
    -------------------------------------------------------------------------- */
 .route-calculator-card {
-  background: rgba(11, 15, 26, 0.88);
-  border: 1px solid rgba(0, 242, 254, 0.3);
+  background: rgba(4, 18, 16, 0.88);
+  border: 1px solid rgba(16, 185, 129, 0.3);
   border-radius: 24px;
   padding: 1.5rem;
   display: flex;
@@ -228,7 +341,8 @@
   gap: 1.25rem;
   box-shadow: 
     inset 0 1px 1px rgba(255, 255, 255, 0.18),
-    0 16px 48px rgba(0, 0, 0, 0.65);
+    0 16px 48px rgba(0, 0, 0, 0.65),
+    0 0 24px rgba(16, 185, 129, 0.08);
   backdrop-filter: blur(24px) saturate(190%);
 }
 
@@ -250,7 +364,7 @@
 
 .calc-icon {
   font-size: 1.8rem;
-  filter: drop-shadow(0 0 12px rgba(0, 242, 254, 0.8));
+  filter: drop-shadow(0 0 12px rgba(16, 185, 129, 0.8));
 }
 
 .calc-title {
@@ -270,9 +384,9 @@
   font-size: 0.72rem;
   font-weight: 800;
   font-family: 'JetBrains Mono', monospace;
-  color: #00f2fe;
-  background: rgba(0, 242, 254, 0.15);
-  border: 1px solid rgba(0, 242, 254, 0.35);
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid rgba(16, 185, 129, 0.35);
   padding: 0.25rem 0.7rem;
   border-radius: 9999px;
 }
@@ -300,8 +414,8 @@
 }
 
 .gis-select {
-  background: rgba(22, 30, 48, 0.9);
-  border: 1px solid rgba(0, 242, 254, 0.4);
+  background: rgba(6, 26, 22, 0.9);
+  border: 1px solid rgba(16, 185, 129, 0.4);
   color: #ffffff;
   padding: 0.6rem 1rem;
   border-radius: 14px;
@@ -313,14 +427,14 @@
 }
 
 .gis-select:focus {
-  border-color: #a855f7;
-  box-shadow: 0 0 16px rgba(168, 85, 247, 0.45);
+  border-color: #34d399;
+  box-shadow: 0 0 16px rgba(52, 211, 153, 0.45);
 }
 
 .swap-ports-btn {
-  background: rgba(22, 30, 48, 0.8);
-  border: 1px solid rgba(0, 242, 254, 0.4);
-  color: #00f2fe;
+  background: rgba(6, 26, 22, 0.8);
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  color: #34d399;
   width: 42px;
   height: 42px;
   border-radius: 50%;
@@ -335,15 +449,15 @@
 }
 
 .swap-ports-btn:hover {
-  background: #00f2fe;
-  color: #000000;
-  box-shadow: 0 0 18px rgba(0, 242, 254, 0.6);
+  background: #10b981;
+  color: #041210;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.6);
   transform: rotate(180deg);
 }
 
 .btn-calc-route {
   margin-top: 1.2rem;
-  background: linear-gradient(135deg, #00f2fe 0%, #7c3aed 100%);
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   color: #ffffff;
   border: 1px solid rgba(255, 255, 255, 0.3);
   padding: 0.75rem 1.6rem;
@@ -352,12 +466,12 @@
   font-size: 0.92rem;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 8px 24px rgba(0, 242, 254, 0.35);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.35);
 }
 
 .btn-calc-route:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 28px rgba(0, 242, 254, 0.7);
+  box-shadow: 0 0 28px rgba(16, 185, 129, 0.7);
 }
 
 .route-telemetry-grid {
@@ -370,8 +484,8 @@
 .route-stat-card {
   flex: 1;
   min-width: 180px;
-  background: rgba(18, 25, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(6, 26, 22, 0.85);
+  border: 1px solid rgba(16, 185, 129, 0.25);
   padding: 0.8rem 1.1rem;
   border-radius: 16px;
   display: flex;
@@ -383,14 +497,15 @@
 
 .route-stat-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(0, 242, 254, 0.4);
+  border-color: rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.25);
 }
 
 .r-lbl { font-size: 0.7rem; color: #94a3b8; font-weight: 800; letter-spacing: 0.05em; }
 .r-val { font-size: 1.1rem; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
 .r-sub { font-size: 0.75rem; color: #94a3b8; }
 
-.cyan-txt { color: #00f2fe; }
+.cyan-txt { color: #34d399; }
 .green-txt { color: #34d399; }
 .amber-txt { color: #f59e0b; }
 .rose-txt { color: #ec4899; }
@@ -404,8 +519,8 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
-  background: rgba(11, 15, 26, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(4, 18, 16, 0.82);
+  border: 1px solid rgba(16, 185, 129, 0.25);
   border-radius: 20px;
   padding: 0.9rem 1.4rem;
   backdrop-filter: blur(20px);
@@ -428,8 +543,8 @@
 }
 
 .filter-pill, .fly-pill {
-  background: rgba(22, 30, 48, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(6, 26, 22, 0.75);
+  border: 1px solid rgba(16, 185, 129, 0.2);
   color: #cbd5e1;
   padding: 0.45rem 0.95rem;
   border-radius: 9999px;
@@ -440,21 +555,22 @@
 }
 
 .filter-pill:hover, .fly-pill:hover {
-  background: rgba(0, 242, 254, 0.15);
-  border-color: #00f2fe;
-  color: #00f2fe;
+  background: rgba(16, 185, 129, 0.18);
+  border-color: #34d399;
+  color: #34d399;
 }
 
 .filter-pill.active {
-  background: linear-gradient(135deg, rgba(0, 242, 254, 0.25), rgba(124, 58, 237, 0.25));
-  border-color: #00f2fe;
-  color: #00f2fe;
-  box-shadow: 0 0 16px rgba(0, 242, 254, 0.4);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.3));
+  border-color: #10b981;
+  color: #34d399;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
 }
 
 .fly-pill.gold { border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; }
 .fly-pill.gold:hover { background: rgba(245, 158, 11, 0.25); color: #ffffff; }
-.fly-pill.cyan { border-color: rgba(0, 242, 254, 0.4); color: #00f2fe; }
+.fly-pill.cyan { border-color: rgba(16, 185, 129, 0.4); color: #34d399; }
+.fly-pill.cyan:hover { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; }
 .fly-pill.alert { border-color: rgba(248, 113, 113, 0.4); color: #f87171; }
 
 /* --------------------------------------------------------------------------
@@ -463,12 +579,13 @@
 .map-viewport-card, .main-radar-viewport {
   position: relative;
   background: rgba(4, 8, 16, 0.88);
-  border: 1px solid rgba(0, 242, 254, 0.22);
+  border: 1px solid rgba(16, 185, 129, 0.28);
   border-radius: 24px;
   overflow: hidden;
   box-shadow: 
     inset 0 1px 1px rgba(255, 255, 255, 0.15),
-    0 18px 50px rgba(0, 0, 0, 0.75);
+    0 18px 50px rgba(0, 0, 0, 0.75),
+    0 0 24px rgba(16, 185, 129, 0.08);
   min-height: 640px;
   display: flex;
   flex-direction: column;
@@ -503,9 +620,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(11, 15, 26, 0.92);
+  background: rgba(4, 18, 16, 0.92);
   padding: 0.85rem 1.4rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(16, 185, 129, 0.15);
   backdrop-filter: blur(16px);
   z-index: 10;
 }
@@ -520,9 +637,9 @@
 }
 
 .active-mode-badge {
-  background: rgba(0, 242, 254, 0.18);
-  border: 1px solid #00f2fe;
-  color: #00f2fe;
+  background: rgba(16, 185, 129, 0.18);
+  border: 1px solid #10b981;
+  color: #34d399;
   font-size: 0.7rem;
   font-weight: 800;
   padding: 0.2rem 0.6rem;
@@ -535,8 +652,8 @@
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: #00f2fe;
-  box-shadow: 0 0 12px #00f2fe;
+  background: #10b981;
+  box-shadow: 0 0 12px #10b981;
   animation: radarPulse 2s infinite;
 }
 
@@ -556,8 +673,8 @@
 }
 
 .style-pill-btn {
-  background: rgba(22, 30, 48, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(6, 26, 22, 0.75);
+  border: 1px solid rgba(16, 185, 129, 0.2);
   color: #cbd5e1;
   padding: 0.25rem 0.65rem;
   border-radius: 8px;
@@ -568,33 +685,32 @@
 }
 
 .style-pill-btn:hover {
-  background: rgba(0, 242, 254, 0.18);
-  border-color: #00f2fe;
-  color: #00f2fe;
+  background: rgba(16, 185, 129, 0.18);
+  border-color: #34d399;
+  color: #34d399;
 }
 
 .style-pill-btn.active {
-  background: linear-gradient(135deg, rgba(0, 242, 254, 0.3), rgba(124, 58, 237, 0.3));
-  border-color: #00f2fe;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.3));
+  border-color: #10b981;
   color: #ffffff;
-  box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.4);
 }
 
 .telemetry-readout {
-
   display: flex;
   align-items: center;
   gap: 0.6rem;
   font-size: 0.82rem;
   color: #94a3b8;
   font-family: 'JetBrains Mono', monospace;
-  background: rgba(4, 8, 16, 0.6);
+  background: rgba(4, 18, 16, 0.7);
   padding: 0.3rem 0.8rem;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
-.telemetry-val { color: #00f2fe; font-weight: 800; }
+.telemetry-val { color: #34d399; font-weight: 800; }
 .telemetry-divider { color: rgba(255, 255, 255, 0.2); }
 
 .maplibre-canvas-container {
@@ -621,7 +737,7 @@
 .custom-3d-marker {
   font-size: 1.4rem;
   cursor: pointer;
-  filter: drop-shadow(0 0 10px rgba(0, 242, 254, 0.8));
+  filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.8));
   transition: transform 0.25s ease;
 }
 
@@ -633,11 +749,11 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  background: rgba(6, 11, 25, 0.9);
-  border: 1.5px solid #00f2fe;
+  background: rgba(4, 18, 16, 0.9);
+  border: 1.5px solid #10b981;
   border-radius: 9999px;
   padding: 3px 8px;
-  box-shadow: 0 0 14px rgba(0, 242, 254, 0.65), 0 4px 12px rgba(0, 0, 0, 0.85);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.65), 0 4px 12px rgba(0, 0, 0, 0.85);
   backdrop-filter: blur(10px);
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -653,7 +769,7 @@
 .ship-icon {
   font-size: 1.15rem;
   line-height: 1;
-  filter: drop-shadow(0 0 6px rgba(0, 242, 254, 0.8));
+  filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.8));
 }
 
 .flag-tag {
@@ -667,13 +783,14 @@
   bottom: 24px;
   left: 24px;
   width: 380px;
-  background: rgba(11, 15, 26, 0.94);
-  border: 1px solid rgba(0, 242, 254, 0.5);
+  background: rgba(4, 18, 16, 0.94);
+  border: 1px solid rgba(16, 185, 129, 0.45);
   border-radius: 22px;
   padding: 1.35rem;
   box-shadow: 
     inset 0 1px 1px rgba(255, 255, 255, 0.25),
-    0 20px 50px rgba(0, 0, 0, 0.85);
+    0 20px 50px rgba(0, 0, 0, 0.85),
+    0 0 24px rgba(16, 185, 129, 0.15);
   backdrop-filter: blur(24px) saturate(190%);
   z-index: 20;
   animation: slideUpCard 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -695,18 +812,18 @@
   margin: 0 0 0.25rem 0;
   font-size: 1.25rem;
   font-weight: 900;
-  color: #00f2fe;
+  color: #34d399;
 }
 
 .detail-card-badge {
   display: inline-block;
   font-size: 0.75rem;
   font-weight: 800;
-  color: #00f2fe;
-  background: rgba(0, 242, 254, 0.15);
+  color: #34d399;
+  background: rgba(16, 185, 129, 0.15);
   padding: 0.25rem 0.65rem;
   border-radius: 9999px;
-  border: 1px solid rgba(0, 242, 254, 0.3);
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .close-card-btn {
@@ -757,9 +874,9 @@
 
 .card-action-btn {
   flex: 1;
-  background: rgba(0, 242, 254, 0.15);
-  border: 1px solid #00f2fe;
-  color: #00f2fe;
+  background: rgba(16, 185, 129, 0.15);
+  border: 1px solid #10b981;
+  color: #34d399;
   padding: 0.55rem;
   border-radius: 12px;
   font-weight: 800;
@@ -769,9 +886,9 @@
 }
 
 .card-action-btn:hover {
-  background: #00f2fe;
-  color: #000000;
-  box-shadow: 0 0 18px rgba(0, 242, 254, 0.6);
+  background: #10b981;
+  color: #041210;
+  box-shadow: 0 0 18px rgba(16, 185, 129, 0.6);
 }
 
 /* --------------------------------------------------------------------------
@@ -783,8 +900,8 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 1rem;
-  background: rgba(11, 15, 26, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(4, 18, 16, 0.82);
+  border: 1px solid rgba(16, 185, 129, 0.25);
   border-radius: 20px;
   padding: 0.95rem 1.5rem;
   backdrop-filter: blur(20px);
@@ -808,8 +925,8 @@
 }
 
 .style-btn {
-  background: rgba(22, 30, 48, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(6, 26, 22, 0.75);
+  border: 1px solid rgba(16, 185, 129, 0.2);
   color: #cbd5e1;
   padding: 0.5rem 1rem;
   border-radius: 12px;
@@ -820,16 +937,16 @@
 }
 
 .style-btn:hover {
-  background: rgba(0, 242, 254, 0.15);
-  border-color: #00f2fe;
-  color: #00f2fe;
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #34d399;
+  color: #34d399;
 }
 
 .style-btn.active {
-  background: linear-gradient(135deg, rgba(0, 242, 254, 0.25), rgba(124, 58, 237, 0.25));
-  border-color: #00f2fe;
-  color: #00f2fe;
-  box-shadow: 0 0 16px rgba(0, 242, 254, 0.4);
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(5, 150, 105, 0.25));
+  border-color: #10b981;
+  color: #34d399;
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.4);
 }
 
 .reset-north-btn {
@@ -863,7 +980,7 @@
 
 .range-input {
   width: 100px;
-  accent-color: #00f2fe;
+  accent-color: #10b981;
   cursor: pointer;
 }
 
@@ -872,8 +989,8 @@
   padding: 0.25rem 0.65rem;
   border-radius: 8px;
   font-family: 'JetBrains Mono', monospace;
-  color: #00f2fe;
-  border: 1px solid rgba(0, 242, 254, 0.3);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 /* --------------------------------------------------------------------------
@@ -895,13 +1012,13 @@
 }
 
 .ais-modal-card {
-  background: rgba(11, 15, 26, 0.96);
-  border: 1px solid rgba(0, 242, 254, 0.4);
+  background: rgba(4, 18, 16, 0.96);
+  border: 1px solid rgba(16, 185, 129, 0.4);
   border-radius: 24px;
   max-width: 580px;
   width: 100%;
   padding: 1.6rem;
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(16, 185, 129, 0.15);
   display: flex;
   flex-direction: column;
   gap: 1.2rem;
@@ -917,7 +1034,7 @@
   margin: 0;
   font-size: 1.15rem;
   font-weight: 900;
-  color: #00f2fe;
+  color: #34d399;
 }
 
 .close-modal-btn {
@@ -945,7 +1062,7 @@
   display: flex;
   align-items: flex-start;
   gap: 0.85rem;
-  background: rgba(18, 25, 42, 0.8);
+  background: rgba(6, 26, 22, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.1);
   padding: 1rem;
   border-radius: 16px;
@@ -954,9 +1071,9 @@
 }
 
 .mode-radio-card.active {
-  border-color: #00f2fe;
-  background: rgba(0, 242, 254, 0.12);
-  box-shadow: 0 0 16px rgba(0, 242, 254, 0.3);
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.12);
+  box-shadow: 0 0 16px rgba(16, 185, 129, 0.3);
 }
 
 .radio-text {
@@ -989,7 +1106,7 @@
 
 .ais-api-input {
   background: rgba(4, 8, 16, 0.9);
-  border: 1px solid rgba(0, 242, 254, 0.4);
+  border: 1px solid rgba(16, 185, 129, 0.4);
   color: #ffffff;
   padding: 0.6rem 1rem;
   border-radius: 12px;
@@ -1079,12 +1196,12 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
-  background: rgba(11, 15, 26, 0.85);
-  border: 1px solid rgba(0, 242, 254, 0.25);
+  background: rgba(4, 18, 16, 0.88);
+  border: 1px solid rgba(16, 185, 129, 0.28);
   border-radius: 20px;
   padding: 0.9rem 1.4rem;
   backdrop-filter: blur(20px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.08);
 }
 
 .symbol-guide-group, .quick-flyto-group {
@@ -1104,8 +1221,8 @@
 }
 
 .symbol-tag {
-  background: rgba(22, 30, 48, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(6, 26, 22, 0.85);
+  border: 1px solid rgba(16, 185, 129, 0.2);
   color: #cbd5e1;
   padding: 0.35rem 0.8rem;
   border-radius: 9999px;
@@ -1131,13 +1248,13 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
-  background: rgba(11, 15, 26, 0.88);
-  border: 1px solid rgba(0, 242, 254, 0.3);
+  background: rgba(4, 18, 16, 0.88);
+  border: 1px solid rgba(16, 185, 129, 0.3);
   border-radius: 20px;
   padding: 0.85rem 1.4rem;
   backdrop-filter: blur(20px);
   margin-top: 1rem;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.08);
 }
 
 .search-input-wrapper {
@@ -1145,7 +1262,7 @@
   align-items: center;
   gap: 0.6rem;
   background: rgba(4, 8, 16, 0.8);
-  border: 1px solid rgba(0, 242, 254, 0.35);
+  border: 1px solid rgba(16, 185, 129, 0.35);
   border-radius: 12px;
   padding: 0.4rem 0.85rem;
   flex: 1;
@@ -1155,7 +1272,7 @@
 
 .search-icon {
   font-size: 0.9rem;
-  color: #00f2fe;
+  color: #34d399;
 }
 
 .vessel-search-field {
@@ -1197,8 +1314,8 @@
 }
 
 .filter-chip-btn {
-  background: rgba(22, 30, 48, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(6, 26, 22, 0.75);
+  border: 1px solid rgba(16, 185, 129, 0.2);
   color: #cbd5e1;
   padding: 0.35rem 0.85rem;
   border-radius: 9999px;
@@ -1209,16 +1326,16 @@
 }
 
 .filter-chip-btn:hover {
-  background: rgba(0, 242, 254, 0.15);
-  border-color: #00f2fe;
-  color: #00f2fe;
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #34d399;
+  color: #34d399;
 }
 
 .filter-chip-btn.active {
-  background: linear-gradient(135deg, rgba(0, 242, 254, 0.3), rgba(16, 185, 129, 0.3));
-  border-color: #00f2fe;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.3));
+  border-color: #10b981;
   color: #ffffff;
-  box-shadow: 0 0 14px rgba(0, 242, 254, 0.4);
+  box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
 }
 
 .filter-chip-btn.cargo.active {
@@ -1271,18 +1388,18 @@
   justify-content: center;
   width: 18px;
   height: 18px;
-  background: rgba(11, 15, 26, 0.88);
-  border: 1px solid rgba(0, 242, 254, 0.6);
+  background: rgba(4, 18, 16, 0.88);
+  border: 1px solid rgba(16, 185, 129, 0.6);
   border-radius: 50%;
-  box-shadow: 0 0 8px rgba(0, 242, 254, 0.6);
+  box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
   backdrop-filter: blur(4px);
   transition: all 0.2s ease;
 }
 
 .vessel-radar-dot-marker:hover .vessel-arrow-wrapper {
-  background: rgba(11, 15, 26, 0.98);
+  background: rgba(4, 18, 16, 0.98);
   border-color: #ffffff;
-  box-shadow: 0 0 16px #00f2fe;
+  box-shadow: 0 0 16px #10b981;
 }
 
 .vessel-arrow {
@@ -1542,10 +1659,10 @@
   align-items: center;
   gap: 0.85rem;
   background: rgba(4, 8, 16, 0.75);
-  border: 1px solid rgba(0, 242, 254, 0.28);
+  border: 1px solid rgba(16, 185, 129, 0.28);
   border-radius: 9999px;
   padding: 0.35rem 0.85rem;
-  box-shadow: inset 0 0 12px rgba(0, 242, 254, 0.1);
+  box-shadow: inset 0 0 12px rgba(16, 185, 129, 0.1);
 }
 
 .fps-badge {
@@ -1596,8 +1713,8 @@
 }
 
 .preset-btn {
-  background: rgba(22, 30, 48, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(6, 26, 22, 0.75);
+  border: 1px solid rgba(16, 185, 129, 0.2);
   color: #cbd5e1;
   padding: 0.25rem 0.6rem;
   border-radius: 8px;
@@ -1608,16 +1725,16 @@
 }
 
 .preset-btn:hover {
-  background: rgba(0, 242, 254, 0.2);
-  border-color: #00f2fe;
-  color: #00f2fe;
+  background: rgba(16, 185, 129, 0.2);
+  border-color: #34d399;
+  color: #34d399;
 }
 
 .preset-btn.active {
-  background: linear-gradient(135deg, rgba(0, 242, 254, 0.3), rgba(124, 58, 237, 0.3));
-  border-color: #00f2fe;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(5, 150, 105, 0.3));
+  border-color: #10b981;
   color: #ffffff;
-  box-shadow: 0 0 12px rgba(0, 242, 254, 0.4);
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
 }
 
 

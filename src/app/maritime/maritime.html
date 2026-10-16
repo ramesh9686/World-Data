@@ -33,22 +33,76 @@
     </button>
   </div>
 
-  <!-- Page Header Hero Section -->
+  <!-- Page Header Hero Section (Emerald Celestial Stone & Luxury Template) -->
   <header class="maritime-header-hero spotlight-card" reactBitsSpotlight>
-    <div class="hero-title-group blur-in-text">
-      <div class="header-status-pill minimal-pill cyan">
-        <span class="live-pulse"></span>
-        <span class="status-pill-text">LIVE SATELLITE WEBSOCKET TELEMETRY</span>
+    <div class="header-brand-group">
+      <!-- EXACT HOMEPAGE CELESTIAL STONE LOGO (Emerald Jade Concave Diamond) -->
+      <div class="stone-logo-anchor" routerLink="/" title="Return to Celestial Hub">
+        <div class="stone-aura-pulse"></div>
+        <div class="home-exact-stone-disc">
+          <svg class="home-exact-stone-svg" viewBox="0 0 100 196" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="exactEmeraldStoneFill" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#6ee7b7" />
+                <stop offset="25%" stop-color="#34d399" />
+                <stop offset="65%" stop-color="#10b981" />
+                <stop offset="100%" stop-color="#047857" />
+              </linearGradient>
+              <linearGradient id="emeraldFacetReflection" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="rgba(255, 255, 255, 0.8)" />
+                <stop offset="50%" stop-color="rgba(255, 255, 255, 0.3)" />
+                <stop offset="100%" stop-color="rgba(255, 255, 255, 0)" />
+              </linearGradient>
+            </defs>
+
+            <!-- Outer Gemstone Boundary Path (Exact Concave Diamond Bezier from Home) -->
+            <path 
+              d="M 50 0 C 50 78, 100 98, 100 98 C 100 98, 50 118, 50 196 C 50 118, 0 98, 0 98 C 0 98, 50 78, 50 0 Z" 
+              fill="url(#exactEmeraldStoneFill)" 
+              stroke="#34d399" 
+              stroke-width="3" 
+            />
+
+            <!-- Top Crown & Pavilion Facet Ridge Lines -->
+            <path 
+              d="M 50 0 L 50 196 M 0 98 L 100 98 M 50 49 L 100 98 L 50 147 L 0 98 Z" 
+              stroke="rgba(255, 255, 255, 0.4)" 
+              stroke-width="1.2" 
+            />
+
+            <!-- Inner Light Refraction Core -->
+            <path 
+              d="M 50 29.4 C 50 84, 85 98, 85 98 C 85 98, 50 112, 50 166.6 C 50 112, 15 98, 15 98 C 15 98, 50 84, 50 29.4 Z" 
+              fill="url(#emeraldFacetReflection)" 
+            />
+
+            <!-- Specular Glint Center Ridge -->
+            <line x1="50" y1="20" x2="50" y2="176" stroke="rgba(255, 255, 255, 0.6)" stroke-width="1" stroke-linecap="round" />
+            <line x1="15" y1="98" x2="85" y2="98" stroke="rgba(255, 255, 255, 0.5)" stroke-width="1" stroke-linecap="round" />
+            <circle cx="50" cy="98" r="3" fill="#ffffff" filter="drop-shadow(0 0 5px #ffffff)" />
+          </svg>
+        </div>
       </div>
-      <h1 class="hero-title shiny-text">
-        <span class="header-radar-badge">📡</span>
-        <react-bits-decrypted-text [text]="'Global Fleet Radar & Vessel Tracker'" [speed]="25"></react-bits-decrypted-text>
-      </h1>
+
+      <div class="hero-titles-col">
+        <h1 class="hero-title shiny-text">
+          <react-bits-decrypted-text [text]="'Global Fleet Radar & Maritime Telemetry'" [speed]="25"></react-bits-decrypted-text>
+        </h1>
+        <p class="hero-subtitle">
+          <span>Live AIS Satellite Tracking</span>
+          <span class="header-sep">•</span>
+          <span>Strategic Maritime Chokepoints & Global Megaports</span>
+        </p>
+      </div>
     </div>
 
     <div class="hero-stats-box">
+      <div class="header-status-pill minimal-pill emerald">
+        <span class="live-pulse"></span>
+        <span class="status-pill-text">LIVE SATELLITE AIS STREAM</span>
+      </div>
       <div class="stat-badge minimal-pill emerald">
-        <span class="b-lbl">TRACKED:</span>
+        <span class="b-lbl">ACTIVE FLEET:</span>
         <span class="b-val highlight">
           <react-bits-count-up [to]="totalActiveVesselsCount" [suffix]="' Vessels'"></react-bits-count-up>
         </span>
@@ -163,7 +217,7 @@
             </div>
             <div class="detail-card-row">
               <span class="detail-card-lbl">MMSI Identification:</span>
-              <span class="detail-card-val" style="color: #00f2fe; font-family: 'JetBrains Mono', monospace;">{{ selectedLiveAisVessel.mmsi }}</span>
+              <span class="detail-card-val" style="color: #34d399; font-family: 'JetBrains Mono', monospace;">{{ selectedLiveAisVessel.mmsi }}</span>
             </div>
             <div class="detail-card-row">
               <span class="detail-card-lbl">Speed Over Ground (SOG):</span>
@@ -187,7 +241,7 @@
             <button class="card-action-btn" (click)="openLocationInGeoLibre(selectedLiveAisVessel.latitude, selectedLiveAisVessel.longitude, 8)">
               🌐 Track in 3D GeoLibre Map
             </button>
-            <button class="card-action-btn" (click)="openVesselCrossVerification(selectedLiveAisVessel)" style="background: linear-gradient(135deg, #0ea5e9, #0284c7); border-color: #38bdf8;">
+            <button class="card-action-btn" (click)="openVesselCrossVerification(selectedLiveAisVessel)" style="background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399;">
               🔗 Cross-Verify on VesselFinder
             </button>
           </div>
@@ -210,7 +264,7 @@
             </div>
             <div class="detail-card-row">
               <span class="detail-card-lbl">Shipping Line:</span>
-              <span class="detail-card-val" style="color: #00f2fe;">{{ selectedVessel.shippingLine }}</span>
+              <span class="detail-card-val" style="color: #34d399;">{{ selectedVessel.shippingLine }}</span>
             </div>
             <div class="detail-card-row">
               <span class="detail-card-lbl">Flag State:</span>
