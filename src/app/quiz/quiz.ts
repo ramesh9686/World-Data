@@ -62,33 +62,41 @@ export class QuizComponent implements OnInit, OnDestroy {
   audioMuted = false;
   private audioCtx: AudioContext | null = null;
 
-  // General World & Cultural Trivia Bank
-  private generalTriviaBank = [
-    { id: "IN_TAJ", questionText: "Which country is home to the iconic ivory-white marble Taj Mahal?", countryCode: "IN", countryName: "India", correctAnswer: "India", explanation: "Built in 1632 in Agra by Shah Jahan" },
-    { id: "EG_PYR", questionText: "In which country can you visit the ancient Great Pyramids of Giza?", countryCode: "EG", countryName: "Egypt", correctAnswer: "Egypt", explanation: "Constructed over 4,500 years ago along the Nile" },
-    { id: "FR_LOUVRE", questionText: "Which nation is home to the Eiffel Tower and the Louvre Museum?", countryCode: "FR", countryName: "France", correctAnswer: "France", explanation: "The Louvre is the world's largest art museum" },
-    { id: "IT_COL", questionText: "Which country features the ancient Colosseum and the floating canals of Venice?", countryCode: "IT", countryName: "Italy", correctAnswer: "Italy", explanation: "Heart of ancient Roman architecture" },
-    { id: "CN_WALL", questionText: "Which country built the historic Great Wall extending over 13,000 miles?", countryCode: "CN", countryName: "China", correctAnswer: "China", explanation: "Built across ancient northern borders" },
-    { id: "PE_MACHU", questionText: "Which country is home to the historic 15th-century Inca citadel of Machu Picchu?", countryCode: "PE", countryName: "Peru", correctAnswer: "Peru", explanation: "Perched high in the Andes Mountains" },
-    { id: "AU_SYD", questionText: "Which country features the iconic sail-shaped Sydney Opera House?", countryCode: "AU", countryName: "Australia", correctAnswer: "Australia", explanation: "World Heritage landmark on Sydney Harbour" },
-    { id: "US_LIB", questionText: "Which country received the Statue of Liberty as a gift from France in 1886?", countryCode: "US", countryName: "United States", correctAnswer: "United States", explanation: "Stands on Liberty Island in New York Harbor" },
-    { id: "BR_CHRIST", questionText: "Which nation features the 98-foot tall Christ the Redeemer statue in Rio de Janeiro?", countryCode: "BR", countryName: "Brazil", correctAnswer: "Brazil", explanation: "Overlooks Rio from Corcovado mountain" },
-    { id: "JP_FUJI", questionText: "Which island nation is famous for Mount Fuji and cherry blossom gardens?", countryCode: "JP", countryName: "Japan", correctAnswer: "Japan", explanation: "Mount Fuji is an active volcanic peak" },
-    { id: "BR_AMAZON", questionText: "Which South American nation contains the vast majority of the Amazon Rainforest?", countryCode: "BR", countryName: "Brazil", correctAnswer: "Brazil", explanation: "Contains 60% of the Amazon basin" },
-    { id: "NO_FJORDS", questionText: "Which Scandinavian country is world-famous for its dramatic natural fjords and Northern Lights?", countryCode: "NO", countryName: "Norway", correctAnswer: "Norway", explanation: "Features over 1,000 coastal sea fjords" },
-    { id: "IS_ICE", questionText: "Which island nation is nicknamed the 'Land of Fire and Ice' due to volcanoes and glaciers?", countryCode: "IS", countryName: "Iceland", correctAnswer: "Iceland", explanation: "Home to over 130 active and extinct volcanoes" },
-    { id: "JO_PETRA", questionText: "Which Middle Eastern country is home to the ancient rock-cut city of Petra?", countryCode: "JO", countryName: "Jordan", correctAnswer: "Jordan", explanation: "Carved into rose-red sandstone cliffs" },
-    { id: "JP_SUN", questionText: "Which East Asian nation is traditionally known around the world as the 'Land of the Rising Sun'?", countryCode: "JP", countryName: "Japan", correctAnswer: "Japan", explanation: "Nihon means origin of the sun" },
-    { id: "IT_PIZZA", questionText: "Which country is world-renowned as the birthplace of Pizza, Pasta, and Gelato?", countryCode: "IT", countryName: "Italy", correctAnswer: "Italy", explanation: "Culinary capital of Europe" },
-    { id: "MX_TACO", questionText: "Which nation is famous for Tacos, Mariachi music, and ancient Mayan pyramids?", countryCode: "MX", countryName: "Mexico", correctAnswer: "Mexico", explanation: "Home to Chichen Itza and Teotihuacan" },
-    { id: "CA_MAPLE", questionText: "Which country produces over 70% of the world's pure Maple Syrup?", countryCode: "CA", countryName: "Canada", correctAnswer: "Canada", explanation: "Quebec is the top producer" },
-    { id: "GR_OLYMPIC", questionText: "Which Mediterranean country is celebrated as the birthplace of the Olympic Games?", countryCode: "GR", countryName: "Greece", correctAnswer: "Greece", explanation: "First Olympic games held in 776 BC" },
-    { id: "NL_TULIP", questionText: "Which European country is famous for its colorful Tulip fields, Windmills, and Canals?", countryCode: "NL", countryName: "Netherlands", correctAnswer: "Netherlands", explanation: "Famous for Keukenhof gardens" },
-    { id: "ES_FLAMENCO", questionText: "Which European nation is famous for Flamenco dancing, Tapas cuisine, and Bullfighting?", countryCode: "ES", countryName: "Spain", correctAnswer: "Spain", explanation: "Home to Antoni Gaudí's architecture" },
-    { id: "KR_KPOP", questionText: "Which Asian country is globally famous for K-Pop, Kimchi, and Taekwondo?", countryCode: "KR", countryName: "South Korea", correctAnswer: "South Korea", explanation: "Seoul is a high-tech global capital" },
-    { id: "AU_REEF", questionText: "Which country contains the Great Barrier Reef, the largest coral reef system on Earth?", countryCode: "AU", countryName: "Australia", correctAnswer: "Australia", explanation: "Composed of over 2,900 individual reefs" },
-    { id: "AU_KOALA", questionText: "Which nation is the natural habitat of wild Kangaroos, Koalas, and Platypuses?", countryCode: "AU", countryName: "Australia", correctAnswer: "Australia", explanation: "80% of mammals are native only here" },
-    { id: "TZ_KILI", questionText: "Which East African nation is home to Serengeti National Park and Mount Kilimanjaro?", countryCode: "TZ", countryName: "Tanzania", correctAnswer: "Tanzania", explanation: "Kilimanjaro is Africa's highest peak" }
+  // General World & Cultural Trivia Bank with Curated Geographic Distractors
+  private generalTriviaBank: Array<{
+    id: string;
+    questionText: string;
+    countryCode: string;
+    countryName: string;
+    correctAnswer: string;
+    distractors: string[];
+    explanation: string;
+  }> = [
+    { id: "IN_TAJ", questionText: "Which country is home to the iconic ivory-white marble Taj Mahal?", countryCode: "IN", countryName: "India", correctAnswer: "India", distractors: ["Pakistan", "Nepal", "Bangladesh"], explanation: "Built in 1632 in Agra by Shah Jahan" },
+    { id: "EG_PYR", questionText: "In which country can you visit the ancient Great Pyramids of Giza?", countryCode: "EG", countryName: "Egypt", correctAnswer: "Egypt", distractors: ["Sudan", "Jordan", "Morocco"], explanation: "Constructed over 4,500 years ago along the Nile" },
+    { id: "FR_LOUVRE", questionText: "Which nation is home to the Eiffel Tower and the Louvre Museum?", countryCode: "FR", countryName: "France", correctAnswer: "France", distractors: ["Italy", "Germany", "Belgium"], explanation: "The Louvre is the world's largest art museum" },
+    { id: "IT_COL", questionText: "Which country features the ancient Colosseum and the floating canals of Venice?", countryCode: "IT", countryName: "Italy", correctAnswer: "Italy", distractors: ["Greece", "Spain", "France"], explanation: "Heart of ancient Roman architecture" },
+    { id: "CN_WALL", questionText: "Which country built the historic Great Wall extending over 13,000 miles?", countryCode: "CN", countryName: "China", correctAnswer: "China", distractors: ["Mongolia", "South Korea", "Vietnam"], explanation: "Built across ancient northern borders" },
+    { id: "PE_MACHU", questionText: "Which country is home to the historic 15th-century Inca citadel of Machu Picchu?", countryCode: "PE", countryName: "Peru", correctAnswer: "Peru", distractors: ["Bolivia", "Ecuador", "Chile"], explanation: "Perched high in the Andes Mountains" },
+    { id: "AU_SYD", questionText: "Which country features the iconic sail-shaped Sydney Opera House?", countryCode: "AU", countryName: "Australia", correctAnswer: "Australia", distractors: ["New Zealand", "United Kingdom", "Canada"], explanation: "World Heritage landmark on Sydney Harbour" },
+    { id: "US_LIB", questionText: "Which country received the Statue of Liberty as a gift from France in 1886?", countryCode: "US", countryName: "United States", correctAnswer: "United States", distractors: ["Canada", "United Kingdom", "Australia"], explanation: "Stands on Liberty Island in New York Harbor" },
+    { id: "BR_CHRIST", questionText: "Which nation features the 98-foot tall Christ the Redeemer statue in Rio de Janeiro?", countryCode: "BR", countryName: "Brazil", correctAnswer: "Brazil", distractors: ["Argentina", "Portugal", "Colombia"], explanation: "Overlooks Rio from Corcovado mountain" },
+    { id: "JP_FUJI", questionText: "Which island nation is famous for Mount Fuji and cherry blossom gardens?", countryCode: "JP", countryName: "Japan", correctAnswer: "Japan", distractors: ["South Korea", "Taiwan", "Philippines"], explanation: "Mount Fuji is an active volcanic peak" },
+    { id: "BR_AMAZON", questionText: "Which South American nation contains the vast majority of the Amazon Rainforest?", countryCode: "BR", countryName: "Brazil", correctAnswer: "Brazil", distractors: ["Colombia", "Peru", "Argentina"], explanation: "Contains 60% of the Amazon basin" },
+    { id: "NO_FJORDS", questionText: "Which Scandinavian country is world-famous for its dramatic natural fjords and Northern Lights?", countryCode: "NO", countryName: "Norway", correctAnswer: "Norway", distractors: ["Sweden", "Finland", "Denmark"], explanation: "Features over 1,000 coastal sea fjords" },
+    { id: "IS_ICE", questionText: "Which island nation is nicknamed the 'Land of Fire and Ice' due to volcanoes and glaciers?", countryCode: "IS", countryName: "Iceland", correctAnswer: "Iceland", distractors: ["Greenland", "Norway", "Ireland"], explanation: "Home to over 130 active and extinct volcanoes" },
+    { id: "JO_PETRA", questionText: "Which Middle Eastern country is home to the ancient rock-cut city of Petra?", countryCode: "JO", countryName: "Jordan", correctAnswer: "Jordan", distractors: ["Lebanon", "Syria", "Oman"], explanation: "Carved into rose-red sandstone cliffs" },
+    { id: "JP_SUN", questionText: "Which East Asian nation is traditionally known around the world as the 'Land of the Rising Sun'?", countryCode: "JP", countryName: "Japan", correctAnswer: "Japan", distractors: ["China", "South Korea", "Vietnam"], explanation: "Nihon means origin of the sun" },
+    { id: "IT_PIZZA", questionText: "Which country is world-renowned as the birthplace of Pizza, Pasta, and Gelato?", countryCode: "IT", countryName: "Italy", correctAnswer: "Italy", distractors: ["Spain", "Greece", "France"], explanation: "Culinary capital of Europe" },
+    { id: "MX_TACO", questionText: "Which nation is famous for Tacos, Mariachi music, and ancient Mayan pyramids?", countryCode: "MX", countryName: "Mexico", correctAnswer: "Mexico", distractors: ["Guatemala", "Colombia", "Peru"], explanation: "Home to Chichen Itza and Teotihuacan" },
+    { id: "CA_MAPLE", questionText: "Which country produces over 70% of the world's pure Maple Syrup?", countryCode: "CA", countryName: "Canada", correctAnswer: "Canada", distractors: ["United States", "Finland", "Sweden"], explanation: "Quebec is the top producer" },
+    { id: "GR_OLYMPIC", questionText: "Which Mediterranean country is celebrated as the birthplace of the Olympic Games?", countryCode: "GR", countryName: "Greece", correctAnswer: "Greece", distractors: ["Italy", "Cyprus", "Turkey"], explanation: "First Olympic games held in 776 BC" },
+    { id: "NL_TULIP", questionText: "Which European country is famous for its colorful Tulip fields, Windmills, and Canals?", countryCode: "NL", countryName: "Netherlands", correctAnswer: "Netherlands", distractors: ["Belgium", "Denmark", "Germany"], explanation: "Famous for Keukenhof gardens" },
+    { id: "ES_FLAMENCO", questionText: "Which European nation is famous for Flamenco dancing, Tapas cuisine, and Bullfighting?", countryCode: "ES", countryName: "Spain", correctAnswer: "Spain", distractors: ["Portugal", "Italy", "Mexico"], explanation: "Home to Antoni Gaudí's architecture" },
+    { id: "KR_KPOP", questionText: "Which Asian country is globally famous for K-Pop, Kimchi, and Taekwondo?", countryCode: "KR", countryName: "South Korea", correctAnswer: "South Korea", distractors: ["Japan", "China", "Thailand"], explanation: "Seoul is a high-tech global capital" },
+    { id: "AU_REEF", questionText: "Which country contains the Great Barrier Reef, the largest coral reef system on Earth?", countryCode: "AU", countryName: "Australia", correctAnswer: "Australia", distractors: ["Indonesia", "Philippines", "Fiji"], explanation: "Composed of over 2,900 individual reefs" },
+    { id: "AU_KOALA", questionText: "Which nation is the natural habitat of wild Kangaroos, Koalas, and Platypuses?", countryCode: "AU", countryName: "Australia", correctAnswer: "Australia", distractors: ["New Zealand", "Papua New Guinea", "Madagascar"], explanation: "80% of mammals are native only here" },
+    { id: "TZ_KILI", questionText: "Which East African nation is home to Serengeti National Park and Mount Kilimanjaro?", countryCode: "TZ", countryName: "Tanzania", correctAnswer: "Tanzania", distractors: ["Kenya", "Uganda", "Ethiopia"], explanation: "Kilimanjaro is Africa's highest peak" }
   ];
 
   constructor(private cdr: ChangeDetectorRef) {}
@@ -166,10 +174,29 @@ export class QuizComponent implements OnInit, OnDestroy {
     this.submitQuizAnswer('__TIMEOUT__');
   }
 
-  private isCleanCountryName(name: string): boolean {
+  private isCleanCountryName(name: string, rData?: any): boolean {
     if (!name) return false;
+    if (rData && (rData.region?.value === 'Aggregates' || !rData.capitalCity || !rData.flag)) {
+      return false;
+    }
     const lower = name.toLowerCase();
-    if (lower.includes('(') || lower.includes('income') || lower.includes('total') || lower.includes('world') || lower.includes('eligible') || lower.includes('&')) {
+    if (
+      lower.includes('(') || 
+      lower.includes(')') || 
+      lower.includes(':') || 
+      lower.includes(';') || 
+      lower.includes(',') || 
+      lower.includes('income') || 
+      lower.includes('total') || 
+      lower.includes('world') || 
+      lower.includes('eligible') || 
+      lower.includes('&') ||
+      lower.includes('aggregate') ||
+      lower.includes('countries') ||
+      lower.includes('classification') ||
+      lower.includes('rep.') ||
+      lower.includes('dem. rep')
+    ) {
       return false;
     }
     return true;
@@ -192,19 +219,23 @@ export class QuizComponent implements OnInit, OnDestroy {
       const qItem = availableTrivia[Math.floor(Math.random() * availableTrivia.length)];
       this.visitedQuestionIds.add(qItem.id);
 
-      // QC Rule: Pick 3 clean, real country distractors + 1 correct answer, shuffle all 4 randomly
-      const distractors = new Set<string>();
-      let attempts = 0;
-      while (distractors.size < 3 && attempts < 100) {
-        attempts++;
-        const rKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
-        const rData = COUNTRIES_DATA[rKey];
-        if (rData && this.isCleanCountryName(rData.name) && rData.name.toLowerCase() !== qItem.correctAnswer.toLowerCase()) {
-          distractors.add(rData.name);
+      // Curated distractors prioritized so options are 100% geographically & thematically relevant
+      let distList = qItem.distractors || [];
+      if (distList.length < 3) {
+        const distractors = new Set<string>(distList);
+        let attempts = 0;
+        while (distractors.size < 3 && attempts < 150) {
+          attempts++;
+          const rKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
+          const rData = COUNTRIES_DATA[rKey];
+          if (rData && this.isCleanCountryName(rData.name, rData) && rData.name.toLowerCase() !== qItem.correctAnswer.toLowerCase()) {
+            distractors.add(rData.name);
+          }
         }
+        distList = Array.from(distractors);
       }
 
-      const options = [qItem.correctAnswer, ...Array.from(distractors)].sort(() => Math.random() - 0.5);
+      const options = [qItem.correctAnswer, ...distList.slice(0, 3)].sort(() => Math.random() - 0.5);
 
       this.currentQuestion = {
         id: qItem.id,
@@ -222,7 +253,7 @@ export class QuizComponent implements OnInit, OnDestroy {
       // Find unvisited capital target
       let targetKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
       let attempts = 0;
-      while ((!this.isCleanCountryName(COUNTRIES_DATA[targetKey]?.name) || this.visitedQuestionIds.has(`CAP_${targetKey}`)) && attempts < 30) {
+      while ((!this.isCleanCountryName(COUNTRIES_DATA[targetKey]?.name, COUNTRIES_DATA[targetKey]) || this.visitedQuestionIds.has(`CAP_${targetKey}`)) && attempts < 50) {
         targetKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
         attempts++;
       }
@@ -232,12 +263,21 @@ export class QuizComponent implements OnInit, OnDestroy {
       // QC Rule: Pick 3 clean, real capital distractors + 1 correct answer, shuffle all 4 randomly
       const distractors = new Set<string>();
       let capAttempts = 0;
-      while (distractors.size < 3 && capAttempts < 100) {
+      while (distractors.size < 3 && capAttempts < 150) {
         capAttempts++;
         const rKey = countryKeys[Math.floor(Math.random() * countryKeys.length)];
         const rData = COUNTRIES_DATA[rKey];
-        if (rData && this.isCleanCountryName(rData.name) && rData.capitalCity && rData.capitalCity.trim() && rData.capitalCity.toLowerCase() !== target.capitalCity.toLowerCase()) {
-          distractors.add(rData.capitalCity);
+        if (
+          rData && 
+          this.isCleanCountryName(rData.name, rData) && 
+          rData.capitalCity && 
+          rData.capitalCity.trim() && 
+          !rData.capitalCity.includes(';') &&
+          !rData.capitalCity.includes(':') &&
+          rData.capitalCity.length >= 3 &&
+          rData.capitalCity.toLowerCase() !== target.capitalCity.toLowerCase()
+        ) {
+          distractors.add(rData.capitalCity.trim());
         }
       }
 
