@@ -46,12 +46,13 @@ export interface SearchResultItem {
   code?: string;
 }
 
+import { RouterLink } from '@angular/router';
 import { DecryptedTextComponent, CountUpComponent, SpotlightDirective, TiltedCardDirective } from '../shared/react-bits';
 
 @Component({
   selector: 'app-geolibre',
   standalone: true,
-  imports: [CommonModule, FormsModule, DecryptedTextComponent, CountUpComponent, SpotlightDirective, TiltedCardDirective],
+  imports: [CommonModule, FormsModule, RouterLink, DecryptedTextComponent, CountUpComponent, SpotlightDirective, TiltedCardDirective],
   templateUrl: './geolibre.html',
   styleUrl: './geolibre.css',
   changeDetection: ChangeDetectionStrategy.OnPush

@@ -336,12 +336,13 @@ function generateGlobalFishingFleet(): { vessels: GfwVessel[]; events: GfwFishin
 
 const GENERATED_FLEET = generateGlobalFishingFleet();
 
+import { RouterLink } from '@angular/router';
 import { DecryptedTextComponent, CountUpComponent, SpotlightDirective } from '../shared/react-bits';
 
 @Component({
   selector: 'app-fishing',
   standalone: true,
-  imports: [CommonModule, FormsModule, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
+  imports: [CommonModule, FormsModule, RouterLink, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
   templateUrl: './fishing.html',
   styleUrl: './fishing.css',
   changeDetection: ChangeDetectionStrategy.OnPush

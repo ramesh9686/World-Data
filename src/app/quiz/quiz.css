@@ -1,8 +1,22 @@
+:root {
+  --stone-amethyst-glow: 0 0 24px rgba(168, 85, 247, 0.45);
+  --stone-amethyst-border: 1px solid rgba(168, 85, 247, 0.35);
+  --stone-amethyst-gradient: linear-gradient(135deg, #a855f7, #7c3aed);
+  --amethyst-primary: #a855f7;
+  --amethyst-accent: #c084fc;
+  --amethyst-bright: #e9d5ff;
+  --amethyst-dark: #6b21a8;
+  --amethyst-obsidian: rgba(22, 10, 32, 0.94);
+}
+
 .quiz-container {
-  max-width: 1300px;
+  max-width: 1400px;
   margin: 0 auto;
   padding: 1.5rem 2rem 3rem;
   position: relative;
+  background: 
+    radial-gradient(circle at 12% 8%, rgba(168, 85, 247, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 88% 92%, rgba(124, 58, 237, 0.06) 0%, transparent 50%);
 }
 
 .quiz-header {
@@ -10,23 +24,132 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  padding-bottom: 1rem;
+  background: linear-gradient(135deg, rgba(22, 10, 32, 0.95), rgba(35, 14, 52, 0.9));
+  border: 1px solid rgba(168, 85, 247, 0.38);
+  border-radius: 24px;
+  padding: 1.35rem 2rem;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    0 16px 45px rgba(0, 0, 0, 0.75),
+    0 0 24px rgba(168, 85, 247, 0.16);
+  backdrop-filter: blur(24px) saturate(190%);
+  position: relative;
+  overflow: hidden;
+  flex-wrap: wrap;
+  gap: 1.25rem;
 }
 
-.header-left h1 {
-  font-size: 2.2rem;
+.quiz-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #e9d5ff, #c084fc, #a855f7, #7c3aed, transparent);
+  opacity: 0.85;
+}
+
+.header-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+/* Amethyst Purple Stone Emblem Logo (Exact Homepage Concave Diamond Gemstone) */
+.stone-logo-anchor {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.stone-aura-pulse {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(168, 85, 247, 0.55) 0%, rgba(124, 58, 237, 0.22) 50%, transparent 75%);
+  animation: stoneAuraPulse 3.2s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes stoneAuraPulse {
+  0% { transform: scale(0.9); opacity: 0.55; filter: blur(5px); }
+  100% { transform: scale(1.22); opacity: 0.95; filter: blur(9px); }
+}
+
+.home-exact-stone-disc {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(22, 10, 32, 0.88);
+  border: 1px solid rgba(168, 85, 247, 0.45);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.75),
+    0 0 20px rgba(168, 85, 247, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(12px);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stone-logo-anchor:hover .home-exact-stone-disc {
+  transform: scale(1.12);
+  border-color: rgba(216, 180, 254, 0.85);
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.85),
+    0 0 30px rgba(168, 85, 247, 0.75),
+    inset 0 1px 1px rgba(255, 255, 255, 0.45);
+}
+
+.home-exact-stone-svg {
+  width: 22px;
+  height: 42px;
+  filter: drop-shadow(0 0 8px #a855f7) drop-shadow(0 0 14px rgba(168, 85, 247, 0.7));
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), filter 0.28s ease;
+}
+
+.stone-logo-anchor:hover .home-exact-stone-svg {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 12px #c084fc) drop-shadow(0 0 22px rgba(168, 85, 247, 0.95));
+}
+
+.hero-titles-col {
+  display: flex;
+  flex-direction: column;
+}
+
+.hero-title {
+  font-size: 1.85rem;
   font-weight: 900;
-  background: linear-gradient(135deg, #fbbf24, #f59e0b, #38bdf8);
+  margin: 0;
+  background: linear-gradient(135deg, #ffffff 0%, #f3e8ff 25%, #d8b4fe 50%, #a855f7 80%, #7c3aed 100%);
   -webkit-background-clip: text;
-  background-clip: text;
   -webkit-text-fill-color: transparent;
-  margin-bottom: 0.3rem;
+  letter-spacing: -0.02em;
+  filter: drop-shadow(0 2px 10px rgba(168, 85, 247, 0.35));
 }
 
-.subtitle {
+.hero-subtitle {
+  font-size: 0.88rem;
   color: #94a3b8;
-  font-size: 0.9rem;
+  margin: 0.3rem 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.header-sep {
+  color: rgba(168, 85, 247, 0.5);
 }
 
 .header-right {
@@ -35,11 +158,11 @@
 }
 
 .audio-btn, .restart-btn {
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(22, 10, 32, 0.75);
+  border: 1px solid rgba(168, 85, 247, 0.35);
   color: #e2e8f0;
   padding: 0.5rem 1rem;
-  border-radius: 10px;
+  border-radius: 9999px;
   font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
@@ -47,23 +170,24 @@
 }
 
 .audio-btn:hover, .restart-btn:hover {
-  background: rgba(56, 189, 248, 0.2);
-  color: #38bdf8;
-  border-color: #38bdf8;
+  background: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  border-color: #c084fc;
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.4);
 }
 
 .map-column {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(22, 10, 32, 0.7);
+  border: 1px solid rgba(168, 85, 247, 0.25);
   border-radius: 24px;
   padding: 1.5rem;
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6), 0 0 24px rgba(168, 85, 247, 0.08);
   backdrop-filter: blur(20px);
 }
 
 .quiz-hud-bar {
-  background: rgba(30, 41, 59, 0.85);
-  border: 1px solid rgba(251, 191, 36, 0.3);
+  background: rgba(28, 14, 42, 0.9);
+  border: 1px solid rgba(168, 85, 247, 0.35);
   border-radius: 18px;
   padding: 1.25rem 1.5rem;
   margin-bottom: 1.25rem;
@@ -142,11 +266,11 @@
 .score-pill {
   font-size: 0.82rem;
   font-weight: 700;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.1);
+  color: #c084fc;
+  background: rgba(168, 85, 247, 0.12);
   padding: 0.25rem 0.65rem;
   border-radius: 8px;
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  border: 1px solid rgba(168, 85, 247, 0.3);
 }
 
 .streak-pill {
@@ -215,10 +339,11 @@
 }
 
 .opt-btn:hover:not(:disabled) {
-  background: rgba(99, 102, 241, 0.25);
-  border-color: #6366f1;
+  background: rgba(168, 85, 247, 0.25);
+  border-color: #a855f7;
   color: #ffffff;
   transform: translateY(-2px);
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.35);
 }
 
 .opt-btn.correct {

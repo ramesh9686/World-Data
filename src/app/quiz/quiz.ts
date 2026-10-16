@@ -14,12 +14,13 @@ export interface QuizQuestion {
   explanation?: string;
 }
 
+import { RouterLink } from '@angular/router';
 import { DecryptedTextComponent, CountUpComponent, SpotlightDirective } from '../shared/react-bits';
 
 @Component({
   selector: 'app-quiz',
   standalone: true,
-  imports: [CommonModule, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
+  imports: [CommonModule, RouterLink, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
   templateUrl: './quiz.html',
   styleUrl: './quiz.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

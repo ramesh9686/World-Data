@@ -1,93 +1,214 @@
+:root {
+  --stone-solar-glow: 0 0 24px rgba(255, 87, 34, 0.45);
+  --stone-solar-border: 1px solid rgba(255, 87, 34, 0.35);
+  --stone-solar-gradient: linear-gradient(135deg, #ff5722, #e64a19);
+  --solar-primary: #ff5722;
+  --solar-accent: #ff8a65;
+  --solar-bright: #ffccbc;
+  --solar-dark: #bf360c;
+  --solar-obsidian: rgba(28, 12, 6, 0.94);
+}
+
+.spatial-sql-container,
 .spatial-sql-page {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
-  padding: 1.5rem;
+  padding: 1.5rem 2rem 3rem;
   max-width: 1650px;
   margin: 0 auto;
   color: #e2e8f0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  position: relative;
+  background: 
+    radial-gradient(circle at 10% 6%, rgba(255, 87, 34, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 90% 94%, rgba(230, 74, 25, 0.06) 0%, transparent 50%);
 }
 
-/* Header Banner */
+.spatial-header,
 .sql-header-banner {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, rgba(28, 12, 6, 0.95), rgba(46, 18, 8, 0.9));
+  border: 1px solid rgba(255, 87, 34, 0.38);
+  border-radius: 24px;
+  padding: 1.35rem 2rem;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    0 16px 45px rgba(0, 0, 0, 0.75),
+    0 0 24px rgba(255, 87, 34, 0.16);
+  backdrop-filter: blur(24px) saturate(190%);
+  position: relative;
+  overflow: hidden;
   flex-wrap: wrap;
-  gap: 1rem;
-  background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(30, 41, 59, 0.85));
-  border: 1px solid rgba(245, 158, 11, 0.35);
-  border-radius: 16px;
-  padding: 1.25rem 1.75rem;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(12px);
+  gap: 1.25rem;
 }
 
-.header-brand {
+.spatial-header::before,
+.sql-header-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ffccbc, #ff8a65, #ff5722, #bf360c, transparent);
+  opacity: 0.85;
+}
+
+.header-brand-group {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
-.header-icon {
-  font-size: 2.5rem;
-  filter: drop-shadow(0 0 12px rgba(245, 158, 11, 0.6));
-}
-
-.header-title {
-  margin: 0;
-  font-size: 1.6rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #ffffff, #f59e0b);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.header-subtitle {
-  margin: 0.25rem 0 0 0;
-  color: #94a3b8;
-  font-size: 0.88rem;
-}
-
-.header-telemetry-badge {
+/* Solar Flare Orange Stone Emblem Logo (Exact Homepage Concave Diamond Gemstone) */
+.stone-logo-anchor {
+  position: relative;
+  width: 58px;
+  height: 68px;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.duckdb-badge {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: #000000;
+.stone-logo-anchor:hover {
+  transform: translateY(-2px) scale(1.08);
+}
+
+.stone-aura-pulse {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 87, 34, 0.45) 0%, rgba(255, 87, 34, 0.1) 50%, transparent 70%);
+  filter: blur(8px);
+  animation: pulseSolarAura 3s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes pulseSolarAura {
+  0% { transform: scale(0.9); opacity: 0.55; }
+  100% { transform: scale(1.22); opacity: 0.95; }
+}
+
+.home-exact-stone-disc {
+  width: 52px;
+  height: 62px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(40, 16, 8, 0.9), rgba(18, 7, 3, 0.95));
+  border: 1px solid rgba(255, 87, 34, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    0 6px 18px rgba(0, 0, 0, 0.8),
+    0 0 18px rgba(255, 87, 34, 0.35);
+  position: relative;
+  z-index: 1;
+}
+
+.home-exact-stone-svg {
+  width: 32px;
+  height: 50px;
+  filter: drop-shadow(0 0 8px rgba(255, 87, 34, 0.8));
+  transition: filter 0.3s ease;
+}
+
+.stone-logo-anchor:hover .home-exact-stone-svg {
+  filter: drop-shadow(0 0 14px rgba(255, 138, 101, 1));
+}
+
+.hero-titles-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.hero-title {
+  font-size: 1.7rem;
   font-weight: 900;
-  font-size: 0.82rem;
+  letter-spacing: -0.02em;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #ffffff 15%, #ffccbc 50%, #ff8a65 80%, #ff5722 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 10px rgba(255, 87, 34, 0.3));
+}
+
+.hero-subtitle {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 500;
+}
+
+.dot-divider {
+  color: #ff5722;
+  font-weight: 800;
+  opacity: 0.7;
+}
+
+.header-right {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.header-pill.orange {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #ff8a65;
+  background: rgba(255, 87, 34, 0.12);
   padding: 0.35rem 0.85rem;
-  border-radius: 8px;
-  letter-spacing: 0.05em;
-  box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 87, 34, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
-.query-time-chip {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #34d399;
-  font-size: 0.82rem;
-  font-family: monospace;
-  padding: 0.35rem 0.75rem;
-  border-radius: 8px;
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ff5722;
+  box-shadow: 0 0 8px #ff5722;
+  animation: pulseDot 2s infinite ease-in-out;
 }
 
-/* Workbench Navigation Mode Bar */
+@keyframes pulseDot {
+  0%, 100% { opacity: 0.5; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+
+.workbench-tabs-bar,
 .workbench-mode-tabs {
   display: flex;
   gap: 0.5rem;
   flex-wrap: wrap;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  padding: 0.4rem;
-  border-radius: 14px;
+  background: rgba(28, 12, 6, 0.75);
+  border: 1px solid rgba(255, 87, 34, 0.25);
+  padding: 0.45rem;
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
 }
 
+.tab-btn,
 .mode-tab-btn {
   background: transparent;
   border: 1px solid transparent;
@@ -97,19 +218,22 @@
   font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 
+.tab-btn:hover,
 .mode-tab-btn:hover {
-  background: rgba(245, 158, 11, 0.15);
+  background: rgba(255, 87, 34, 0.15);
   color: #ffffff;
+  border-color: rgba(255, 87, 34, 0.3);
 }
 
+.tab-btn.active,
 .mode-tab-btn.active {
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: #000000;
-  border-color: #f59e0b;
-  box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
+  background: linear-gradient(135deg, #ff5722, #e64a19);
+  color: #ffffff;
+  border-color: #ff8a65;
+  box-shadow: 0 0 16px rgba(255, 87, 34, 0.45);
 }
 
 /* Workbench Card Base */

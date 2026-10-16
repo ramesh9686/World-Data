@@ -13,10 +13,24 @@
   color: #e2e8f0;
 }
 
+:root {
+  --stone-lime-glow: 0 0 24px rgba(132, 204, 22, 0.45);
+  --stone-lime-border: 1px solid rgba(132, 204, 22, 0.35);
+  --stone-lime-gradient: linear-gradient(135deg, #84cc16, #65a30d);
+  --lime-primary: #84cc16;
+  --lime-accent: #a3e635;
+  --lime-bright: #ecfccb;
+  --lime-dark: #3f6212;
+  --lime-obsidian: rgba(12, 24, 8, 0.94);
+}
+
 .fishing-page {
-  background: linear-gradient(180deg, #0a0e1a 0%, #0f172a 50%, #0c1425 100%);
+  background: 
+    radial-gradient(circle at 10% 6%, rgba(132, 204, 22, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 90% 94%, rgba(101, 163, 13, 0.06) 0%, transparent 50%),
+    linear-gradient(180deg, #07100a 0%, #0c1610 50%, #070d09 100%);
   min-height: 100vh;
-  padding-bottom: 3rem;
+  padding: 0 0 3rem;
 }
 
 /* ---------- Ticker Bar ---------- */
@@ -24,8 +38,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(90deg, rgba(6, 78, 59, 0.5), rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.4));
-  border-bottom: 1px solid rgba(16, 185, 129, 0.3);
+  background: linear-gradient(90deg, rgba(12, 24, 8, 0.9), rgba(15, 23, 42, 0.95), rgba(20, 40, 14, 0.9));
+  border-bottom: 1px solid rgba(132, 204, 22, 0.3);
   padding: 0.5rem 1.5rem;
   gap: 1rem;
   flex-wrap: wrap;
@@ -41,21 +55,21 @@
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 8px #10b981;
+  background: #84cc16;
+  box-shadow: 0 0 8px #84cc16;
   animation: pulse-glow 1.5s ease-in-out infinite;
 }
 
 @keyframes pulse-glow {
-  0%, 100% { opacity: 1; box-shadow: 0 0 6px #10b981; }
-  50% { opacity: 0.5; box-shadow: 0 0 18px #10b981; }
+  0%, 100% { opacity: 1; box-shadow: 0 0 6px #84cc16; }
+  50% { opacity: 0.5; box-shadow: 0 0 18px #84cc16; }
 }
 
 .ticker-title {
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 1.5px;
-  color: #34d399;
+  color: #a3e635;
   text-transform: uppercase;
 }
 
@@ -84,70 +98,162 @@
 }
 
 .stat-val.cyan { color: #22d3ee; }
-.stat-val.green { color: #34d399; }
+.stat-val.green { color: #a3e635; }
 
 /* ---------- Hero Header ---------- */
 .gfw-header {
-  padding: 2rem 2rem 1.5rem;
-  background: linear-gradient(135deg, rgba(6, 78, 59, 0.2), rgba(15, 23, 42, 0.8));
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.hero-badge-row {
   display: flex;
-  gap: 0.8rem;
-  margin-bottom: 0.8rem;
-  flex-wrap: wrap;
-}
-
-.live-badge {
-  display: inline-flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 0.4rem;
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  color: #34d399;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 1px;
+  margin: 1rem 1.5rem 1.5rem;
+  background: linear-gradient(135deg, rgba(12, 24, 8, 0.95), rgba(20, 40, 14, 0.9));
+  border: 1px solid rgba(132, 204, 22, 0.38);
+  border-radius: 24px;
+  padding: 1.35rem 2rem;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    0 16px 45px rgba(0, 0, 0, 0.75),
+    0 0 24px rgba(132, 204, 22, 0.16);
+  backdrop-filter: blur(24px) saturate(190%);
+  position: relative;
+  overflow: hidden;
+  flex-wrap: wrap;
+  gap: 1.25rem;
 }
 
-.pulse-dot {
-  width: 7px;
-  height: 7px;
+.gfw-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #ecfccb, #a3e635, #84cc16, #3f6212, transparent);
+  opacity: 0.85;
+}
+
+.header-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+/* Lime Green Stone Emblem Logo (Exact Homepage Concave Diamond Gemstone) */
+.stone-logo-anchor {
+  position: relative;
+  width: 58px;
+  height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.stone-logo-anchor:hover {
+  transform: translateY(-2px) scale(1.08);
+}
+
+.stone-aura-pulse {
+  position: absolute;
+  inset: -6px;
   border-radius: 50%;
-  background: #10b981;
-  animation: pulse-glow 1.5s ease-in-out infinite;
+  background: radial-gradient(circle, rgba(132, 204, 22, 0.45) 0%, rgba(132, 204, 22, 0.1) 50%, transparent 70%);
+  filter: blur(8px);
+  animation: pulseLimeAura 3s ease-in-out infinite alternate;
+  pointer-events: none;
 }
 
-.api-badge {
-  background: rgba(34, 211, 238, 0.1);
-  border: 1px solid rgba(34, 211, 238, 0.3);
-  color: #22d3ee;
-  padding: 0.3rem 0.8rem;
-  border-radius: 20px;
-  font-size: 0.7rem;
-  font-weight: 600;
+@keyframes pulseLimeAura {
+  0% { transform: scale(0.9); opacity: 0.55; }
+  100% { transform: scale(1.22); opacity: 0.95; }
+}
+
+.home-exact-stone-disc {
+  width: 52px;
+  height: 62px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(18, 36, 12, 0.9), rgba(8, 16, 5, 0.95));
+  border: 1px solid rgba(132, 204, 22, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.4),
+    0 6px 18px rgba(0, 0, 0, 0.8),
+    0 0 18px rgba(132, 204, 22, 0.35);
+  position: relative;
+  z-index: 1;
+}
+
+.home-exact-stone-svg {
+  width: 32px;
+  height: 50px;
+  filter: drop-shadow(0 0 8px rgba(132, 204, 22, 0.8));
+  transition: filter 0.3s ease;
+}
+
+.stone-logo-anchor:hover .home-exact-stone-svg {
+  filter: drop-shadow(0 0 14px rgba(163, 230, 53, 1));
+}
+
+.hero-titles-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
 }
 
 .hero-title {
-  font-size: 1.65rem;
-  font-weight: 800;
-  margin: 0 0 0.5rem;
-  background: linear-gradient(135deg, #e2e8f0, #22d3ee, #34d399);
+  font-size: 1.7rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #ffffff 15%, #ecfccb 50%, #a3e635 80%, #84cc16 100%);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 2px 10px rgba(132, 204, 22, 0.3));
 }
 
 .hero-subtitle {
-  font-size: 0.88rem;
-  color: #94a3b8;
   margin: 0;
-  max-width: 700px;
-  line-height: 1.5;
+  font-size: 0.84rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-weight: 500;
+}
+
+.dot-divider {
+  color: #84cc16;
+  font-weight: 800;
+  opacity: 0.7;
+}
+
+.header-right {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.header-pill.lime {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #a3e635;
+  background: rgba(132, 204, 22, 0.12);
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(132, 204, 22, 0.35);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 /* ---------- Search Panel & Gear Filter Bar ---------- */

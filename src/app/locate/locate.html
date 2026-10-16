@@ -1,9 +1,69 @@
 <div class="locate-container">
-  <div class="locate-header spotlight-card">
-    <div class="header-left blur-in-text">
-      <h1 class="shiny-text">📍 Country Locator & Radar Challenge</h1>
-      <p class="subtitle">Find the secret country with real-time geodesic distance feedback & directional hints!</p>
+  <!-- Page Header Hero Section (Rose Pink Ruby Celestial Stone Luxury Template) -->
+  <header class="locate-header spotlight-card" reactBitsSpotlight>
+    <div class="header-brand-group">
+      <!-- EXACT HOMEPAGE CELESTIAL STONE LOGO (Rose Pink Ruby Concave Diamond) -->
+      <div class="stone-logo-anchor" routerLink="/" title="Return to Celestial Hub">
+        <div class="stone-aura-pulse"></div>
+        <div class="home-exact-stone-disc">
+          <svg class="home-exact-stone-svg" viewBox="0 0 100 196" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="exactRoseStoneFill" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fbcfe8" />
+                <stop offset="25%" stop-color="#f472b6" />
+                <stop offset="65%" stop-color="#ec4899" />
+                <stop offset="100%" stop-color="#9d174d" />
+              </linearGradient>
+              <linearGradient id="roseFacetReflection" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="rgba(255, 255, 255, 0.85)" />
+                <stop offset="50%" stop-color="rgba(255, 255, 255, 0.35)" />
+                <stop offset="100%" stop-color="rgba(255, 255, 255, 0)" />
+              </linearGradient>
+            </defs>
+
+            <!-- Outer Gemstone Boundary Path (Exact Concave Diamond Bezier from Home) -->
+            <path 
+              d="M 50 0 C 50 78, 100 98, 100 98 C 100 98, 50 118, 50 196 C 50 118, 0 98, 0 98 C 0 98, 50 78, 50 0 Z" 
+              fill="url(#exactRoseStoneFill)" 
+              stroke="#f472b6" 
+              stroke-width="3" 
+            />
+
+            <!-- Top Crown & Pavilion Facet Ridge Lines -->
+            <path 
+              d="M 50 0 L 50 196 M 0 98 L 100 98 M 50 49 L 100 98 L 50 147 L 0 98 Z" 
+              stroke="rgba(255, 255, 255, 0.45)" 
+              stroke-width="1.2" 
+            />
+
+            <!-- Inner Light Refraction Core -->
+            <path 
+              d="M 50 29.4 C 50 84, 85 98, 85 98 C 85 98, 50 112, 50 166.6 C 50 112, 15 98, 15 98 C 15 98, 50 84, 50 29.4 Z" 
+              fill="url(#roseFacetReflection)" 
+            />
+
+            <!-- Specular Glint Center Ridge -->
+            <line x1="50" y1="20" x2="50" y2="176" stroke="rgba(255, 255, 255, 0.65)" stroke-width="1" stroke-linecap="round" />
+            <line x1="15" y1="98" x2="85" y2="98" stroke="rgba(255, 255, 255, 0.55)" stroke-width="1" stroke-linecap="round" />
+
+            <!-- Center Brilliant Specular Jewel Glint -->
+            <circle cx="50" cy="98" r="3" fill="#ffffff" filter="drop-shadow(0 0 5px #ffffff)" />
+          </svg>
+        </div>
+      </div>
+
+      <div class="hero-titles-col">
+        <h1 class="hero-title shiny-text">
+          <react-bits-decrypted-text [text]="'Country Locator & Radar Challenge'" [speed]="25"></react-bits-decrypted-text>
+        </h1>
+        <p class="hero-subtitle">
+          <span>Geodesic Distance Radar</span>
+          <span class="dot-divider">•</span>
+          <span>Kinetic Hot-Cold Hints</span>
+        </p>
+      </div>
     </div>
+
     <div class="header-right">
       <button (click)="toggleAudio()" class="audio-btn magnet-interactive">
         {{ audioMuted ? '🔇 Muted' : '🔊 SFX' }}
@@ -12,7 +72,7 @@
         🔄 New Target
       </button>
     </div>
-  </div>
+  </header>
 
   <div class="locate-layout">
     <!-- Map & Proximity Radar Column -->

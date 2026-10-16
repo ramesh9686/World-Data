@@ -50,12 +50,13 @@ export interface FeaturedIndicatorPill {
   topicId: number;
 }
 
+import { RouterLink } from '@angular/router';
 import { DecryptedTextComponent, SpotlightDirective } from '../shared/react-bits';
 
 @Component({
   selector: 'app-spatial-sql',
   standalone: true,
-  imports: [CommonModule, FormsModule, DecryptedTextComponent, SpotlightDirective],
+  imports: [CommonModule, FormsModule, RouterLink, DecryptedTextComponent, SpotlightDirective],
   templateUrl: './spatial-sql.html',
   styleUrl: './spatial-sql.css',
   changeDetection: ChangeDetectionStrategy.OnPush

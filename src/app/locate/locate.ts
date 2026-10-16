@@ -14,12 +14,13 @@ export interface GuessRecord {
   tempColor: string;
 }
 
+import { RouterLink } from '@angular/router';
 import { DecryptedTextComponent, SpotlightDirective } from '../shared/react-bits';
 
 @Component({
   selector: 'app-locate',
   standalone: true,
-  imports: [CommonModule, DecryptedTextComponent, SpotlightDirective],
+  imports: [CommonModule, RouterLink, DecryptedTextComponent, SpotlightDirective],
   templateUrl: './locate.html',
   styleUrl: './locate.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
