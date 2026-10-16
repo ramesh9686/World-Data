@@ -39,10 +39,11 @@ export interface LegendRegionItem {
   areaKm2?: number;
 }
 
-const CLIOPATRIA_ZIP_URL = 'https://raw.githubusercontent.com/Seshat-Global-History-Databank/cliopatria/main/cliopatria.geojson.zip';
+const LOCAL_CLIOPATRIA_ZIP_URL = 'assets/cliopatria.geojson.zip';
+const REMOTE_CLIOPATRIA_ZIP_URL = 'https://raw.githubusercontent.com/Seshat-Global-History-Databank/cliopatria/main/cliopatria.geojson.zip';
 const DB_NAME = 'WorldExplorerCliopatriaDB';
 const STORE_NAME = 'geojsonStore';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 @Injectable({
   providedIn: 'root'
@@ -50,22 +51,54 @@ const DB_VERSION = 1;
 export class CliopatriaEngineService {
   isLoading: boolean = false;
   isLoaded: boolean = false;
-  statusMessage: string = 'Initializing Cliopatria Engine...';
+  statusMessage: string = 'Initializing Historical Cartography Engine...';
   progressPercent: number = 0;
   totalFeaturesCount: number = 0;
 
   private allFeatures: CliopatriaFeature[] = [];
+  private loadPromise: Promise<void> | null = null;
 
   constructor() {}
 
   /**
-   * Deterministic polity color mapping matching OldMap (HistoricalOverlay.tsx)
+   * Deterministic polity color mapping ensuring clear visual differentiation across historical polities
    */
   getColorForName(name: string): string {
+    const lower = (name || '').toLowerCase();
+
+    // Curated high-contrast palette for major world historical powers
+    if (lower.includes('rome') || lower.includes('roman')) return '#dc2626'; // Imperial Roman Red
+    if (lower.includes('han') || lower.includes('tang') || lower.includes('song') || lower.includes('china')) return '#eab308'; // Imperial Gold/Yellow
+    if (lower.includes('ming')) return '#f59e0b'; // Ming Amber Gold
+    if (lower.includes('qing')) return '#06b6d4'; // Qing Cyan
+    if (lower.includes('parth') || lower.includes('persi') || lower.includes('achaemenid') || lower.includes('sasan')) return '#3b82f6'; // Persian Azure Blue
+    if (lower.includes('maurya') || lower.includes('gupta')) return '#f97316'; // Indian Saffron Orange
+    if (lower.includes('kushan')) return '#14b8a6'; // Kushan Turquoise
+    if (lower.includes('macedon') || lower.includes('alexander') || lower.includes('greek') || lower.includes('athen')) return '#0ea5e9'; // Hellenic Sky Blue
+    if (lower.includes('egypt')) return '#d97706'; // Egyptian Desert Ochre
+    if (lower.includes('byzant') || lower.includes('eastern roman')) return '#a855f7'; // Byzantine Regal Violet
+    if (lower.includes('mongol') || lower.includes('yuan')) return '#8b5cf6'; // Mongol Steppe Purple
+    if (lower.includes('caliph') || lower.includes('umayyad') || lower.includes('abbasid') || lower.includes('islam')) return '#10b981'; // Caliphate Emerald Green
+    if (lower.includes('ottoman')) return '#0d9488'; // Ottoman Teal Green
+    if (lower.includes('mughal')) return '#059669'; // Mughal Forest Green
+    if (lower.includes('maratha') || lower.includes('chola') || lower.includes('vijayanag')) return '#ff6600'; // Maratha Saffron
+    if (lower.includes('maya')) return '#06b6d4'; // Maya Cyan
+    if (lower.includes('inca')) return '#14b8a6'; // Inca Andean Teal
+    if (lower.includes('aztec')) return '#ea580c'; // Aztec Vermilion
+    if (lower.includes('brit') || lower.includes('england')) return '#6366f1'; // British Indigo
+    if (lower.includes('french') || lower.includes('france')) return '#2563eb'; // French Royal Blue
+    if (lower.includes('spain') || lower.includes('spanish')) return '#e11d48'; // Spanish Carmine
+    if (lower.includes('russia') || lower.includes('moscow')) return '#0284c7'; // Russian Azure
+    if (lower.includes('japan') || lower.includes('tokugawa')) return '#ec4899'; // Japanese Pink
+    if (lower.includes('khmer')) return '#f59e0b'; // Khmer Golden Amber
+    if (lower.includes('majapahit')) return '#10b981'; // Majapahit Spice Emerald
+
+    // Diverse, vibrant 20-color qualitative palette across the full color spectrum
     const colors = [
-      '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-      '#EC4899', '#06B6D4', '#84CC16', '#F97316', '#6366F1',
-      '#14B8A6', '#A855F7', '#22C55E', '#E11D48', '#0EA5E9'
+      '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899',
+      '#06B6D4', '#F97316', '#6366F1', '#14B8A6', '#A855F7',
+      '#84CC16', '#0EA5E9', '#D97706', '#059669', '#E11D48',
+      '#64748B', '#22C55E', '#A855F7', '#EAB308', '#0284C7'
     ];
     let hash = 0;
     for (let i = 0; i < name.length; i++) {
@@ -76,67 +109,97 @@ export class CliopatriaEngineService {
   }
 
   /**
-   * Load Cliopatria dataset from IndexedDB cache or download from GitHub CDN
+   * Load authentic Cliopatria historical boundaries archive.
+   * Priority:
+   * 1. In-memory features if already loaded (instant)
+   * 2. IndexedDB cached ArrayBuffer (instant offline)
+   * 3. Local bundled asset 'assets/cliopatria.geojson.zip' (instant local delivery)
+   * 4. Remote Seshat CDN fallback
    */
   async loadCliopatriaDataset(): Promise<void> {
-    if (this.isLoaded || this.isLoading) return;
+    if (this.isLoaded && this.allFeatures.length > 0) {
+      return;
+    }
+    if (this.loadPromise) {
+      return this.loadPromise;
+    }
 
+    this.loadPromise = this.executeLoad();
+    return this.loadPromise;
+  }
+
+  private async executeLoad(): Promise<void> {
     this.isLoading = true;
     this.progressPercent = 10;
-    this.statusMessage = 'Checking IndexedDB local cache for Cliopatria dataset...';
+    this.statusMessage = 'Accessing local historical boundaries archive...';
 
     try {
-      const cachedText = await this.getFromIndexedDB();
-      if (cachedText) {
-        this.statusMessage = 'Loading Cliopatria 14,000+ polities from local cache...';
-        this.progressPercent = 80;
-        this.parseAndStoreGeoJson(cachedText);
-        this.isLoaded = true;
-        this.isLoading = false;
-        this.progressPercent = 100;
-        this.statusMessage = `Cliopatria Dataset Ready! (${this.totalFeaturesCount.toLocaleString()} Historical Polities Loaded)`;
-        return;
+      // Step 1: Check IndexedDB local cache first
+      let zipBuffer = await this.getZipBufferFromIndexedDB();
+
+      if (!zipBuffer) {
+        // Step 2: Fetch local bundled archive from assets
+        this.progressPercent = 30;
+        this.statusMessage = 'Reading local cartography bundle (zero internet download)...';
+
+        try {
+          const localResponse = await fetch(LOCAL_CLIOPATRIA_ZIP_URL);
+          if (localResponse.ok) {
+            zipBuffer = await localResponse.arrayBuffer();
+          }
+        } catch (e) {
+          console.warn('Local asset fetch fallback:', e);
+        }
+
+        // Step 3: Remote CDN fallback if local asset was not reachable
+        if (!zipBuffer) {
+          this.statusMessage = 'Fetching official Seshat Cliopatria archive...';
+          const remoteResponse = await fetch(REMOTE_CLIOPATRIA_ZIP_URL);
+          if (!remoteResponse.ok) {
+            throw new Error(`HTTP ${remoteResponse.status}: ${remoteResponse.statusText}`);
+          }
+          zipBuffer = await remoteResponse.arrayBuffer();
+        }
+
+        // Cache the ArrayBuffer in IndexedDB permanently so subsequent loads are offline & instant
+        if (zipBuffer) {
+          this.saveZipBufferToIndexedDB(zipBuffer).catch(() => {});
+        }
       }
 
-      this.statusMessage = 'Downloading official Seshat Cliopatria ZIP dataset (14,000+ polities)...';
-      this.progressPercent = 30;
+      this.progressPercent = 65;
+      this.statusMessage = 'Decompressing authentic historical boundaries via JSZip...';
 
-      const response = await fetch(CLIOPATRIA_ZIP_URL);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-
-      this.progressPercent = 60;
-      this.statusMessage = 'Decompressing cliopatria.geojson via JSZip...';
-
-      const zipBuffer = await response.arrayBuffer();
-      const zip = await JSZip.loadAsync(zipBuffer);
-
-      const geojsonFile = zip.file('cliopatria.geojson') ??
-        Object.values(zip.files).find(f => !f.dir && f.name.endsWith('.geojson'));
-
-      if (!geojsonFile) {
-        throw new Error('No GeoJSON file found inside Cliopatria ZIP archive');
-      }
-
-      this.progressPercent = 85;
-      this.statusMessage = 'Parsing 14,000+ historical polity boundary features...';
-
-      const geoJsonText = await geojsonFile.async('string');
-      this.parseAndStoreGeoJson(geoJsonText);
-
-      this.saveToIndexedDB(geoJsonText).catch(() => {});
+      await this.decompressAndParseZip(zipBuffer!);
 
       this.isLoaded = true;
       this.isLoading = false;
       this.progressPercent = 100;
-      this.statusMessage = `Cliopatria Engine Ready! (${this.totalFeaturesCount.toLocaleString()} Polities Loaded)`;
+      this.statusMessage = `Cliopatria Engine Ready! (${this.totalFeaturesCount.toLocaleString()} Authentic Historical Polities Loaded)`;
 
-    } catch (error) {
-      console.warn('Cliopatria live load fallback:', error);
+    } catch (error: any) {
+      console.error('Cliopatria load failed:', error);
       this.isLoading = false;
-      this.statusMessage = 'Note: Offline mode. Preset polities active.';
+      this.statusMessage = 'Unable to load historical boundaries dataset.';
+    } finally {
+      this.loadPromise = null;
     }
+  }
+
+  private async decompressAndParseZip(zipBuffer: ArrayBuffer): Promise<void> {
+    const zip = await JSZip.loadAsync(zipBuffer);
+    const geojsonFile = zip.file('cliopatria.geojson') ??
+      Object.values(zip.files).find(f => !f.dir && f.name.endsWith('.geojson'));
+
+    if (!geojsonFile) {
+      throw new Error('No GeoJSON file found inside Cliopatria ZIP archive');
+    }
+
+    this.progressPercent = 85;
+    this.statusMessage = 'Parsing 14,000+ authentic historical boundary features...';
+
+    const geoJsonText = await geojsonFile.async('string');
+    this.parseAndStoreGeoJson(geoJsonText);
   }
 
   private parseAndStoreGeoJson(text: string): void {
@@ -160,6 +223,7 @@ export class CliopatriaEngineService {
 
   /**
    * Filter active polities for any requested year (-3400 BCE to 2024 CE)
+   * Returns authentic Cliopatria boundary polygons for that era
    */
   getFeaturesForYear(year: number): CliopatriaFeature[] {
     if (this.allFeatures.length === 0) return [];
@@ -200,7 +264,7 @@ export class CliopatriaEngineService {
     return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  // ── INDEXEDDB CACHING HELPERS ──────────────────────────────────────────
+  // ── INDEXEDDB CACHING HELPERS (ArrayBuffer Native Storage) ──────────────────
 
   private openDB(): Promise<IDBDatabase> {
     return new Promise((resolve, reject) => {
@@ -223,13 +287,13 @@ export class CliopatriaEngineService {
     });
   }
 
-  private async getFromIndexedDB(): Promise<string | null> {
+  private async getZipBufferFromIndexedDB(): Promise<ArrayBuffer | null> {
     try {
       const db = await this.openDB();
       return new Promise((resolve) => {
         const tx = db.transaction(STORE_NAME, 'readonly');
         const store = tx.objectStore(STORE_NAME);
-        const req = store.get('cliopatriaGeoJSON');
+        const req = store.get('cliopatriaZipBuffer');
 
         req.onsuccess = () => resolve(req.result || null);
         req.onerror = () => resolve(null);
@@ -239,12 +303,12 @@ export class CliopatriaEngineService {
     }
   }
 
-  private async saveToIndexedDB(text: string): Promise<void> {
+  private async saveZipBufferToIndexedDB(buffer: ArrayBuffer): Promise<void> {
     try {
       const db = await this.openDB();
       const tx = db.transaction(STORE_NAME, 'readwrite');
       const store = tx.objectStore(STORE_NAME);
-      store.put(text, 'cliopatriaGeoJSON');
+      store.put(buffer, 'cliopatriaZipBuffer');
     } catch {
       // Ignore caching errors
     }

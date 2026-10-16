@@ -1,31 +1,103 @@
 <div class="empires-page-container full-width-layout">
-  <!-- React Bits Minimalist Header Banner & Navigation Tabs -->
+  <!-- React Bits Minimalist Header Banner & Navigation Tabs (Crimson Red Stone Theme) -->
   <header class="empires-header spotlight-card">
     <div class="header-brand blur-in-text">
-      <span class="header-logo">🏛️</span>
+      <!-- Exact Celestial Concave Diamond Gemstone from Homepage -->
+      <div class="crimson-stone-logo-wrap" title="Celestial Crimson Stone Emblem">
+        <div class="stone-aura-pulse"></div>
+        <div class="home-exact-stone-disc">
+          <svg class="home-exact-stone-svg" viewBox="0 0 100 196" width="22" height="42" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="homeCrimsonGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#fda4af" />
+                <stop offset="30%" stop-color="#f43f5e" />
+                <stop offset="70%" stop-color="#e11d48" />
+                <stop offset="100%" stop-color="#9f1239" />
+              </linearGradient>
+              <linearGradient id="facetTopRight" x1="50" y1="98" x2="100" y2="49" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.65" />
+                <stop offset="100%" stop-color="#f43f5e" stop-opacity="0.1" />
+              </linearGradient>
+              <linearGradient id="facetTopLeft" x1="50" y1="98" x2="0" y2="49" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#ffffff" stop-opacity="0.9" />
+                <stop offset="100%" stop-color="#fda4af" stop-opacity="0.2" />
+              </linearGradient>
+              <linearGradient id="facetBottomLeft" x1="50" y1="98" x2="0" y2="147" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#be123c" />
+                <stop offset="100%" stop-color="#4c0519" />
+              </linearGradient>
+              <linearGradient id="facetBottomRight" x1="50" y1="98" x2="100" y2="147" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#e11d48" />
+                <stop offset="100%" stop-color="#881337" />
+              </linearGradient>
+              <filter id="homeStoneGlow" x="-50%" y="-30%" width="200%" height="160%">
+                <feDropShadow dx="0" dy="0" stdDeviation="4" flood-color="#f43f5e" flood-opacity="0.9" />
+                <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#e11d48" flood-opacity="0.6" />
+              </filter>
+            </defs>
+
+            <!-- Outer Base: The Exact Mathematical Bézier Curve from Homepage -->
+            <path 
+              d="M 50 0 C 50 78, 100 98, 100 98 C 100 98, 50 118, 50 196 C 50 118, 0 98, 0 98 C 0 98, 50 78, 50 0 Z" 
+              fill="url(#homeCrimsonGrad)" 
+              filter="url(#homeStoneGlow)"
+              stroke="#fda4af" 
+              stroke-width="1.8"
+            />
+
+            <!-- 3D Precision Facet Divisions radiating from Central Apex (50, 98) matching createConcaveDiamondGeometry in home.ts -->
+            <path d="M 50 98 L 50 0 C 50 78, 0 98, 0 98 Z" fill="url(#facetTopLeft)" />
+            <path d="M 50 98 L 50 0 C 50 78, 100 98, 100 98 Z" fill="url(#facetTopRight)" />
+            <path d="M 50 98 L 100 98 C 100 98, 50 118, 50 196 Z" fill="url(#facetBottomRight)" />
+            <path d="M 50 98 L 0 98 C 0 98, 50 118, 50 196 Z" fill="url(#facetBottomLeft)" />
+
+            <!-- Inner Concentric Concave Diamond Facet matching .gem-crystal-facet in home.html -->
+            <path 
+              d="M 50 29.4 C 50 84, 85 98, 85 98 C 85 98, 50 112, 50 166.6 C 50 112, 15 98, 15 98 C 15 98, 50 84, 50 29.4 Z" 
+              fill="rgba(255, 255, 255, 0.45)" 
+              stroke="rgba(255, 255, 255, 0.8)" 
+              stroke-width="1.2"
+            />
+
+            <!-- Specular Glint Center Ridge -->
+            <line x1="50" y1="20" x2="50" y2="176" stroke="rgba(255, 255, 255, 0.5)" stroke-width="1" stroke-linecap="round" />
+            <line x1="15" y1="98" x2="85" y2="98" stroke="rgba(255, 255, 255, 0.4)" stroke-width="1" stroke-linecap="round" />
+            <circle cx="50" cy="98" r="3" fill="#ffffff" filter="drop-shadow(0 0 4px #ffffff)" />
+          </svg>
+        </div>
+      </div>
+
       <div>
         <h1 class="header-title shiny-text">Historical Empires & Civilizations</h1>
-        <p class="header-subtitle">5,400+ Years of Historical Boundaries • Seshat Cliopatria Cartography</p>
+        <p class="header-subtitle">
+          <span>5,400+ Years of Historical Boundaries</span>
+        </p>
       </div>
     </div>
 
-    <!-- View Tabs -->
-    <div class="header-view-tabs">
-      <button class="view-tab-btn magnet-interactive" [class.active]="activeTab === 'temporal-map'" (click)="setTabMode('temporal-map')">
-        🌍 Interactive Map
-      </button>
-      <button class="view-tab-btn magnet-interactive" [class.active]="activeTab === 'old-maps'" (click)="setTabMode('old-maps')">
-        🗺️ Vintage Archival Maps
-      </button>
+    <!-- Center / Right Header Navigation Controls -->
+    <div class="header-right-controls">
+      <!-- View Tabs -->
+      <div class="header-view-tabs">
+        <button class="view-tab-btn magnet-interactive" [class.active]="activeTab === 'temporal-map'" (click)="setTabMode('temporal-map')">
+          🌍 Interactive Map
+        </button>
+        <button class="view-tab-btn magnet-interactive" [class.active]="activeTab === 'old-maps'" (click)="setTabMode('old-maps')">
+          🗺️ Vintage Archival Maps
+        </button>
+      </div>
     </div>
   </header>
 
-  <!-- Status Progress Banner (only when downloading) -->
+  <!-- Status Progress Banner (during initial decompression) -->
   <div *ngIf="cliopatriaEngine.isLoading" class="cliopatria-status-banner">
     <div class="status-banner-left">
-      <span class="status-indicator-icon">⏳</span>
-      <div>
+      <div class="status-stone-icon">
+        <span class="status-pulse-pip"></span>
+      </div>
+      <div class="status-info-col">
         <span class="status-banner-title">{{ cliopatriaEngine.statusMessage }}</span>
+        <span class="status-banner-hint">Authentic historical cartography boundaries active • {{ cliopatriaEngine.progressPercent }}%</span>
       </div>
     </div>
     <div class="banner-progress-bar-wrap">
@@ -35,76 +107,7 @@
 
   <!-- TAB 0: TEMPORAL GLOBAL WORLD MAP (-3400 BCE to 2024 CE) -->
   <ng-container *ngIf="activeTab === 'temporal-map'">
-    <!-- Year Scrubber & Control HUD -->
-    <div class="temporal-hud-card spotlight-card" reactBitsSpotlight>
-      <div class="hud-year-row">
-        <div class="hud-title-box">
-          <span class="hud-icon">⏳</span>
-          <div>
-            <span class="hud-label">Historical Epoch:</span>
-            <div class="year-display-wrap">
-              <strong class="target-year-text">
-                <react-bits-decrypted-text [text]="formattedTimelineYear" [speed]="20"></react-bits-decrypted-text>
-              </strong>
-            </div>
-          </div>
-        </div>
-
-        <div class="direct-year-input-box">
-          <label>Jump to Year:</label>
-          <input
-            type="number"
-            min="-3400"
-            max="2024"
-            [ngModel]="targetYear"
-            (ngModelChange)="setTargetYear($event)"
-            class="year-number-input"
-            placeholder="e.g. -30"
-          />
-        </div>
-      </div>
-
-      <!-- Scrubber Range Slider -->
-      <div class="slider-row">
-        <input
-          type="range"
-          min="-3400"
-          max="2024"
-          step="10"
-          [value]="targetYear"
-          (input)="onYearSliderChange($event)"
-          class="temporal-range-slider"
-        />
-        <div class="slider-ticks">
-          <span>3400 BCE</span>
-          <span>2000 BCE</span>
-          <span>1000 BCE</span>
-          <span class="highlight-tick">1 CE</span>
-          <span>500 CE</span>
-          <span>1000 CE</span>
-          <span>1500 CE</span>
-          <span>2024 CE</span>
-        </div>
-      </div>
-
-      <!-- Epoch Quick-Jump Presets -->
-      <div class="epoch-presets-row">
-        <span class="presets-lbl">⚡ Eras:</span>
-        <div class="preset-chips-wrap">
-          <button
-            *ngFor="let preset of epochPresets"
-            class="epoch-chip-btn magnet-interactive"
-            [class.active]="targetYear === preset.year"
-            (click)="jumpToEpoch(preset.year)"
-            [title]="preset.historicalContext"
-          >
-            {{ preset.label }}
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Main Map Workspace -->
+    <!-- Main Map Workspace (Top) -->
     <div class="empires-workspace-grid full-width-mode">
       <div class="empires-map-card expanded-viewport">
         <div class="map-toolbar">
@@ -130,9 +133,9 @@
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1010 666" class="empires-svg-viewport">
             <defs>
               <linearGradient id="ocean-bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#040814" />
-                <stop offset="50%" stop-color="#0b1329" />
-                <stop offset="100%" stop-color="#030712" />
+                <stop offset="0%" stop-color="#0a0307" />
+                <stop offset="50%" stop-color="#14060e" />
+                <stop offset="100%" stop-color="#060205" />
               </linearGradient>
             </defs>
 
@@ -140,12 +143,12 @@
             <rect width="1010" height="666" fill="url(#ocean-bg-grad)" />
 
             <!-- Graticule Lines -->
-            <g class="graticule-grid" stroke="rgba(56, 189, 248, 0.08)" stroke-width="0.75" stroke-dasharray="3,3">
-              <line x1="0" y1="333" x2="1010" y2="333" stroke="rgba(56, 189, 248, 0.25)" stroke-dasharray="none" />
+            <g class="graticule-grid" stroke="rgba(244, 63, 94, 0.08)" stroke-width="0.75" stroke-dasharray="3,3">
+              <line x1="0" y1="333" x2="1010" y2="333" stroke="rgba(244, 63, 94, 0.22)" stroke-dasharray="none" />
               <line x1="0" y1="166" x2="1010" y2="166" />
               <line x1="0" y1="500" x2="1010" y2="500" />
               <line x1="250" y1="0" x2="250" y2="666" />
-              <line x1="500" y1="0" x2="500" y2="666" stroke="rgba(56, 189, 248, 0.25)" stroke-dasharray="none" />
+              <line x1="500" y1="0" x2="500" y2="666" stroke="rgba(244, 63, 94, 0.22)" stroke-dasharray="none" />
               <line x1="750" y1="0" x2="750" y2="666" />
             </g>
 
@@ -169,8 +172,8 @@
                       [attr.d]="feat.svgPath"
                       [attr.fill]="getFeatureFillColor(feat)"
                       [attr.fill-opacity]="getFeatureOpacity(feat)"
-                      stroke="#1f2937"
-                      stroke-width="0.75"
+                      [attr.stroke]="getFeatureStroke(feat)"
+                      [attr.stroke-width]="getFeatureStrokeWidth(feat)"
                       (click)="selectCliopatriaFeature(feat)"
                       class="cliopatria-polygon-path"
                       [class.highlighted]="highlightedLegendName && (feat.properties.Name === highlightedLegendName || feat.properties.NAME === highlightedLegendName)">
@@ -184,7 +187,20 @@
           <div *ngIf="selectedCliopatriaFeature || selectedPolity || highlightedLegendName" class="floating-polity-telemetry-card">
             <div class="card-polity-header">
               <div class="polity-title-group">
-                <span class="header-icon-badge">🏛️</span>
+                <span class="header-icon-badge crimson-stone-pip" title="Imperial Polity">
+                  <svg viewBox="0 0 100 196" width="14" height="26" fill="none">
+                    <path 
+                      d="M 50 0 C 50 78, 100 98, 100 98 C 100 98, 50 118, 50 196 C 50 118, 0 98, 0 98 C 0 98, 50 78, 50 0 Z" 
+                      fill="#f43f5e" 
+                      stroke="#fda4af" 
+                      stroke-width="2"
+                    />
+                    <path 
+                      d="M 50 29.4 C 50 84, 85 98, 85 98 C 85 98, 50 112, 50 166.6 C 50 112, 15 98, 15 98 C 15 98, 50 84, 50 29.4 Z" 
+                      fill="rgba(255, 255, 255, 0.45)" 
+                    />
+                  </svg>
+                </span>
                 <div>
                   <h3 class="polity-card-name">
                     {{ highlightedLegendName || selectedCliopatriaFeature?.properties?.Name || selectedPolity?.name || 'Selected Polity' }}
@@ -257,6 +273,97 @@
         </div>
       </div>
     </div>
+
+    <!-- BELOW THE MAP: Historical Era & Timeline Scrubber Console -->
+    <div class="temporal-hud-card below-map-console spotlight-card" reactBitsSpotlight>
+      <!-- Top Row: Era Identity & Active Year Readout -->
+      <div class="hud-era-header-row">
+        <div class="hud-era-identity">
+          <div class="era-icon-badge">
+            <span class="era-glow-stone">⌛</span>
+          </div>
+          <div class="era-titles-wrap">
+            <div class="era-pill-row">
+              <span class="era-category-badge" [style.background]="currentEraInfo.color + '26'" [style.borderColor]="currentEraInfo.color" [style.color]="currentEraInfo.color">
+                {{ currentEraInfo.badge }}
+              </span>
+              <span class="era-period-span">{{ currentEraInfo.period }}</span>
+            </div>
+            <h2 class="active-era-title">{{ currentEraInfo.name }}</h2>
+            <p class="active-era-subtitle">{{ currentEraInfo.subtitle }}</p>
+          </div>
+        </div>
+
+        <div class="hud-year-controls">
+          <div class="year-readout-wrap">
+            <span class="year-readout-lbl">Target Year:</span>
+            <strong class="target-year-display">
+              <react-bits-decrypted-text [text]="formattedTimelineYear" [speed]="20"></react-bits-decrypted-text>
+            </strong>
+          </div>
+
+          <div class="direct-year-input-box">
+            <label for="directYearInput">Jump Year:</label>
+            <input
+              id="directYearInput"
+              type="number"
+              min="-3400"
+              max="2024"
+              [ngModel]="targetYear"
+              (ngModelChange)="setTargetYear($event)"
+              class="year-number-input"
+              placeholder="e.g. -30"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Mathematically Accurate Scrubber Slider & Ticks -->
+      <div class="slider-row precision-timeline-row">
+        <div class="slider-track-wrap">
+          <input
+            type="range"
+            min="-3400"
+            max="2024"
+            step="10"
+            [value]="targetYear"
+            (input)="onYearSliderChange($event)"
+            class="temporal-range-slider"
+            [style.--progress-pct.%]="sliderProgressPercent"
+          />
+        </div>
+
+        <!-- Absolutely Positioned Accurate Tick Marks (Aligns 100% with slider thumb) -->
+        <div class="slider-ticks-container">
+          <div *ngFor="let tick of timelineTicks"
+               class="slider-tick-mark"
+               [class.milestone]="tick.isMilestone"
+               [class.active]="Math.abs(targetYear - tick.year) < 150"
+               [style.left.%]="getTickLeftPercent(tick.year)"
+               (click)="setTargetYear(tick.year)"
+               [title]="'Jump to ' + tick.label">
+            <div class="tick-line"></div>
+            <span class="tick-label">{{ tick.label }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Epoch Quick-Jump Presets Below Slider -->
+      <div class="epoch-presets-row">
+        <span class="presets-lbl">⚡ Quick Eras:</span>
+        <div class="preset-chips-wrap">
+          <button
+            *ngFor="let preset of epochPresets"
+            class="epoch-chip-btn magnet-interactive"
+            [class.active]="targetYear === preset.year"
+            (click)="jumpToEpoch(preset.year)"
+            [title]="preset.historicalContext"
+          >
+            {{ preset.label }}
+          </button>
+        </div>
+      </div>
+    </div>
   </ng-container>
 
   <!-- TAB 1: VINTAGE ARCHIVAL MAPS -->
@@ -284,7 +391,7 @@
           </div>
           <div class="map-card-info">
             <h4 class="map-title">{{ mapItem.title }}</h4>
-            <span class="map-publisher">🏛️ {{ mapItem.publisher }}</span>
+            <span class="map-publisher"><span class="publisher-stone-dot"></span> {{ mapItem.publisher }}</span>
             <div class="map-actions-row">
               <button class="map-inspect-btn" (click)="$event.stopPropagation(); openMapDetail(mapItem)">
                 🔎 Inspect High-Res JPG

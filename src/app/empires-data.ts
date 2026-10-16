@@ -441,7 +441,7 @@ export const HISTORICAL_EMPIRES: HistoricalEmpire[] = [
     capitalCoords: { cx: 805, cy: 235, lat: 34.34, lng: 108.94 },
     peakAreaSqKm: '6,000,000 km²',
     flagEmoji: '🐉',
-    color: '#e11d48',
+    color: '#eab308',
     countryCodes: ['cn', 'vn', 'kp', 'kr', 'mn'],
     summary: 'Golden age in Chinese history that established Silk Road trade and Confucian civil service examinations.',
     keyAchievements: [
@@ -462,7 +462,7 @@ export const HISTORICAL_EMPIRES: HistoricalEmpire[] = [
     capitalCoords: { cx: 805, cy: 235, lat: 34.34, lng: 108.94 },
     peakAreaSqKm: '5,400,000 km²',
     flagEmoji: '🏮',
-    color: '#c026d3',
+    color: '#10b981',
     countryCodes: ['cn', 'mn', 'vn', 'kz', 'uz', 'kg'],
     summary: 'High point in Chinese poetry, art, and woodblock printing with Chang’an as the world’s most populous city.',
     keyAchievements: [
@@ -483,7 +483,7 @@ export const HISTORICAL_EMPIRES: HistoricalEmpire[] = [
     capitalCoords: { cx: 820, cy: 220, lat: 39.90, lng: 116.40 },
     peakAreaSqKm: '6,500,000 km²',
     flagEmoji: '🏯',
-    color: '#f43f5e',
+    color: '#f59e0b',
     countryCodes: ['cn', 'vn', 'mn'],
     summary: 'Renowned for constructing the Forbidden City, major brick restoration of the Great Wall, and Admiral Zheng He’s treasure fleet voyages.',
     keyAchievements: [

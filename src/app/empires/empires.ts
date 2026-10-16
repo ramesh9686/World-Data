@@ -81,6 +81,7 @@ export class EmpiresComponent implements OnInit {
   isPanning: boolean = false;
   startPanX: number = 0;
   startPanY: number = 0;
+  readonly Math = Math;
 
   constructor(
     private cdr: ChangeDetectorRef,
@@ -106,9 +107,11 @@ export class EmpiresComponent implements OnInit {
       this.cdr.markForCheck();
     });
 
-    // Initialize Cliopatria 14,000+ ZIP Dataset download & decompression
+    // Initialize Cliopatria 14,000+ authentic historical polygons
     this.cliopatriaEngine.loadCliopatriaDataset().then(() => {
       this.refreshCliopatriaFeatures();
+      this.legendRegions = this.cliopatriaEngine.getLegendRegionsForYear(this.targetYear);
+      this.cdr.markForCheck();
     });
 
     // Initialize Year -30 (30 BCE) Temporal Map State
@@ -118,6 +121,75 @@ export class EmpiresComponent implements OnInit {
       this.selectEmpire('roman-empire');
     }
     this.updateComparisonRenders();
+  }
+
+  readonly timelineTicks = [
+    { year: -3400, label: '3400 BCE', isMilestone: false },
+    { year: -2500, label: '2500 BCE', isMilestone: false },
+    { year: -1000, label: '1000 BCE', isMilestone: false },
+    { year: -500, label: '500 BCE', isMilestone: false },
+    { year: 1, label: '1 CE', isMilestone: true },
+    { year: 500, label: '500 CE', isMilestone: false },
+    { year: 1000, label: '1000 CE', isMilestone: false },
+    { year: 1500, label: '1500 CE', isMilestone: false },
+    { year: 2024, label: '2024 CE', isMilestone: false }
+  ];
+
+  getTickLeftPercent(year: number): number {
+    const min = -3400;
+    const max = 2024;
+    return ((year - min) / (max - min)) * 100;
+  }
+
+  get sliderProgressPercent(): number {
+    const min = -3400;
+    const max = 2024;
+    return Math.max(0, Math.min(100, ((this.targetYear - min) / (max - min)) * 100));
+  }
+
+  get currentEraInfo(): { name: string; subtitle: string; period: string; badge: string; color: string } {
+    const y = this.targetYear;
+    if (y < -500) {
+      return {
+        name: 'Ancient & Bronze Age Era',
+        subtitle: 'Pyramids of Giza, Indus Valley Cities, Babylonian Law & Early Empires',
+        period: '3400 BCE – 500 BCE',
+        badge: '🏺 Bronze Age',
+        color: '#d97706'
+      };
+    } else if (y <= 500) {
+      return {
+        name: 'Classical Antiquity',
+        subtitle: 'Pax Romana, Han Dynasty Silk Road, Mauryan Empire & Persian Superpowers',
+        period: '500 BCE – 500 CE',
+        badge: '🏛️ Classical Era',
+        color: '#dc2626'
+      };
+    } else if (y <= 1450) {
+      return {
+        name: 'Medieval & Post-Classical Era',
+        subtitle: 'Byzantine Empire, Tang & Song Dynasties, Islamic Golden Age & Mongol Hegemony',
+        period: '500 CE – 1450 CE',
+        badge: '⚔️ Medieval Era',
+        color: '#8b5cf6'
+      };
+    } else if (y <= 1800) {
+      return {
+        name: 'Early Modern Era',
+        subtitle: 'Ottoman Hegemony, Ming & Qing Dynasties, Mughal India, & Global Maritime Age',
+        period: '1450 CE – 1800 CE',
+        badge: '⛵ Age of Discovery',
+        color: '#0d9488'
+      };
+    } else {
+      return {
+        name: 'Modern & Industrial Era',
+        subtitle: 'Industrial Revolution, Global Nation-States & Contemporary Geopolitics',
+        period: '1800 CE – 2024 CE',
+        badge: '⚡ Modern World',
+        color: '#3b82f6'
+      };
+    }
   }
 
   get formattedTimelineYear(): string {
@@ -339,18 +411,32 @@ export class EmpiresComponent implements OnInit {
 
   getFeatureFillColor(feat: CliopatriaFeature): string {
     const name = feat.properties?.Name || feat.properties?.NAME || 'Unknown';
-    if (this.highlightedLegendName && name === this.highlightedLegendName) {
-      return '#ffd700'; // Gold highlight
-    }
+    // Always preserve and return each empire's unique differentiated color
     return feat.computedColor || this.cliopatriaEngine.getColorForName(name);
   }
 
   getFeatureOpacity(feat: CliopatriaFeature): number {
     const name = feat.properties?.Name || feat.properties?.NAME || 'Unknown';
     if (this.highlightedLegendName) {
-      return name === this.highlightedLegendName ? 0.95 : 0.25;
+      return name === this.highlightedLegendName ? 0.95 : 0.65;
     }
-    return 0.6;
+    return 0.8;
+  }
+
+  getFeatureStroke(feat: CliopatriaFeature): string {
+    const name = feat.properties?.Name || feat.properties?.NAME || 'Unknown';
+    if (this.highlightedLegendName && name === this.highlightedLegendName) {
+      return '#ffffff';
+    }
+    return 'rgba(0, 0, 0, 0.45)';
+  }
+
+  getFeatureStrokeWidth(feat: CliopatriaFeature): number {
+    const name = feat.properties?.Name || feat.properties?.NAME || 'Unknown';
+    if (this.highlightedLegendName && name === this.highlightedLegendName) {
+      return 2.4;
+    }
+    return 0.8;
   }
 
   selectEmpire(empireId: string): void {
@@ -408,15 +494,15 @@ export class EmpiresComponent implements OnInit {
     
     if (this.activeTab === 'temporal-map') {
       if (this.temporalCountryColorMap.has(lowerId)) {
-        return this.temporalCountryColorMap.get(lowerId) || '#f59e0b';
+        return this.temporalCountryColorMap.get(lowerId) || '#3b82f6';
       }
-      return 'rgba(30, 41, 59, 0.45)';
+      return 'rgba(24, 7, 16, 0.45)';
     }
 
     if (this.isCountryShaded(pathId) && this.selectedEmpire) {
-      return this.selectedEmpire.color || '#f59e0b';
+      return this.selectedEmpire.color || '#3b82f6';
     }
-    return 'rgba(30, 41, 59, 0.45)';
+    return 'rgba(24, 7, 16, 0.45)';
   }
 
   getCountryOpacity(pathId: string): number {
@@ -424,7 +510,7 @@ export class EmpiresComponent implements OnInit {
   }
 
   getCountryStroke(pathId: string): string {
-    return this.isCountryShaded(pathId) ? '#ffd700' : 'rgba(255, 255, 255, 0.12)';
+    return this.isCountryShaded(pathId) ? '#ffffff' : 'rgba(255, 255, 255, 0.12)';
   }
 
   getCountryStrokeWidth(pathId: string): number {
