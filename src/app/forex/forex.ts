@@ -37,12 +37,13 @@ export interface TickerPair {
   isNeg: boolean;
 }
 
-import { CountUpComponent, SpotlightDirective } from '../shared/react-bits';
+import { RouterLink } from '@angular/router';
+import { CountUpComponent, SpotlightDirective, DecryptedTextComponent } from '../shared/react-bits';
 
 @Component({
   selector: 'app-forex',
   standalone: true,
-  imports: [CommonModule, FormsModule, CountUpComponent, SpotlightDirective],
+  imports: [CommonModule, FormsModule, RouterLink, DecryptedTextComponent, CountUpComponent, SpotlightDirective],
   templateUrl: './forex.html',
   styleUrl: './forex.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -1,29 +1,44 @@
 /* ==========================================================================
-   GLOBAL FOREX & CURRENCY TELEMETRY MATRIX COMPONENT STYLES
+   GLOBAL FOREX & CURRENCY TELEMETRY MATRIX - AMBER GOLD CELESTIAL STONE CSS
    ========================================================================== */
+
+:root {
+  --stone-amber-glow: 0 0 24px rgba(245, 158, 11, 0.45);
+  --stone-amber-border: 1px solid rgba(245, 158, 11, 0.35);
+  --stone-amber-gradient: linear-gradient(135deg, #f59e0b, #d97706);
+  --amber-primary: #f59e0b;
+  --amber-accent: #fbbf24;
+  --amber-bright: #fef08a;
+  --amber-dark: #b45309;
+  --amber-obsidian: rgba(24, 16, 4, 0.94);
+}
 
 .forex-page-container {
   min-height: 100vh;
   padding: 1.5rem 2rem 4rem;
-  background: radial-gradient(circle at 50% 0%, #0d1527 0%, #030712 80%);
+  background: 
+    radial-gradient(circle at 12% 8%, rgba(245, 158, 11, 0.08) 0%, transparent 45%),
+    radial-gradient(circle at 88% 92%, rgba(217, 119, 6, 0.06) 0%, transparent 50%),
+    radial-gradient(circle at 50% 0%, #1a1205 0%, #030712 80%);
   color: #f8fafc;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   box-sizing: border-box;
+  position: relative;
 }
 
 /* ── Live Forex Ticker Marquee Bar ───────────────────────────────────── */
 .forex-ticker-marquee {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  border-radius: 12px;
-  padding: 0.6rem 1.25rem;
+  background: rgba(20, 14, 4, 0.88);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 9999px;
+  padding: 0.55rem 1.35rem;
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  margin-bottom: 1.75rem;
+  margin-bottom: 1.5rem;
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), 0 0 16px rgba(245, 158, 11, 0.12);
   overflow: hidden;
 }
 
@@ -31,10 +46,10 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.75rem;
   font-weight: 900;
-  color: #38bdf8;
+  color: #fbbf24;
   letter-spacing: 0.08em;
   white-space: nowrap;
   flex-shrink: 0;
@@ -44,14 +59,14 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #10b981;
-  box-shadow: 0 0 10px #10b981;
+  background: #f59e0b;
+  box-shadow: 0 0 10px #f59e0b;
   animation: ticker-pulse 1.8s ease-in-out infinite;
 }
 
 .pulse-dot.syncing {
-  background: #38bdf8;
-  box-shadow: 0 0 12px #38bdf8;
+  background: #fde047;
+  box-shadow: 0 0 12px #fde047;
   animation: ticker-pulse 0.6s ease-in-out infinite;
 }
 
@@ -78,7 +93,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-family: monospace;
+  font-family: 'JetBrains Mono', monospace;
   font-size: 0.82rem;
   white-space: nowrap;
 }
@@ -105,13 +120,13 @@
 .trend.neu { color: #94a3b8; background: rgba(148, 163, 184, 0.15); }
 
 .audio-toggle-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  color: #38bdf8;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
   font-size: 0.75rem;
   font-weight: 800;
-  padding: 0.35rem 0.75rem;
-  border-radius: 8px;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
@@ -119,54 +134,162 @@
 }
 
 .audio-toggle-btn:hover {
-  background: rgba(56, 189, 248, 0.2);
-  border-color: #38bdf8;
+  background: rgba(245, 158, 11, 0.25);
+  border-color: #fbbf24;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.4);
 }
 
 .audio-toggle-btn.muted {
   color: #94a3b8;
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 
-/* ── Page Header Hero & Rate Sync HUD ────────────────────────────────── */
+/* ── Page Header Hero (Amber Gold Celestial Stone Luxury Template) ─────── */
 .forex-header-hero {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
+  gap: 1.5rem;
   margin-bottom: 2rem;
   flex-wrap: wrap;
+  background: linear-gradient(135deg, rgba(24, 16, 4, 0.95), rgba(34, 22, 6, 0.9));
+  border: 1px solid rgba(245, 158, 11, 0.38);
+  border-radius: 24px;
+  padding: 1.35rem 2rem;
+  box-shadow: 
+    inset 0 1px 1px rgba(255, 255, 255, 0.2),
+    0 16px 45px rgba(0, 0, 0, 0.75),
+    0 0 24px rgba(245, 158, 11, 0.16);
+  backdrop-filter: blur(24px) saturate(190%);
+  position: relative;
+  overflow: hidden;
+}
+
+.forex-header-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #fef08a, #fbbf24, #f59e0b, #b45309, transparent);
+  opacity: 0.85;
+}
+
+.header-brand-group {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+/* Amber Gold Stone Emblem Logo (Exact Homepage Concave Diamond Gemstone) */
+.stone-logo-anchor {
+  position: relative;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.stone-aura-pulse {
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.55) 0%, rgba(217, 119, 6, 0.22) 50%, transparent 75%);
+  animation: stoneAuraPulse 3.2s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+@keyframes stoneAuraPulse {
+  0% { transform: scale(0.9); opacity: 0.55; filter: blur(5px); }
+  100% { transform: scale(1.22); opacity: 0.95; filter: blur(9px); }
+}
+
+.home-exact-stone-disc {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(24, 16, 4, 0.88);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.75),
+    0 0 20px rgba(245, 158, 11, 0.4),
+    inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(12px);
+  transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stone-logo-anchor:hover .home-exact-stone-disc {
+  transform: scale(1.12);
+  border-color: rgba(253, 224, 71, 0.85);
+  box-shadow: 
+    0 12px 32px rgba(0, 0, 0, 0.85),
+    0 0 30px rgba(245, 158, 11, 0.75),
+    inset 0 1px 1px rgba(255, 255, 255, 0.45);
+}
+
+.home-exact-stone-svg {
+  width: 22px;
+  height: 42px;
+  filter: drop-shadow(0 0 8px #f59e0b) drop-shadow(0 0 14px rgba(245, 158, 11, 0.7));
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), filter 0.28s ease;
+}
+
+.stone-logo-anchor:hover .home-exact-stone-svg {
+  transform: scale(1.1);
+  filter: drop-shadow(0 0 12px #fbbf24) drop-shadow(0 0 22px rgba(245, 158, 11, 0.95));
+}
+
+.hero-titles-col {
+  display: flex;
+  flex-direction: column;
 }
 
 .hero-title {
-  font-size: 2.2rem;
+  font-size: 1.85rem;
   font-weight: 900;
-  margin: 0 0 0.5rem;
-  background: linear-gradient(135deg, #f8fafc 0%, #38bdf8 50%, #818cf8 100%);
+  margin: 0;
+  background: linear-gradient(135deg, #ffffff 0%, #fef08a 25%, #fde047 50%, #f59e0b 80%, #d97706 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   letter-spacing: -0.02em;
+  filter: drop-shadow(0 2px 10px rgba(245, 158, 11, 0.35));
 }
 
 .hero-subtitle {
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   color: #94a3b8;
-  margin: 0;
-  max-width: 620px;
-  line-height: 1.5;
+  margin: 0.3rem 0 0 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.header-sep {
+  color: rgba(245, 158, 11, 0.5);
 }
 
 /* Telemetry Sync HUD */
 .telemetry-sync-hud {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.3);
-  border-radius: 16px;
-  padding: 1rem 1.25rem;
+  background: rgba(24, 16, 4, 0.88);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 18px;
+  padding: 0.9rem 1.25rem;
   backdrop-filter: blur(16px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(245, 158, 11, 0.1);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .sync-top-row {
@@ -179,8 +302,9 @@
 .sync-label {
   font-size: 0.68rem;
   font-weight: 900;
-  color: #38bdf8;
+  color: #fbbf24;
   letter-spacing: 0.06em;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .interval-options {
@@ -189,8 +313,8 @@
 }
 
 .int-btn {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.2);
   color: #cbd5e1;
   font-size: 0.72rem;
   font-weight: 800;
@@ -201,23 +325,23 @@
 }
 
 .int-btn:hover {
-  background: rgba(56, 189, 248, 0.2);
-  color: #38bdf8;
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border-color: #fbbf24;
 }
 
 .int-btn.active {
-  background: #38bdf8;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
   color: #030712;
   font-weight: 900;
-  border-color: #38bdf8;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+  border-color: #fbbf24;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
 }
 
 .sync-bottom-row {
   display: flex;
   align-items: center;
   gap: 1rem;
-
   font-size: 0.75rem;
   color: #94a3b8;
 }
@@ -229,20 +353,20 @@
   background: rgba(0, 0, 0, 0.4);
   padding: 0.3rem 0.65rem;
   border-radius: 6px;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.15);
+}
 
-  strong {
-    color: #38bdf8;
-    font-family: monospace;
-  }
+.countdown-badge strong, .last-sync-badge strong {
+  color: #fbbf24;
+  font-family: 'JetBrains Mono', monospace;
 }
 
 .manual-sync-btn {
-  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
-  border: 1px solid #38bdf8;
-  color: #ffffff;
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  border: 1px solid #fbbf24;
+  color: #030712;
   font-size: 0.75rem;
-  font-weight: 800;
+  font-weight: 900;
   padding: 0.35rem 0.85rem;
   border-radius: 8px;
   cursor: pointer;
@@ -250,13 +374,13 @@
   align-items: center;
   gap: 0.4rem;
   transition: all 0.2s ease;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+  box-shadow: 0 0 12px rgba(245, 158, 11, 0.35);
 }
 
 .manual-sync-btn:hover {
-  background: #38bdf8;
+  background: #fbbf24;
   color: #030712;
-  box-shadow: 0 0 18px rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 18px rgba(245, 158, 11, 0.6);
 }
 
 .sync-icon.spin {
@@ -285,13 +409,13 @@
 
 /* Dual-Deck Exchanger Card */
 .converter-card {
-  background: rgba(15, 23, 42, 0.88);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: rgba(20, 14, 4, 0.88);
+  border: 1px solid rgba(245, 158, 11, 0.35);
   border-radius: 18px;
   padding: 1.5rem;
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 0 24px rgba(245, 158, 11, 0.1);
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -315,9 +439,9 @@
   font-family: monospace;
   font-size: 0.75rem;
   font-weight: 800;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
   padding: 0.25rem 0.6rem;
   border-radius: 6px;
 }
@@ -345,7 +469,7 @@
   gap: 0.5rem;
 
   &.from-deck {
-    border-left: 4px solid #38bdf8;
+    border-left: 4px solid #f59e0b;
   }
 
   &.to-deck {
@@ -370,7 +494,7 @@
   font-family: monospace;
   font-size: 1.1rem;
   font-weight: 900;
-  color: #38bdf8;
+  color: #fbbf24;
 }
 
 .deck-symbol-badge.target-col {
@@ -404,7 +528,7 @@
   left: 0.85rem;
   font-size: 1.15rem;
   font-weight: 900;
-  color: #38bdf8;
+  color: #fbbf24;
 }
 
 .symbol-prefix.target-col {
@@ -434,8 +558,8 @@
 }
 
 .deck-select {
-  background: rgba(15, 23, 42, 0.9);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(24, 16, 4, 0.9);
+  border: 1px solid rgba(245, 158, 11, 0.3);
   border-radius: 10px;
   padding: 0.65rem 0.75rem;
   color: #ffffff;
@@ -455,23 +579,24 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: #38bdf8;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
   color: #030712;
-  border: 3px solid #0f172a;
+  border: 3px solid #1a1205;
   font-size: 1.2rem;
   font-weight: 900;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.6);
   z-index: 10;
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 .swap-deck-btn:hover {
   transform: translate(-50%, -50%) rotate(180deg) scale(1.15);
-  background: #f8fafc;
+  background: #fbbf24;
+  box-shadow: 0 0 20px rgba(251, 191, 36, 0.85);
 }
 
 .rate-formula-bar {
@@ -500,8 +625,8 @@
 }
 
 .preset-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.2);
   color: #cbd5e1;
   font-family: monospace;
   font-size: 0.75rem;
@@ -513,28 +638,28 @@
 }
 
 .preset-btn:hover {
-  background: rgba(56, 189, 248, 0.2);
-  color: #38bdf8;
-  border-color: rgba(56, 189, 248, 0.4);
+  background: rgba(245, 158, 11, 0.2);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
 }
 
 .preset-btn.active {
-  background: #38bdf8;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
   color: #030712;
   font-weight: 900;
-  border-color: #38bdf8;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+  border-color: #fbbf24;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
 }
 
 
 /* Cross-Rate Matrix Card */
 .cross-matrix-card {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(20, 14, 4, 0.85);
+  border: 1px solid rgba(245, 158, 11, 0.25);
   border-radius: 18px;
   padding: 1.5rem;
   backdrop-filter: blur(20px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(245, 158, 11, 0.08);
   overflow: hidden;
 }
 
@@ -556,13 +681,13 @@
   }
 
   th {
-    background: rgba(30, 41, 59, 0.8);
-    color: #38bdf8;
+    background: rgba(36, 24, 6, 0.85);
+    color: #fbbf24;
     font-weight: 800;
   }
 
   td.row-header {
-    background: rgba(30, 41, 59, 0.6);
+    background: rgba(36, 24, 6, 0.6);
     color: #f8fafc;
     text-align: left;
   }
@@ -596,8 +721,8 @@
   justify-content: space-between;
   gap: 1rem;
   flex-wrap: wrap;
-  background: rgba(15, 23, 42, 0.75);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(20, 14, 4, 0.82);
+  border: 1px solid rgba(245, 158, 11, 0.25);
   padding: 0.85rem 1.25rem;
   border-radius: 16px;
   backdrop-filter: blur(16px);
@@ -631,7 +756,8 @@
 }
 
 .search-input:focus {
-  border-color: #38bdf8;
+  border-color: #f59e0b;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.35);
 }
 
 .clear-search-btn {
@@ -663,15 +789,15 @@
 }
 
 .region-pill:hover {
-  background: rgba(56, 189, 248, 0.15);
-  color: #38bdf8;
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
 }
 
 .region-pill.active {
-  background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(129, 140, 248, 0.3));
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.3));
   color: #ffffff;
-  border-color: #38bdf8;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+  border-color: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.35);
 }
 
 .view-sort-controls {
@@ -714,10 +840,10 @@
 }
 
 .v-btn.active {
-  background: #38bdf8;
+  background: linear-gradient(135deg, #f59e0b, #d97706);
   color: #030712;
   font-weight: 900;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
 }
 
 .results-banner {
@@ -727,7 +853,7 @@
 }
 
 .results-banner strong {
-  color: #38bdf8;
+  color: #fbbf24;
 }
 
 
@@ -739,8 +865,8 @@
 }
 
 .forex-card {
-  background: rgba(15, 23, 42, 0.82);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(20, 14, 4, 0.82);
+  border: 1px solid rgba(245, 158, 11, 0.18);
   border-radius: 16px;
   padding: 1.15rem;
   backdrop-filter: blur(16px);
@@ -758,7 +884,7 @@
   bottom: -20px;
   font-size: 7rem;
   font-weight: 900;
-  color: rgba(56, 189, 248, 0.04);
+  color: rgba(245, 158, 11, 0.04);
   pointer-events: none;
   user-select: none;
   line-height: 1;
@@ -767,18 +893,18 @@
 
 .forex-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(56, 189, 248, 0.4);
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 20px rgba(56, 189, 248, 0.15);
+  border-color: rgba(245, 158, 11, 0.45);
+  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.7), 0 0 20px rgba(245, 158, 11, 0.2);
 }
 
 .forex-card:hover .symbol-watermark {
-  color: rgba(56, 189, 248, 0.08);
+  color: rgba(245, 158, 11, 0.08);
 }
 
 .forex-card.is-base {
-  border-color: #38bdf8;
-  background: rgba(14, 165, 233, 0.12);
-  box-shadow: 0 0 24px rgba(56, 189, 248, 0.25);
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.12);
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.25);
 }
 
 .card-top-row {
@@ -816,17 +942,17 @@
   font-family: monospace;
   font-size: 0.8rem;
   font-weight: 900;
-  color: #38bdf8;
-  background: rgba(56, 189, 248, 0.15);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  color: #fbbf24;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.35);
   padding: 0.2rem 0.55rem;
   border-radius: 6px;
 }
 
 .base-badge-style {
-  background: #38bdf8;
+  background: #f59e0b;
   color: #030712;
-  border-color: #38bdf8;
+  border-color: #f59e0b;
 }
 
 .card-mid-row {
@@ -862,7 +988,7 @@
   .lbl-small {
     font-size: 0.65rem;
     font-weight: 800;
-    color: #38bdf8;
+    color: #fbbf24;
     letter-spacing: 0.05em;
     display: block;
     margin-bottom: 0.15rem;
@@ -870,7 +996,7 @@
   }
 
   .sym {
-    color: #38bdf8;
+    color: #fbbf24;
     margin-right: 0.15rem;
   }
 }
@@ -916,9 +1042,9 @@
 }
 
 .set-base-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  color: #38bdf8;
+  background: rgba(245, 158, 11, 0.12);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
   font-size: 0.7rem;
   font-weight: 800;
   padding: 0.25rem 0.55rem;
@@ -928,10 +1054,10 @@
 }
 
 .set-base-btn:hover {
-  background: #38bdf8;
+  background: #f59e0b;
   color: #030712;
-  border-color: #38bdf8;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.4);
+  border-color: #f59e0b;
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.45);
 }
 
 .set-base-btn.small {
@@ -942,8 +1068,8 @@
 
 /* ── VIEW MODE 2: FOREX ORBIT RING VIEW ──────────────────────────────── */
 .forex-orbit-container {
-  background: rgba(8, 14, 28, 0.85);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  background: rgba(16, 10, 2, 0.88);
+  border: 1px solid rgba(245, 158, 11, 0.3);
   border-radius: 20px;
   padding: 3rem 2rem 2rem;
   backdrop-filter: blur(24px);
@@ -952,7 +1078,7 @@
   align-items: center;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 24px rgba(245, 158, 11, 0.1);
 }
 
 .orbit-visualizer-box {
@@ -971,9 +1097,9 @@
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  background: radial-gradient(circle, #38bdf8 0%, #1e1b4b 100%);
-  border: 3px solid #60a5fa;
-  box-shadow: 0 0 40px rgba(56, 189, 248, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.5);
+  background: radial-gradient(circle, #fbbf24 0%, #78350f 100%);
+  border: 3px solid #fde047;
+  box-shadow: 0 0 40px rgba(245, 158, 11, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.5);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -983,8 +1109,8 @@
 }
 
 @keyframes sun-pulse {
-  from { box-shadow: 0 0 30px rgba(56, 189, 248, 0.6); }
-  to { box-shadow: 0 0 50px rgba(56, 189, 248, 0.9); }
+  from { box-shadow: 0 0 30px rgba(245, 158, 11, 0.6); }
+  to { box-shadow: 0 0 50px rgba(245, 158, 11, 0.95); }
 }
 
 .sun-symbol {
@@ -998,14 +1124,14 @@
 .sun-code {
   font-size: 0.75rem;
   font-weight: 900;
-  color: #bfdbfe;
+  color: #fef08a;
   letter-spacing: 0.05em;
 }
 
 .sun-amount {
   font-family: monospace;
   font-size: 0.7rem;
-  color: #e0f2fe;
+  color: #fef9c3;
 }
 
 /* Orbital Rings */
@@ -1018,13 +1144,13 @@
 .orbit-ring.ring-1 {
   width: 280px;
   height: 280px;
-  border: 1px dashed rgba(56, 189, 248, 0.25);
+  border: 1px dashed rgba(245, 158, 11, 0.3);
 }
 
 .orbit-ring.ring-2 {
   width: 420px;
   height: 420px;
-  border: 1px solid rgba(129, 140, 248, 0.2);
+  border: 1px solid rgba(217, 119, 6, 0.25);
 }
 
 .orbit-ring.ring-3 {
@@ -1051,9 +1177,9 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  background: rgba(15, 23, 42, 0.9);
-  border: 2px solid #38bdf8;
-  box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
+  background: rgba(24, 16, 4, 0.9);
+  border: 2px solid #f59e0b;
+  box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1076,11 +1202,11 @@
   font-family: monospace;
   font-size: 0.72rem;
   font-weight: 900;
-  color: #38bdf8;
+  color: #fbbf24;
 }
 
 .satellite-node:hover .sat-symbol {
-  color: #fbbf24;
+  color: #fef08a;
 }
 
 /* Tooltip on Orbit Satellite Hover */
@@ -1089,8 +1215,8 @@
   top: 60px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(3, 7, 18, 0.95);
-  border: 1px solid rgba(56, 189, 248, 0.4);
+  background: rgba(16, 10, 2, 0.95);
+  border: 1px solid rgba(245, 158, 11, 0.4);
   border-radius: 8px;
   padding: 0.5rem 0.75rem;
   display: flex;
@@ -1136,8 +1262,8 @@
 
 /* ── VIEW MODE 3: TELEMETRY TABLE VIEW ───────────────────────────────── */
 .forex-table-container {
-  background: rgba(15, 23, 42, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(20, 14, 4, 0.85);
+  border: 1px solid rgba(245, 158, 11, 0.25);
   border-radius: 16px;
   overflow-x: auto;
   backdrop-filter: blur(16px);
@@ -1156,8 +1282,8 @@
   }
 
   th {
-    background: rgba(30, 41, 59, 0.8);
-    color: #38bdf8;
+    background: rgba(36, 24, 6, 0.85);
+    color: #fbbf24;
     font-weight: 800;
     text-transform: uppercase;
     font-size: 0.7rem;
@@ -1165,11 +1291,11 @@
   }
 
   tr:hover {
-    background: rgba(56, 189, 248, 0.05);
+    background: rgba(245, 158, 11, 0.06);
   }
 
   tr.is-base-row {
-    background: rgba(56, 189, 248, 0.12);
+    background: rgba(245, 158, 11, 0.15);
   }
 
   .country-cell {
@@ -1186,8 +1312,8 @@
   .code-pill {
     font-family: monospace;
     font-weight: 900;
-    color: #38bdf8;
-    background: rgba(56, 189, 248, 0.15);
+    color: #fbbf24;
+    background: rgba(245, 158, 11, 0.15);
     padding: 0.15rem 0.45rem;
     border-radius: 4px;
   }
@@ -1215,6 +1341,6 @@
   .converted-cell {
     font-family: monospace;
     font-size: 0.95rem;
-    color: #38bdf8;
+    color: #fbbf24;
   }
 }
