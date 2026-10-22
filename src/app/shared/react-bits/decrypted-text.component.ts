@@ -6,10 +6,8 @@ import { CommonModule } from '@angular/common';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <span class="decrypted-text-root" [class.animating]="isAnimating">
-      <span *ngFor="let char of displayChars; let i = index" class="char-span" [class.revealed]="revealedIndices.has(i)">
-        {{ char }}
-      </span>
+    <span class="decrypted-text-root">
+      {{ text }}
     </span>
   `,
   styles: [`
@@ -21,19 +19,7 @@ import { CommonModule } from '@angular/common';
       display: inline-flex;
       flex-wrap: wrap;
       white-space: pre-wrap;
-    }
-    .char-span {
-      display: inline-block;
-      transition: color 0.15s ease, text-shadow 0.15s ease;
-    }
-    .char-span:not(.revealed) {
-      color: var(--accent-neon, #00f2fe);
-      opacity: 0.85;
-      text-shadow: 0 0 8px rgba(0, 242, 254, 0.7);
-    }
-    .char-span.revealed {
       color: inherit;
-      opacity: 1;
     }
   `]
 })
@@ -68,39 +54,7 @@ export class DecryptedTextComponent implements OnInit, OnChanges, OnDestroy {
     if (this.timer) {
       clearInterval(this.timer);
     }
-
-    const target = this.text || '';
-    const targetChars = Array.from(target);
-    this.displayChars = targetChars.map(c => (c === ' ' ? ' ' : this.getRandomChar()));
-    this.revealedIndices.clear();
-    this.isAnimating = true;
-
-    let step = 0;
-    const totalSteps = targetChars.length + this.maxIterations;
-
-    this.timer = setInterval(() => {
-      step++;
-      const revealCount = Math.floor((step / totalSteps) * targetChars.length);
-
-      for (let i = 0; i < targetChars.length; i++) {
-        if (i < revealCount || targetChars[i] === ' ') {
-          this.displayChars[i] = targetChars[i];
-          this.revealedIndices.add(i);
-        } else {
-          this.displayChars[i] = this.getRandomChar();
-        }
-      }
-
-      if (this.revealedIndices.size >= targetChars.length || step >= totalSteps * 1.5) {
-        this.displayChars = Array.from(target);
-        for (let i = 0; i < targetChars.length; i++) this.revealedIndices.add(i);
-        this.isAnimating = false;
-        clearInterval(this.timer);
-      }
-    }, this.speed);
-  }
-
-  private getRandomChar(): string {
-    return this.characters[Math.floor(Math.random() * this.characters.length)];
+    this.displayChars = Array.from(this.text || '');
+    this.isAnimating = false;
   }
 }
