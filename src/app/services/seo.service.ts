@@ -23,10 +23,10 @@ export class SeoService {
 
   private routeSeoMap: { [key: string]: RouteSeoConfig } = {
     '/home': {
-      title: 'Atlas — 3D Earth Globe & Interactive GIS Telemetry',
+      title: 'World Explorer — 3D Earth Globe & Interactive GIS Telemetry',
       description: 'Explore a photorealistic 3D WebGL Earth globe with day/night modes, real-time spatial telemetry, global country discovery, and interactive GIS modules.',
-      keywords: 'Atlas, 3D Earth Globe, WebGL Earth, Interactive 3D World Map, GIS Explorer, Telemetry Suite, Photorealistic Globe',
-      ogTitle: 'Atlas — Photorealistic 3D Earth Globe & GIS Suite',
+      keywords: 'World Explorer, 3D Earth Globe, WebGL Earth, Interactive 3D World Map, GIS Explorer, Telemetry Suite, Photorealistic Globe',
+      ogTitle: 'World Explorer — Photorealistic 3D Earth Globe & GIS Suite',
       ogDescription: 'Interactive 3D WebGL Earth globe with real-time planetary rendering and spatial telemetry.',
       schemaType: 'WebApplication'
     },
@@ -148,10 +148,10 @@ export class SeoService {
     this.metaService.updateTag({ name: 'description', content: config.description });
     this.metaService.updateTag({ name: 'keywords', content: config.keywords });
     this.metaService.updateTag({ name: 'robots', content: 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1' });
-    this.metaService.updateTag({ name: 'author', content: 'Atlas Team' });
+    this.metaService.updateTag({ name: 'author', content: 'World Explorer Team' });
 
     // 3. Open Graph Tags
-    this.metaService.updateTag({ property: 'og:site_name', content: 'Atlas' });
+    this.metaService.updateTag({ property: 'og:site_name', content: 'World Explorer' });
     this.metaService.updateTag({ property: 'og:type', content: 'website' });
     this.metaService.updateTag({ property: 'og:locale', content: 'en_US' });
     this.metaService.updateTag({ property: 'og:title', content: config.ogTitle || config.title });
